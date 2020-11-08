@@ -1,0 +1,52 @@
+通用头部字段：
+    Cache-Control：控制客户端缓存；
+    Connection：客户端和服务端的连接模式；
+    Date：创建报文的日期时间
+    Via：代理服务器的相关信息
+    Upgrade：与服务器协商升级为其他协议
+    Warning：错误警告信息
+    Transfer-Encoding：指定报文主体的传输编码方式；
+
+实体表头：
+    Allow：资源可支持的HTTP方法
+    Content-Encoding：实体主体适用的编码方式；
+    Contnt-Language：实体主体的自然语言类型；
+    Content-Length：实体主体的大小(单位为字节)
+    Content-Location：替代对于资源的URI；
+    Content-MD5：实体主体的报文摘要
+    Content-Range：实体主体的位置范围；
+    Content-Type：实体主体的媒体类型
+    Expires：实体主体过期的日期时间
+    Last-Modified：资源最后的修改日期时间
+
+请求首部字段：
+    Host：请求资源所在的服务器地址，域名或者ip
+    User-Agent：HTTP客户端程序的信息
+    Refer：表示当前请求链接是从哪个请求跳转过来的
+    Accept：用户代理(客户端)可以处理的媒体类型
+    Accept-Charset：客户端允许接受的字符集
+    Accept-Encoding：客户端允许接受的字符编码
+    Accept-Language：客户端允许接受的语言(自然语言)
+    If-Modified-Since：比较资源的更新时间
+    If-Unmodified-Since:比较资源的更新时间，和If-Modified-Since相反
+    Authorization：Web认证信息
+    Except：期待服务器的特定行为
+    From：用户的电子邮箱地址
+    If-None-Match：比较实体标记
+    If-Range：资源未更新时发送实体Byte的范围请求
+    Max-Forwards：最大传输逐跳数
+    Proxy-Authorization：代理服务器要求客户端的认证信息
+    Range：实体的字节范围请求
+    TE：传输编码的优先级
+
+响应首部字段：
+    Server：HTTP服务器的信息，比如apache/nginx；
+    Location：令客户端重定向至指定的URI；发生301或者302跳转时会在该字段携带新的URI地址信息；
+    Age：推算资源创建经过时间
+    Accept-Ranges：是否接受字节范围请求；
+    ETage：资源的匹配信息
+    Proxy-Authenticate：代理服务器读客户端的认证信息
+    Retry-After：对再次发起请求的时机要求；
+    Vary：代理服务器缓存的管理信息
+    WWW-Authenticate：服务器对客户端的认证信息
+   

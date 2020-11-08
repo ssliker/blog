@@ -1,0 +1,51 @@
+WEB服务器与客户端的交互模式：
+    WEB服务器与客户端采用请求-响应的模式进行交互；即只能由客户端向服务端发起请求，并由服务端对该请求做出响应；
+    HTTP协议规定了客户端向服务端发送请求时的内容以及格式称为请求体、规定了服务端向客户端返回响应的内容以及格式称为响应体；
+
+请求体和响应体：
+    请求体：
+        1：基本结构：
+            四部分组成：请求行、请求头、空行、请求体，具体结构如下：
+            
+            请求行：方法 路径 协议版本  回车符换行符
+            请求头：头部字段名称: 头部字段值  回车符换行符
+                            .
+                            .
+                            .
+                    头部字段名称: 空格 头部字段值 回车符换行符
+            空行：  回车符换行符
+            请求体：请求数据实体
+
+        2：示例：
+            GET / HTTP/1.1
+            Host: abc.example.com
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+            Upgrade-Insecure-Requests: 1
+                    .
+                    .
+                    .
+            Accept-Language: zh-CN,zh;q=0.8,en;q=0.6
+    响应体：
+        1：基本结构：
+            由四部分组成：状态行、响应头、空行、响应体
+
+            状态行：版本 状态码 状态码描述 回车符换行符
+            响应头：头部字段名称: 头部字段值    回车符换行符
+                                .
+                                .
+                                .
+                头部字段名称: 头部字段值    回车换行符
+            空行：  回车符换行符
+            响应体：响应实体
+
+        2：示例：
+            HTTP/1.1 200 OK
+            Date: Wed, 28 Aug 2019 10:00:36 GMT
+            Content-Length: 83
+            Etag: "9a004e3af77761d40db0588d89618da8b44c7f62"
+            Content-Type: application/json; charset=UTF-8
+            Server: TornadoServer/4.3
+            
+            <html>
+                ...
+            </html>

@@ -1,0 +1,27 @@
+1.配置
+    1.全局配置：
+        1.配置用户名：
+            git config --global user.name 'username'
+        2.配置邮箱：
+            git config --global user.email 'yser@email.com'
+    2.单个仓库配置：
+        1.配置用户名：
+            git config user.name 'username'
+        2.配置邮箱：
+            git config user.email 'yser@email.com'
+    3.配置查看：
+        1.查看所有配置信息：
+            git config --list
+        2.查询全局用户名和邮箱配置信息：
+            git config --global --list
+            git config --global user.name
+            git config --global user.email
+        3.查看当前仓库用户名和邮箱配置信息：
+            git config user.name 
+            git config user.email
+
+2.创建git仓库：
+    1.创建git版本管理环境：
+        git init
+        当前目录将会成为一个空的工作区，并且工作区中会有一个隐藏的.git目录，为版本库，除此之外，git还会自动创建一个虚拟的暂存区；
+    

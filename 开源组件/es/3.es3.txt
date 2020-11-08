@@ -1,0 +1,32 @@
+1.文档增删改查
+2.检索
+    1.通过id检索：
+        query:
+            /index/type/id
+    2.全文检索:
+        query:
+            /index/type/?q=content
+        dsl:
+            {
+                "query":{
+                    "multi_match":{
+                        "query":content,
+                        "fields":["_all"]
+                    }
+                }
+            }
+    3.单个term检索:
+        query:
+            /index/type/?q=field:content
+            /index/type/?q=content&df=field
+        dsl:
+            {
+                "query":{
+                    "multi_match":{
+                        "query":content,
+                        "fields":[field]
+                    }
+                }
+            }
+    4.多个term检索：
+    5.

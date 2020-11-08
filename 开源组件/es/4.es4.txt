@@ -1,0 +1,124 @@
+dsl:
+1.简单查询
+    1.等值查询：
+        {
+            "query":
+            {
+                "term":{
+                    "user_nmae":"tom"
+                }
+            }
+        }
+
+        {
+            "query":
+            {
+                "terms":{
+                    "user_nmae":["tom","to2"]
+                }
+            }
+        }
+    2.范围查询：
+        {
+            "query":
+            {
+                "range":{
+                    "user_age":{
+                        "gte":10,  # 包含左侧
+                        "lte":20   # 包含右侧
+                    }
+                }
+            }
+        }
+
+        {
+            "query":
+            {
+                "range":{
+                    "user_age":{
+                        "gt":10,  # 不包含左侧
+                        "lt":20   # 不包含右侧
+                    }
+                }
+            }
+        }
+    3.存在性检测：
+        {
+            "query":
+            {
+                "exists":{
+                    "field":"tom"  # 检测字段是否存在，返回有该子段的数据
+                }
+            }
+        }
+    4.ids检索：
+        {
+            "query":
+            {
+                "ids":{
+                    "values":[1,2]   # 按照指定id查询
+                }
+            }
+        }
+    5.前缀查询：
+        {
+            "query":
+            {
+                "prefix":{
+                    "user_nmae":"影"    # 待查前缀只能设置1个字符
+                 }
+            }
+        }
+    6.通配符查询：
+        {
+            "query":
+            {
+                "wildcard":{
+                    "user_nmae":"tom*"
+                }
+            }
+        }
+复杂查询：
+    1.查询所有内容:
+        {
+            "query":
+            {
+                "match_all":{}    # 查询所有内容
+            }
+        }
+        {
+                "query":
+                {
+                    "match_none":{}    # 不查询任何内容
+                }
+            }
+    2.单字段匹配，分词：
+        {
+            "query":
+            {
+                "match":{
+                    "user_nmae":"影响"
+                }
+            }
+        }
+    3.单字段匹配，不分词：
+        {
+            "query":
+            {
+                "match_phrase":{
+                    "user_nmae":"影响"
+                }
+            }
+        }
+    4.多字段匹配，分词：
+        {
+            "query":
+            {
+                "multi_match":{
+                    "query":"影响",
+                    "fields":["user_nmae^100","user_intr"]
+                }
+            }
+        }
+组合查询：bool查询
+  

@@ -1,0 +1,237 @@
+1.关于maven:
+    专用于java项目的构建工具，主要完成两个方面的功能：
+        1.用来管理项目依赖的jar包；
+        2.自动完成项目打包和构建；
+
+2.maven管理项目的方式：
+    1.maven通过pom.xml来配置项目的依赖、父子关系、构建目标等，并通过提供的生命周期命令来构建项目；
+    2.pom是指项目对象模型，是一个xml文件；
+
+3.关于依赖管理：
+    1.默认情况下是需要手动将jar包复制到项目中，才能使用jar包；缺点在于：
+        1.每次创建项目都需要手动将jar包复制中，比较繁琐；
+        2.多个项目中存在多个jar包，导致jar包比较臃肿；
+        3.jar包之间的依赖关系需要手动管理，容易出现jar包缺失以及版本冲突的问题；
+
+    2.使用maven时，maven有仓库的概念，只需要设置jar包在仓库的坐标即可，有以下优点：
+        1.简化jar包引用，只需要在pom.xml中配置jar包的坐标即可；
+        2.多个项目可以共享同一个jar包，避免反复复制jar包；
+        3.自动管理jar包依赖关系，避免jar包缺失和版本冲突；
+        4.支持父子继承关系，统一jar包版本，方便项目开发；
+
+4.关于项目构建：
+    1.没有使用自动构建工具时需要手动划分目录结构，手动执行清理、编译等构建过程；比较繁琐
+    2.使用maven之后，maven提供了一套完整的项目构建生命周期，能够很方便的进行项目的编译打包；
+
+5.maven的安装和配置：
+    1.下载：https://maven.apache.org/download.cgi
+    2.解压至目录
+    3.配置环境变量，在Path路径中添加G:\respostry\maven\apache-maven-3.5.4\bin;
+
+6.maven项目目录结构：
+    在maven项目中，项目的目录结构是约定好的，不能改变，即约定大于配置；
+    1.项目根目录
+        |--pom.xml：进行项目管理的配置文件；包括项目的坐标、项目的父子关系、依赖、构建目标等信息；
+        |--项目名.iml
+        |--src
+            |--main:主目录
+                |--java：java源文件
+                |--resources：配置文件(xml、properties、yml)
+            |--test:测试目录
+                |--java：java源文件
+                |--resource：测试资源文件
+
+7.maven中的几种操作：
+    1.清理(clean)：
+        1.清理命令；删除之前编译的结果，为下一次编译做准备；
+        2.会清理掉项目目录下target目录及其子目录；
+    2.验证(validate)：
+        1.验证命令；验证工程是否正确，所需要的项目信息是否完整；
+    3.编译(compile)：
+        1.编译命令；将java源文件编译为字节码文件；
+        2.会在项目目录下生成一个targe目录,并创建classes目录，放置源文件编译之后的结果；
+        3.编译命令仅仅只是进行源码编译和生成目录的创建工作，并不会进行打包；
+    4.打包(package)：
+        1.打包命令；编译并打包；
+        2.会先使用compile编译源文件；然后创建jar包；生成的源文件会放在项目目录/target/classes下，生成的jar包会放在项目目录/target/下
+        3.package命令并不会将打好的jar包发布到仓库中；
+        4.打包时有三种选择：war、jar、pom；可以在pom.xml中通过<packaging>jar|war|pom</packaging>来配置打包形式，jar一般适应于java项目，war包一般适应于web项目，pom适应于父项目；
+    5.安装(install)：
+        1.先进行打包流程，然后将打好的包发布到maven仓库中；
+        2.默认是发布到本地仓库；
+
+    6.核实(verify)：检验package是否有效符合标准；
+    7.测试(test):对项目的关键节点进行测试，保证项目在迭代开发过程中关键节点的正确性；
+    8.部署(deploy)：将war包部署搭配tomcat中；
+
+8.maven的pom.xml文件：
+    1.xml格式：<?xml version="1.0" encoding="UTF-8"?>
+    2.所有的配置标签都要放置在<project></project>标签中；
+    3.项目坐标-gav:
+        <groupId>sslike.com</groupId>
+        <artifactId>mavenpro</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        1.上述三个标签页称为项目的坐标；除此之外还会配置其他两种标签：
+            1.<type>：手动指定当前依赖的类型，默认为jar，也可以为war或者pom；
+            2.<scope>：定义依赖的作用范围：默认范围是compile，也可以取值为test、runtime、provided、system、import；
+                compile：表示当前依赖会参与项目的编译、测试、运行，打包时也会打进对应的包
+                test：表示当前依赖仅参与测试相关的内容，包括测试用的编译和执行；典型的比如junit；
+                runtime：表示当前依赖仅参与运行阶段，比如一些驱动程序一般不会用到；典型的比如jdbc相关类库，在编译时仅依赖相关接口；
+                provided：表示该依赖不参与打包过程，运行时需要的api由运行时环境提供，比如servletAPI等；主要是为了解决编译时的语法需求，但是运行时又其他容器提供的场景；
+                system：使用上跟provided基本相同；表示当前依赖不从maven仓库中获取；而是从本地文件系统中获取；
+                import：只在dependencyManagement中使用；解决maven单继承的问题；
+        2.被依赖的项目坐标必须放在dependencies中：
+            <dependencies>
+                <dependency>
+                    <groupId>项目groupId</groupId>
+                    <artifactId>模块</artifactId>
+                    <version>版本号</version>
+                </dependency>
+            </dependencies>
+    4.当前项目的打包形式：<package>pom|jar|war</package>
+    5.定义属性：<properties></properties>,通常可以在属性标签中定义一系列具体的属性值，比如版本号，然后在需要的地方通过${属性名}引用即可；如下示例：
+        <properties>
+            <pro.version>版本号</pro.version>
+        </properties>
+        在dependency中使用时以如下方式使用：
+        <dependencies>
+            <dependency>
+                <groupId></groupId>
+                <artifactId></artifactId>
+                <version>${pro.version}</version>
+            </dependency>
+        </dependencies>
+
+9.依赖传递原则：
+    1.关于依赖传递，maven会自动管理依赖的依赖；即依赖a又依赖于b，那么项目只需要配置依赖a的坐标即可，maven会自动添加依赖b的坐标，这种特性称为依赖传递；
+    2.依赖传递的原则：依赖传递跟scope有关，只会传递compile范围的依赖；即A依赖B，B依赖C，如果B依赖C时指定的scope不是compile的话，依赖C是不会传递给A的；
+    3.依赖排除：通过依赖排除可以禁止间接依赖的项目被依赖，比如A依赖B，B依赖C，A只想使用B依赖，不希望依赖C，此时可以通过在依赖B的配置中通过<exclusions></exclusions>来排除：
+        <dependencies>
+            <dependency>
+                <groupId>项目groupId</groupId>
+                <artifactId>模块</artifactId>
+                <version>版本号</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId></groupId>
+                        <artifactId></artifactId>
+                    </exclusion>
+                </exclusion>
+            </dependency>
+        </dependencies>
+
+10.依赖原则：
+    1.就近原则：即路径最短者优先；示例：
+        pro->pro2->pro1
+        pro->pro3->pro4->pro1
+        对于pro1依赖会使用pro2->pro1这条路线的pro1;
+
+    2.声明者优先：如果路径相同，那么按照声明顺序引入依赖：
+        pro->pro2->pro1
+        pro->pro3->pro1
+        pro2的依赖声明的更早，所以会使用pro2->pro1这条路线的依赖；
+    3.依赖查找顺序：依赖会先从本地仓库中查找，如果本地仓库没有，将会从远程仓库中查找，然后下载到本地仓库；
+
+11.项目父子关系：
+    1.关于父子项目：
+        1.父子项目通常不是项目之间的代码有继承关系，而是指通过父项目统一管理子项目的依赖；包装不同子项目中的依赖更加统一，管理更加方便；
+        2.父项目打包时通常都需要打包为pom；即<package>pom</package>
+    
+    2.对于父项目：
+        1.一个项目下还有子项目，那么该项目就是一个父项目，父项目的作用通常只是用来管理多个子项目的依赖；父项目通常不会有src目录，只有pom.xml和项目名.iml文件；
+        2.父项目中通过dependencyManagment来声明一个项目需要的依赖：
+            <dependencyManagment>
+                <dependencies>
+                    <dependency>
+                        <groupId></groupId>
+                        <artifactId></artifactId>
+                        <version></version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagment>
+        3.版本号通常也会直接定义在<properties></properties>中，方便对版本号进行管理；
+            <properties>
+                <pro.version>版本号</pro.version>
+            </properties>
+            在dependency中使用时以如下方式使用：
+            <dependencies>
+                <dependency>
+                    <groupId></groupId>
+                    <artifactId></artifactId>
+                    <version>${pro.version}</version>
+                </dependency>
+            </dependencies>
+        4.对于子项目可以通过<parent></parent>来声明其父项目；
+            <parent>
+                <groupId>域名</groupId>
+                <artifactId>父项目名称</artifactId>
+                <version>父项目版本号</version>
+                <relativePath>当前子项目相对于父项目pom的路径</relativePath>
+            </parent>
+            子项目通常和父项目由相同的groupId,所以子项目本身通常不用再声明groupId;
+
+        5.注意点：
+            1.父项目中的dependencyManagment中声明的依赖并不会实际导入；在父项目中声明之后子项目如果需要使用某个依赖，还是需要通过dependency来声明：
+                <dependencies>
+                    <dependency>
+                        <groupId></groupId>
+                        <artifactId></artifactId>
+                        // 不需要在声明版本号，会一直沿着继承链查找父项目中的依赖版本；
+                    </dependency>
+                </dependencies>
+                如果在子项目中又单独声明了版本号，那么将会依赖声明的版本，否则将使用父项目中的版本；
+            2.父项目也可以有自己的父项目，实现多重继承；
+    
+关于maven仓库：
+    1.maven分为两种仓库：本地仓库和远程仓库，区别在于是：本地仓库无需通过网络访问，就在本地文件系统；远程仓库需要通过网络访问；而所谓仓库本质上就是一个存放包的目录
+    2.关于本地仓库：
+        1.默认情况下的本地仓库在C:\Users\Administrator.USER-20181220ZV\.m2\repository位置；
+        2.自定义本地仓库位置需要编辑maven安装目录/conf/settings.xml/settings标签/localRepository中填写即可
+    3.关于远程仓库：
+        1.私服仓库：自己搭建的maven仓库
+        2.中央仓库：公共的maven远程仓库
+    4.maven查找依赖的路径：
+        1.本地仓库->远程仓库
+        2.如果远程仓库能够下载到相应的依赖包，将会把依赖包添加到本地仓库
+    5.设置远程仓库地址：
+        通过修改mmaven/settings配置文件：
+            <mirror>
+                <id>aliyun</id>
+                <mirrorOf>central</mirrorOf>
+                <name>aliyun res</name>
+                <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            </mirror>
+    
+关于maven的生命周期：
+    1.maven核心定义了三套互相独立的生命周期，生命周期中各个阶段的具体任务是插件来完成的；无论执行生命周期的那一段，都会从生命周期的最开始位置开始执行；
+    2.maven的三套生命周期分别是：
+        clean lifycycle：用来在项目构建之前执行一些清理工作；
+            1.pre-clena：清理之前做的工作
+            2.clean：执行清理工作
+            3.post-clean：执行完清理工作之后的一些事情
+        default lifeCycle：用来进行项目构建的核心部分，包括编译、测试、打包、安装、部署等，是最重要的一部分；
+            vaildate->compile->test->package->verify->install->deploy
+        site lifeCycle：用于生成项目报告、生成一个站点、发布站点；
+            pre-site
+            site
+            post-site
+            site-deploy：部署
+
+
+//今日计划：(3)
+    1.maven
+    2.springBoot
+    3.springMVC
+    4.计算机网络复习
+    5.tomcat
+
+//明日计划(4)
+    1.spring cloud
+    2.项目打包发布
+    3.mybatis
+    4.redis、zookeeper、rocketmq的api使用
+
+//后天计划(5)
+    1.java编程技巧
+    2.java常用api复习
+    3.java类库学习
