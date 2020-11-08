@@ -1,0 +1,333 @@
+1.关于字符串类型：
+    1.java中基本数据类型并不支持字符串类型，仅支持字符类型；但是提供String、StringBuilder、StringBuffer类来表示字符串类型；
+    2.String表示一个具体的字符串，StringBuffer和StringBuilder表示一个字符串容器；
+    3.无论是String还是StringBuffer还是StringBuilder，本质上都是通过一个字符数组来存储字符串内容的；
+
+2.关于String：
+    1.String字符串特征：
+        1.String内部使用一个字符数组存储字符串中的每一个字符，内部存储字符串内容的字符数组长度和字符串字符个数完全相同，因此String本质上表示的是一个具体的字符串；
+        2.String类是一个不可变类，并且存储字符串内容的字符数组是一个不可变数组，String类内部也没有提供对存储字符串内容的字符数组修改的方法，String类内部也不依赖其他可变类；因此由String类创建的字符串是一个不可变对象，可安全的用于多线程环境；
+        3.String对象虽然是不可变对象，但是String类内部也是提供了对String进行修改的方法，只是这些对String修改的方法都是通过新创建一个String对象进行操作的；因此程序中要特别注意，每次对String修改都会创建一个新的String对象；
+        4.String类继承自CharSequence接口，属于字符序列类型的一种；
+
+    2.关于String类型的创建：
+        1.创建空的String:
+            String str = new String();
+    
+        2.创建被指定字符串初始化的String：
+            String str = new String("tmpString");
+            String str = "tmpString";
+        
+        3.通过字节数组创建String:
+            String str = new String(byte[] bytes);    // 通过本地字符编码创建字符串
+            String str = new String(byte[] bytes,"UTF-8");    // 通过指定字符编码创建字符串
+        
+        4.通过字符数组创建String:
+            String str = new String(char[] chars)
+            备注：
+                1.内部通过拷贝字符数组内容实现String创建；
+        
+        5.通过StringBuffer创建String:
+            String str = new String(StringBuffer sb)
+            备注：
+                1.内部通过拷贝字符数组内容实现String创建；
+        
+        6.通过StringBuilder创建String:
+            String str = new String(StringBuilder sb)
+            备注：
+                1.内部通过拷贝字符数组内容实现String创建；
+        
+        7.通过其他CharSquenece创建String:
+            String str = new String(CharSequence cs)
+            备注：
+                1.内部通过拷贝字符数组内容实现String创建；
+    
+    3.String类提供的对String操作的方法：
+        1.获取长度：
+            str.length();
+            备注：
+                1.空白字符以及控制字符也会当做正常字符串字符；
+        
+        2.检测字符串是否为空：
+            str.isEmpty();
+            备注：
+                1.上述方法是通过检测字符串中字符个数是否为0实现的检测；
+                2.空白字符以及控制字符也会当做正常字符串字符；
+        
+        3.获取指定位置字符：
+            str.charAt(int index);
+            备注：
+                1.返回指定位置字符；
+                2.注意index不能越界，否则将会报越界异常；
+        
+        4.返回字符在字符串中首次出现的位置：
+            str.indexOf(char c)
+            str.indexOf(char c, int index)
+            备注：
+                1.位置计数从0开始；
+                2.index如果超过字符串长度，将会返回-1，不会报告异常；如果index为负值，则会忽略index;
+        
+        5.返回字符串在字符串中首次出现的位置：
+            str.indexOf(String str)
+            str.indexOf(String str, int index)
+            备注：
+                1.位置计数从0开始；
+                2.index如果超过字符串长度，将会返回-1，不会报告异常；如果index为负值，则会忽略index;
+        
+        6.返回字符在字符串中末次出现的位置：
+            str.lastIndexOf(char c)
+            str.lastIndexOf(char c, int index)
+            备注：
+                1.位置计数从0开始；
+                2.index如果超过字符串长度，将会返回-1，不会报告异常；如果index为负值，则会忽略index;
+
+        7.返回字符在字符串中末次出现的位置：
+            str.lastIndexOf(String str)
+            str.lastIndexOf(String str, int index)
+            备注：
+                1.位置计数从0开始；
+                2.index如果超过字符串长度，将会返回-1，不会报告异常；如果index为负值，则会忽略index;
+        8.截取字符串：
+            /*从起始位置beginIndex截取至字符串结尾*/
+            string.substring(int beginIndex);
+            /*从beginIndex截取至endIndex*/
+            string.substring(int beginIndex, int endIndex); 
+            备注：
+                1.截取操作等同于使用String(char value[],int offset,int count)重新创建String对象，并返回新创建的String对象引用；
+                2.如果beginIndex为0，且没设置endIndex的话，直接返回原字符串引用；
+        
+        9.连接字符串：
+            1.str.concat(String str1):
+            备注：
+                1.该操作会重新创建一个String字符串，并将原字符串和新连接的字符串一并拷贝到新的String中；
+            2.str+str1:
+            备注：
+                1.该操作在JDK1.5版本之后，会先将String转换为StringBuilder，然后调用StringBuilder的append方法将待追加的str追加至前置的字符串中；
+                2.类似此种+连接的方式常见一下类型：
+                    1.两个字面量相连接："str"+"str1"    等同于直接定义的"strstr1"的字面量;
+                    2.字面量和变量相连接："str"+str1    等同于使用字面量"str"和变量str1新创建一个String对象；
+                    3.两个变量相连接：str+str1    等同于使用str和str1新创建一个String对象；
+        
+        10.替换字符串中的字符：
+            str.replace(char cAim, char cReplace);
+            备注:
+                1.该操作将会全部替换caim为cReplace;
+                
+            str.replace(Charsequence strAim, CharSequence strReplace);
+            备注：
+                1.该操作将会全部替换strAim为strReplace;
+
+            str.replaceAll(String strAim, String strReplace);
+            备注：
+                1.该操作将会全部替换strAim为strReplace;
+                2.相比replace()方法，该方法语义更加明确；
+
+            str.replaceFirst(String strAim, String strReplace);
+            备注：
+                1.该操作只会将首个strAim替换为strReplace;
+        11.转换大小写：
+            string.toUpperCase()
+            string.toLowerCase()
+        
+        12.获取字符数组：
+            string.toCharArray()
+            备注：
+                1.该操作并非直接返回String对象的value属性值，而是会通过拷贝的方式新创建字符数组；
+
+        13.获取字节数组：
+            string.getBytes()
+            备注：
+                1.该操作并非直接返回String对象的value属性值，而是会通过拷贝的方式新创建字节数组；
+                2.默认使用ISO-8859-1字符编码，也可以手动指定字符编码，推荐实际使用时手动指定字符编码；
+
+        14.清理字符串两侧空格：
+            string.trim()
+            备注：
+                1.该操作通过调用substring方法实现，并且仅去除空白字符，如空格；
+                2.由于其通过substring实现，因此当没有空白字符需要被剔除时，将会返回原字符串引用，如果有空白字符需要被剔除时返回新的String字符串引用；
+        15.分隔字符串为子字符串：
+            String[] string.split(String regex)
+            String[] string.split(String regex, int limit)
+        
+        16.合并String、StringBuufer、StringBuilder为字符串：
+            String.join(CharSequence delimiter,Iterable<? extends CharSequence> elements)
+            String.join(CharSequence delimiter, CharSequence... elements)
+            说明：该操作通过StringBuilder的append方法实现；
+
+        17.检测字符串是否以指定子串开头：
+            string.startsWith(String prefix)
+            string.startsWith(String prefix, int offset)
+
+        18.检测字符串是否以指定子串结尾：
+            string.endsWith(String suffix)
+            string.endsWith(String suffix, int offset)
+        
+        19.检测两个字符串对象是否相等：
+            string.equals(Object anObject);     
+            说明：
+                1.anObject必须是String类型的对象；否则将会报错；
+                2.String重写了equals方法，只比较两个字符串序列是否相同，相同即返回true，否则返回false，禁止使用==或者!=进行等值比较，==或者!=比较的是两个String对象的地址是否相同；
+                3.此种方式确定是否相等时会严格区分大小写，避免区分大小写可以使用：string.equalsIgnoreCase(String anotherString)；
+                4.如果在String和StringBuffer、StringBuilder检测是否相等时需要使用：string.contentEquals(charSequence cs)方法；
+        
+        20.比较两个字符串大小(字符序列在字符集中的码值大小)：
+            string.compareTo(String anotherString)
+            说明：
+                1.如果当前字符串较大，返回大于0的数，相等返回0，小于返回负数；
+                2.此种比较方式会严格区分大小写比较，如果需要忽略大小写比较可以使用：string.compareToIgnoreCase()；
+                3.禁止使用>、>=、<、<=进行比较；
+            
+        21.将其他基本数据类型值转换为String对象：
+            String.valueOf(otherType otherValue);    
+            说明：
+                1.otherVlue不能为null，否则将会报异常；
+        
+        22.关于jdk提供的String操作需要特别注意以下几点：
+            1.这些处理方法都是实例方法，在实际调用之前一定要判断该调用该方法的String对象是否为null，避免发生空指针异常；
+            2.传入的索引参数一定不能越界，必须先检查后传入，避免发生越界异常；
+            3.传入的引用类型参数必须先检查是否为null，如果为null无需再执行相关方法，避免报空指针异常；
+            4.特别关注字符串连接、截取、比较等操作的实现细节；
+            5.尽量使用字符串处理工具类处理字符串，除非在某些场景下不允许使用第三方字符串处理库；
+
+    4.关于使用StringUtils处理String字符串：(org.apache.commons.lang)
+
+
+3.StringBuffer和StringBuilder：
+    1.关于StringBuffer和StringBuilder：
+        1.StringBuffer和StringBuilder本质上仍然是通过字符数组来存储一个字符串的值，但与String不同的是，SrtingBuffer和StringBuilder中的字符数组长度通常会大于等于字符串的字符个数；
+        2.StringBuffer和StringBuilder并非不可变对象，修改StringBuffer和StringBuilder类型的对象，本质上都是直接修改其内部的字符数组，并不会新建一个对象；
+        3.对于StringBuffer和StringBuilder的追加都是直接将字符追加至其内部的字符数组中，因此当字符数组长度不足时将会进行扩容；
+        4.StringBuffer和StringBuilder都表示一个字符串容器，继承自同一个父类，并且其中大多数方法都是由同一个父类实现，但是StringBuffer所有的修改方法都被synchronized修饰，是一个同步方法，线程安全；StringBuilder则并未被synchronized修饰，因此并非线程安全；
+        5.在实际应用中，如果线程间无需共享字符串容器，没有线程安全问题时推荐使用StringBuilder，效率更高；如果需要在多线程间共享字符串容器，有线程安全问题时推荐使用StringBuffer，能够保证线程安全；
+    2.关于StringBuffer和StringBuilder创建字符串：(以StringBuffer为例)
+        1.创建字符数组初始容量为默认容量值，值为空的StringBuffer对象：
+            构造方法：
+                public StringBuffer()
+            示例：
+                StringBuffer strbuff = new StringBuffer();
+            说明：
+                1.此种方式默认创建一个字符数组容量为16，字符数组内容为空的StringBuffer对象；
+        2.创建字符数组初始容量为指定容量大小，值为空的StringBuffer对象：
+            构造方法：
+                public StringBuffer(int capacity)
+            示例：
+                StringBuffer strbuff = new StringBuffer(32);
+            说明：
+                创建一个字符数组容量为32，字符数组内容为空的StringBuffer对象；   
+        3.创建值为指定字符串字面量，且初始容量为字符串长度+16的StringBuffer对象；
+            构造方法：
+                public StringBuffer(String str)
+            示例：
+                StringBuffer strbuff = new StringBuffer("str");
+            说明：
+                创建一个容量为19，值为str的StringBuffer对象； 
+        4.创建值为其他CharSequence类型，且初始容量为CharSequence长度+16的StringBuffer对象；
+            构造方法：
+                public StringBuffer(CharSequence seq)
+            示例：
+                StringBuffer strbuff = new StringBuffer(new String("str"));
+            说明：
+                1.创建一个容量为19，值为str的StringBuffer对象；
+                2.String类、StringBuffer、StringBuilder类均继承自CharSequence;        
+
+    3.StringBuffer扩容算法：
+        1.概述：由于StringBuffer对于字符串内容的追加和修改都是基于其内部的字符数组实现的，但是内部字符数组长度有限，当长度不足时将会触发扩容；
+        2.扩容流程：
+            1.当调用StringBuffer的append()方法时会先检测当前字符串字符个数是否超过字符数组的长度，如果超过则需要扩容；检测代码在AbstractStringBuilder中定义：
+                private void ensureCapacityInternal(int minimumCapacity) {
+                    // overflow-conscious code
+                    if (minimumCapacity - value.length > 0)
+                        //字符数组长度无法容纳追加之后的字符串，则需要扩容
+                        expandCapacity(minimumCapacity);
+                }
+
+            2.具体扩容方法在AbstractStringBuilder中定义，代码如下：
+                void expandCapacity(int minimumCapacity) {
+                    //先将当前字符数组容量扩大为原来的2倍
+                    int newCapacity = value.length * 2 + 2;
+
+                    //判断扩容之后的数组长度是否能够存储新的字符串
+                    if (newCapacity - minimumCapacity < 0)
+                        //如果不能容纳新字符串，则将新字符串的长度作为扩容后的长度
+                        newCapacity = minimumCapacity;
+                    
+                    
+                    if (newCapacity < 0) {
+                        //如果扩容后的值小于0，且所需要的字符数组长度小于0则报错
+                        if (minimumCapacity < 0) // overflow
+                            throw new OutOfMemoryError();
+                        //否则将新容量设置为Integer中MAX_VALUE值
+                        newCapacity = Integer.MAX_VALUE;
+                    }
+                    //创建新的字符数组，并将旧值拷贝到新的数组中；
+                    value = Arrays.copyOf(value, newCapacity);
+                }
+            3.关于扩容：
+                1.由于扩容会涉及到内存分配、数组内容拷贝等操作，会对程序效率带来影响，因此在实际使用时，如果能够确定最终的字符串长度，可以在创建StringBuffer对象时即指定数组的初始化长度，避免频繁扩容；
+
+        4.StringBuffer中的操作方法：StringBuffer string = new StringBuffer("testString")
+            1：获取字符串长度：
+                string.length()
+
+            2：获取StringBuffer容量：
+                string.capacity()
+
+            3：获取指定位置的字符：
+                string.charAt(int index)
+
+            4：从字符串中截取指定区间的字符转为字符数组：
+                string.getCharts(int srcBegin, int srcEnd, char[] dst, int dstBegin)
+
+            5：修改指定位置的字符：
+                string.setCharAt(int index, char ch)
+                
+            6：追加字符串：
+                string.append(Object obj)
+                string.append(String str)
+                string.append(StringBuffer sb)
+                string.append(AbstractStringBuilder asb)
+                string.append(CharSequence s)
+                string.append(CharSequence s, int start, int end)
+                string.append(char[] str)
+                string.append(char[] str, int offset, int len)
+                string.append(byte|short|int|long|float|double)
+
+            7：删除指定区间子串：
+                string.delete(int start, int end)
+
+            8：删除指定位置字符：
+                string.deleteCharAt(int index)
+
+            9：替换指定区间子串：
+                string.replace(int start, int end, String str)
+
+            10：截取子串：  
+                string.substring(int start)
+                string.substring(int start,int end)
+
+            11：向字符串中插入子串：
+                string.insert(int offset,String str)
+                string.insert(int offset,char[] str)
+                insert(int index, char[] str, int offset, int len)
+                insert(int dstOffset, CharSequence s)  //非线程安全
+                insert(int dstOffset, CharSequence s, int start, int end)
+                string.insert(int offset, byte|short|int|long|float|double)//非线程安全
+
+            12：查找字符串首次出现的位置：
+                string.indexOf(String str)
+                string.indexOf(String str,int fromIndex)
+
+            13：反向查找字符串首次出现的位置：
+                string.lastIndexOf(String str)
+                string.lastIndexof(String str,int fromIndex)
+
+            14：反向字符串：
+                string.reverse();
+
+            15：转换为String类型的对象：
+                string.toString()
+                说明：StringBuffer对toString()方法做了优化，引入了成员属性toStringCache来存储首次调用toString()方法时所转换的String对象的字符数组，并且会在每此对字符串修改之后将该值清空；
+
+            16：序列化StringBuffer对象：
+                string.writeObject(java.io.ObjectOutputStream s)
+                string.ReadObject(java.io.ObjectOutputStream s) 
