@@ -131,5 +131,19 @@
             2.创建方式不同：
                 1.Runable实例可以直接作为Thread的参数创建线程实例；
                 2.Callable实例则需要通过适配器FutureTask适配之后，才能传递给Thread创建线程实例；
-    
+
+4.线程的基本属性：
+    1.当前正在被执行的线程：
+        1.通过Thread.currentThread()方法即可获取当前正在被cpu执行的线程；
+        2.该方法是一个静态方法，通常用在线程内部中，返回的是该线程对象(即Thread类的某一个实例对象)；
+    2.线程id：
+        1.系统为每一个线程设置了一个整数id，用来唯一标识当前进程的线程，称为线程id；
+        2.当前线程的id通过线程对象调用实例方法getId()即可获取，如：Thread.currentThread.getId();
+    3.线程名：
+        1.线程名的设置：
+            1.默认情况下，线程名会被设置为Thread-0、Thread-1这种形式；
+            2.也可以在创建线程时设置线程名：new Thread("线程名")、new Thread(Runable runable,"线程名")
+            3.通过线程对象调用实例方法setName("线程名")设置：Thread.currentThread.setName("线程名称")
+        2.获取线程名：
+            1.通过线程对象的实例方法getName()即可获取：Thread.currentThread.getName();
     
