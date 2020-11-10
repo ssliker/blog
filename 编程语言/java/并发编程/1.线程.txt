@@ -1,0 +1,134 @@
+1.关于进程和线程概念：
+    1.进程是指一个已经启动且正在被cpu执行或者等待被cpu执行的程序，是一个程序处于运行状态的概念；
+    2.在一个程序启动成为进程时，系统会为该进程分配相关的资源，比如内存空间等，因此进程是系统分配资源的最小单位；同时系统会为每一个进程分配一个id，称为进程id，简称PID；
+    3.而线程则是组成进程的基本元素，一个进程由一个或者多个线程组成，反之，线程不能独立存在，必须属于某一个进程；
+    4.cpu在执行程序指令时，本质上是执行进程中某一个线中的指令，因此，线程是cpu执行和调度的基本单位，一个线程运行时就会占用一个cpu核心；
+    5.线程在运行时，系统并不会为线程另外分配资源，线程只能使用系统为该线程所属进程分配的资源，并且进程中的所有线程共享同一个进程的内存空间和其他资源；
+    6.进程在启动时就会主动创建一个线程，称为该进程的主线程，其他线程则在主线程中创建并启动；在其他线程启动之后和主线程相比并无主次之分，本质上也并无区别，具有相同的cpu执行和调度级别；
+
+2.线程个数的设置：(待考证)
+    1.线程虽然由进程主动创建，但并非能够创建任意多个线程；线程个数的约束主要来自4个方面：
+        1.系统的线程模型
+        2.单个进程的虚拟内存大小
+        3.实际物理内存大小；
+        4.处理器的核心数量；
+        5.对于java而言，堆内存大小设置；
+    2.关于系统线程模型：
+        1.Linux操作系统主要有两种线程模型：LinuxThreads和NPTL
+            1.在lInuxThreads模型下，一个进程能够创建的线程数在1024个；该值可以配置；
+            2.在NPTL模型下，单个进程内能够创建的线程数没有限制；
+    3.关于单个进程的虚拟内存大小对线程个数的影响：
+        1.系统需要为每一个线程分配一段地址空间，作为该线程的线程栈空间；但是一个进程的虚拟地址空间并不是无限大的，因此可用于作为线程栈的空间也将受到限制；
+        2.因为进程内用来作为线程栈的地址空间有限，因此，一个进程内能够创建线程的个数也将受到限制；
+        3.实际情况中，在64位操作系统下，单个进程的虚拟地址空间通常都很大，所以实际情况下，进程的虚拟地址空间大小不会成为创建线程个数的瓶颈；
+    
+    4.关于物理内存大小对线程个数的影响；
+        
+    5.关于处理器处理能力对线程个数的影响：
+        1.每一个线程运行时都将占用一个处理器核心，线程数不足时将会导致处理器核心频繁切换线程；最终导致线程中真正待执行的任务并不能及时完成，反而降低了程序的执行效率；严重者表现出来的将是系统卡死；
+
+3.Java中创建线程：
+    1.通过继承Thread类来创建线程：
+        1.通过继承的方式创建线程并启动线程：
+            1：创建线程：
+                public class SelfThread extends Thread {
+                    @Override
+                    public void run() {
+                        // todo
+                    }
+                }
+            2.启动线程：
+                Thread thread = new Thread();
+                thread.start();
+
+        2.通过函数式接口的方式创建并线程：
+            1.创建线程：
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        // todo
+                    }
+                }
+            2.启动线程：    
+                thread.start();
+    2.通过继承Runable接口创建线程：
+        1.通过继承的方式创建线程并启动线程：
+            1：创建线程：
+                public class SelfThread implements Runable {
+                    @Override
+                    public void run() {
+                        // todo
+                    }
+                }
+            2.启动线程：
+                Thread thread = new Thread(new SelfThread());
+                thread.start();
+
+        2.通过函数式接口的方式创建并线程：
+            1.创建线程：
+                Thread thread = new Thread(Runable() {
+                    @Override
+                    public void run() {
+                        // todo
+                    }
+                });
+            2.启动线程：    
+                thread.start();
+    
+    3.通过继承callable接口创建线程：
+        1.通过继承的方式创建线程并启动线程：
+            1：创建线程：
+                public class SelfThread implements Callable<String> {
+                    @Override
+                    public String call() {
+                        // todo
+                    }
+                }
+            2.启动线程：
+                Ca c1 = new Ca();
+                FutureTask<String> ft1 = new FutureTask<String>(c1);
+                Thread ct1 = new Thread(ft1);
+                thread.start();
+
+        2.通过函数式接口的方式创建并线程：
+            1.创建线程：
+                Thread thread = new Thread(new FutureTask<String>(new Callable<String>() {
+                    public String call() throws Exception {
+                        return null;
+                    }
+                }));
+            2.启动线程：    
+                thread.start();
+        
+        3.关于FutureTask：
+            1.FutureTask的功能：
+                1.FutureTask是连接Callable和Thread的桥梁，同时又能够通过FutureTask来获取Callable的返回值；
+                2.FutureTask会以同步的方式获取Callable的返回值，即FutureTask的get方法会一直等到Callable执行完成返回结果时会才会继续向下执行；
+
+            1.FutureTask本质：
+                1.继承关系：
+                    1.FutureTask是RunnableFuture接口的实现，而RunableFuture又直接继承自Runable和Future接口；
+                    2.因此FutureTask既实现了Runable中执行任务的run方法，又实现了Future的获取返回值得get方法；
+                2.功能原理：
+                    1.FutureTask继承自Runable接口，因此FutureTask能够作为Thread构造方法的参数；
+                    2.FutureTask的构造方法又以Callable类型的实例作为参数，并且在其实现Runable的run方法中调用Callable的call方法，同时得到call方法的返回值。
+                    3.Future在得到call方法返回值之后，会将返回值赋值给全局属性outCome，而FutureTask同时又实现了Future接口的get方法，并在get方法中返回outCome;
+                    4.本质上，FutureTask就是适配器模式的具体实现；通过FutureTask让Callable能够更好的适配Thread，方便以统一的方式创建线程；
+
+    4.不同创建线程方式的区别：
+        1.Runable和Thread的区别：
+            1.继承方式不同：
+                1.Thread是抽象类，一旦继承了Thread之后将不能在继承其他类；
+                2.Runable是接口，继承Runable之后还能够继承其他类；
+            2.线程类内部资源共享方式不同：
+                1.在Thread实现类内部创建的共享资源，每一个Thread线程实例都将拥有一份；
+                2.在Runable实现类内部创建的共享资源，所有的Runable线程实例共享同一份资源；
+        2.关于Runable和Callable的区别：
+            1.返回值差异：
+                1.Runable类型的run方法无返回值，因此无法返回线程执行结果；
+                2.Callable类型的call方法有返回值，可以返回线程执行结果；如果线程执行时间较长，那么获取执行结果的操作将会阻塞；
+            2.创建方式不同：
+                1.Runable实例可以直接作为Thread的参数创建线程实例；
+                2.Callable实例则需要先包装为FutureTask才能传递给Thread创建线程实例；
+    
+    
