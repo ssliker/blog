@@ -113,7 +113,8 @@
                     1.FutureTask继承自Runable接口，因此FutureTask能够作为Thread构造方法的参数；
                     2.FutureTask的构造方法又以Callable类型的实例作为参数，并且在其实现Runable的run方法中调用Callable的call方法，同时得到call方法的返回值。
                     3.Future在得到call方法返回值之后，会将返回值赋值给全局属性outCome，而FutureTask同时又实现了Future接口的get方法，并在get方法中返回outCome;
-                    4.本质上，FutureTask就是适配器模式的具体实现；通过FutureTask让Callable能够更好的适配Thread，方便以统一的方式创建线程；
+                3.FutureTask使用到的设计模式：
+                    1.本质上，FutureTask就是适配器模式的具体实现；通过FutureTask让Callable能够更好的适配Thread，方便以统一的方式创建线程；
 
     4.不同创建线程方式的区别：
         1.Runable和Thread的区别：
@@ -129,6 +130,6 @@
                 2.Callable类型的call方法有返回值，可以返回线程执行结果；如果线程执行时间较长，那么获取执行结果的操作将会阻塞；
             2.创建方式不同：
                 1.Runable实例可以直接作为Thread的参数创建线程实例；
-                2.Callable实例则需要先包装为FutureTask才能传递给Thread创建线程实例；
+                2.Callable实例则需要通过适配器FutureTask适配之后，才能传递给Thread创建线程实例；
     
     
