@@ -102,6 +102,41 @@
         2.通过Map.Entry类型的实例对象即可获取该键值对的k和v：getKey()、getValue()；同时也可以设置该节点的value：setValue();
 
 4.HashMap的遍历：
+    1.forEach直接遍历：
+        hm.forEach((key,value)->{
+            System.out.println(key+"->"+value);
+        });
+    2.foreach+entryset遍历：
+        for(Map.Entry<String,String> entry : hm.entrySet()) {
+            System.out.println(entry.getKey()+"->"+entry.getValue());
+        }
+    3.foreach+keySet遍历：
+        for(String key : hm.keySet()) {
+            System.out.println(key+"->"+hm.get(key));
+        }
+
+    4.entrySet+forEach遍历：
+        hm.entrySet().forEach((entry)->{
+            System.out.println(entry.getKey()+"->"+entry.getValue());
+        });
+    5.keySet+forEach遍历：
+        hm.keySet().forEach((key)->{
+            System.out.println(key+"->"+hm.get(key));
+        });
+
+    6.iterator+entrySet遍历：
+        Iterator<Map.Entry<String, String>> iterator = hm.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = iterator.next();
+            System.out.println(entry.getKey()+"->"+entry.getValue());
+
+        }
+    7.iterator+keySet遍历：
+        Iterator<String> iterator = hm.keySet().iterator();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            System.out.println(key+"->"+hm.get(key));
+        }
 
 5.HashMap实现原理：
     1.HashMap底层数据结构：
@@ -134,22 +169,54 @@
                 3.如果当前位置存储的是一个链表，则遍历链表，重新计算并挪动元素位置；
     4.HashMap中的细节：
         1.HashMap为何要同时使用链表和红黑树解决hash冲突？
+            1.在直接使用链表解决hash冲突时，如果hash冲突较为严重，数组位置上的链表将会过长，将会导致元素的插入和查找时间复杂度趋于O(n)，效率降低；
+            2.如果直接使用红黑树解决hash冲突时，在hash冲突不严重的情况下，导致元素的插入和查找时间复杂度保持在O(log(n))，并且插入和修改以及删除元素时还需要额外维护红黑树的平衡，因此效率同样会降低；
+            3.HashMap则动态的使用两种策略解决hash冲突，当单个链表长度不超过8时，使用链表解决hash冲突，保持较高的查询和插入效率；当单个链表长度超过8时，使用红黑树解决hash冲突，保证在hash冲突严重的情况下也能保持O(log(n))的复杂度，不至于退化值O(N)；
+            
         2.HashMap中各项默认值？
+            1.数组初始容量默认为16；
+            2.扩容因子默认为0.75；
+            3.数组最大容量为2^30；
+            上述三个默认值均为static final类型，不可更改；
+
         3.HashMap树化阈值？
+            链表树化为红黑树时有两个条件：1.树化阈值，2.最小树化容量；
+            1.树化阈值：
+            将链表转换为红黑树的边界条件，默认为8，即链表中元素超过8个将会把链表转换为红黑树；
+            取值依据：
+                首先链表在长度较短时其增删改查性能都是比较好的，因此尽量先使用链表。如果hashcode离散型比较好比较均匀时，一个链表中的元素要超过8个的概率非常小，所以设置为8已经能够满足大多数场景需求；
+            2.最小树化容量：
+            除过树化阈值以外还有一个限制即最小树化容量，该值默认为64，即数组容量超过64时，且链表长度超过树化阈值时才会进行树化；
+            参数意义：在数组容量较小时发生hash冲突的概率比较大，因此会优先选择扩容，而不是树化；该参数用来确定扩容还是树化的边界；该值固定为64，static final类型，不可修改；
+            3.非树化阈值：
+                当红黑树的元素个数小于非树化阈值时，将会由红黑树退化为链表；该值默认为6；static final类型，不可修改；
         4.HashMap中的树化阈值为何是8？为何树化时要减1，而非树化时要加1？
-        5.为何必须在元素数量超过64时才会树化？
-        6.HashMap中计算keyhash值得细节？
+            1.8是一个实验值，在hash离散型较好的时候，单个链表中元素个数超过8个概率极小，所以设置为8即可满足大多数场景；
+            2.树化要减1，非树化要加1是缓冲树化和非树化的频率，如果固定为8，那么可能发生频繁的树化和非树化；
+        5.HashMap中计算keyhash值的细节？
+            1.得到hash值的流程：
+                1.首先调用key的hashcode方法，获取key的hash值，如果key没有重写hashcode方法的话，那么直接调用的就是Object的hashcode方法；
+                2.将得到key的hash值进行无符号右移16位，然后再与hash值本身进行异或运算；
+            2.该方法的设计思路：
+                1.之所以不直接使用key的hashcode值，而是先右移16位然后进行异或运算，原因和计算key在数组中的位置有关，目的在于充分混合key的hash值的高16位和低16位，降低hash冲突的概率；
+        6.关于确定key在数组中位置的流程细节：
+            1.计算key在table中的位置都是通过数组长度与keyhash值进行取余确定的；但是HashMap中并不是直接使用取余运算，而是通过key的hash值和数组容量-1得到的值进行与运算来得到余数；
+            2.由于数组长度通常较小，在转换为二进制之后，高位通常为0，那么与hash值进行运算之后会抹掉hash值的高位特征，这样在高位不同，低位相同时，将会大大增加hash冲突的概率；
+            3.所以为了避免在高位不同，低位相同时导致hash冲突的概率增加，因此在计算key的hash值时会右移16位，将hash值得高16位特征与低16位特征进行混合；
+            4.之所以选择将高16位与低16位进行相异或，而不是相与或者想或，是因为相与运算结果趋于0，相或运算结果趋于1，混合会偏向一方的特征，所以采用异或运算，保证充分混合；
         7.HashMap中数组长度为何必须是2的次幂？
+            和计算key在数组中的位置有关，在计算key在数组中的位置时会使用key的hash值和数组长度-1进行与运算得到key在数组中的位置；只有数组长度为2的n次幂时，该计算方式才能得到正确的结果；
         8.HashMap扩容时为何要扩容为旧容量的2倍？
+            1.首先HashMap中的容量必须始终保持为2的次幂；
+            2.其次进行扩容要保证在满足使用条件的情况下尽可能的小，不能浪费太多空间；
+            那么扩容为旧容量的2倍是刚好能够做到扩容之后数组容量仍然为2的次幂，同时又是大于旧容量的最小值；
         9.HashMap中扩容因子为何是0.75？
-        10关于HashMap的快速失败机制？
-
-        
-        
-
-
-
-    
-    
-        
-    
+            该值是一个实验值，hashmap散列较为均匀的情况下，该值的大小能够保证数组合理的进行扩容，如果该值过大，那么将导致扩容阈值变大，最终可能导致hash冲突增多，如果该值较小，那么将导致扩容阈值变小，引起频繁扩容，导致性能下降；
+        10.关于HashMap的快速失败机制？
+            1.快速失败机制是指一个线程在遍历map期间，如果另一个线程将map中的key删除/新增时，遍历过程将会立即抛出异常，不会再继续遍历；
+            2.之所以要有快速失败机制，是因为HashMap并非线程安全类型，那么在多线程环境下，一个线程在遍历map的过程中另一个线程将数据删除/或者新增，将导致遍历出的结果不准确，需要有快速失败机制终止遍历过程；
+            2.实际实现时是通过modCount这个全局变量实现的，在遍历时会将该变量复制一份为mc，然后在每次遍历时都先比对modCount和mc是否保持相同，如果不同则表示有线程更新了map，需要终止遍历；
+        11.HashMap并非线程安全，如何应用在多线程环境中：
+            1.可以使用Collections工具类将HashMap包装为一个线程安全的HashMap，但是包装的原理实际上是重新封装同名方法，并给同名方法添加synchronized关键字；此种方式效率较低；
+            2.也可以使用Hashtable，该类也是一个线程安全的Map类，但是其实现线程安全的方式同样是通过为方法添加synchronized关键字；因此同样效率较低；
+            3.可以使用ConcurrentHashMap，该Map本质上是一个线程安全的Map集合，而且其采用CAS以及为数组头结点加锁的方式降低锁粒度，提高并发度；
