@@ -1,0 +1,28 @@
+1.LinkedHashMap特征：
+    1.LinkedHashMap用来存储k-v类型的键值对数据；
+    2.LinkedHashMap允许接收键为null和值为null的k-v数据；但是在实际使用时尽量避免出现null类型的键和null类型的值被添加进去；
+    3.LinkedHashMap直接继承自HashMap，但是不同于HashMap的是，LinkedHashMap会维护存储在其中的k-v顺序，默认情况k-v顺序为其插入顺序；
+    4.除过默认情况下按照插入顺序维护k-v次序以外，LinkedHashMap还支持按照访问顺序排序；
+    5.HashMap本身没有做任何线程同步处理，并非线程安全集合，不可以直接作为多线程环境下的共享变量；
+
+2.LinkedHashMap继承结构：
+    1.继承结构图
+        Map(I)
+            |--AbstractMap(AC)
+        |---|--HashMap(C)
+        |---|--LinkedHashMap(C)
+    2.关于继承关系：
+        1.LinkedHashMap同时继承HashMap类和Map接口，复用了HashMap的底层实现和操作方法；
+
+3.关于LinkedHashMap实现原理：
+    1.关于底层结构：
+        LinkedHashMap直接继承自HashMap，因此其hash表底层的实现方式和HashMap完全相同，都是通过数组+链表/红黑树实现；
+    2.关于操作方法：
+        LinkedHashMap的操作方法也直接复用了HashMap提供的操作方法，仅仅只是重写了操作方法调用的部分方法以及HashMap预留的三个钩子方法；
+    3.关于维护k-v顺序的原理：
+        1.LinkedHashMap中声明了一个Entry内部类，该类继承自HashMap的Node内部类，但是在Node的基础上增加了两个属性：before和after；before表示当前节点的前置节点，after表示当前节点的后继节点；通过before和after属性建立起一个双向链表结构；而红黑树的节点则直接在HashMap中继承LinkedHashMap的Entry节点；
+        2.同时在LinkedHashMap中还定义了两个全局属性：head和tail，表示由Entry建立起双向循环链表的头结点和尾节点；
+        3.而双向循环链表的顺序会在新增一个元素和删除一个元素时重新维护，新增一个元素时，LinkedHashMap重写了putVal()调用的newNode方法，在newNode()方法中完成双向链表的维护，在删除一个元素时，LinkedHashMap实现了HashMap的钩子方法afterNodeRemove()，在节点删除完成之后调用该钩子方法完成双向链表顺序的维护；
+        特别注意的一点是：HashMap中的TreeNode节点继承自LinkedHashMap的Entry节点；这么做在直接使用HashMap时会导致有部分空间浪费，但是能够最大程度实现代码复用；
+    4.LinkedHashMap的访问顺序：
+        1.LinkedHashMap实现了HashMap的钩子方法afterNodeAccess方法，在每次访问过元素之后将会调用该方法重新维护节点顺序；
