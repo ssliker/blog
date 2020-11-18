@@ -14,11 +14,19 @@
     2.关于继承关系：
         1.LinkedHashMap同时继承HashMap类和Map接口，复用了HashMap的底层实现和操作方法；
 
-3.关于LinkedHashMap实现原理：
+3.关于LinkedHashMap的构造方法：
+    1.LinkedHashMap的构造方法和HashMap的构造方法重载类型完全相同，本质上LinkedHashMap的构造方法也都是全部调用HashMap的构造方法进行初始化；
+    2.不同的在于LinkedHashMap允许基于访问顺序对元素排序，因此LinkedHashMap相比HashMap多了一个基于访问顺序排序的构造方法：
+        public LinkedHashMap(int initialCapacity,
+                         float loadFactor,
+                         boolean accessOrder) {
+
+4.关于LinkedHashMap实现原理：
     1.关于底层结构：
         LinkedHashMap直接继承自HashMap，因此其hash表底层的实现方式和HashMap完全相同，都是通过数组+链表/红黑树实现；
     2.关于操作方法：
-        LinkedHashMap的操作方法也直接复用了HashMap提供的操作方法，仅仅只是重写了操作方法调用的部分方法以及HashMap预留的三个钩子方法；
+        1.LinkedHashMap的操作方法也直接复用了HashMap提供的操作方法，仅仅只是重写了操作方法调用的部分方法以及HashMap预留的三个钩子方法，目的在于动态维护LinkedHashMap顺序；
+        2.在使用上LinkedHashMap提供的方法和HashMap提供的方法完全相同；
     3.关于维护k-v顺序的原理：
         1.LinkedHashMap中声明了一个Entry内部类，该类继承自HashMap的Node内部类，但是在Node的基础上增加了两个属性：before和after；before表示当前节点的前置节点，after表示当前节点的后继节点；通过before和after属性建立起一个双向链表结构；而红黑树的节点则直接在HashMap中继承LinkedHashMap的Entry节点；
         2.同时在LinkedHashMap中还定义了两个全局属性：head和tail，表示由Entry建立起双向循环链表的头结点和尾节点；

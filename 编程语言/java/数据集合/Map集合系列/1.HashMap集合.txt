@@ -13,7 +13,10 @@
         1.HashMap同时继承AbstractMap抽象类和Map接口。而AbstractMap则直接继承自Map接口；
         2.本质上HashMap直接继承自AbstractMap即可，对于既继承AbtractMap又继承Map接口本质上属于设计缺陷！
 
-3.HashMap功能：
+4.HashMap的构造方法：
+
+
+5.HashMap功能：
     1.新增k-v：
         put(k, v)
         功能描述：
@@ -101,7 +104,7 @@
         1.该方法返回一个set集合，元素类型为Map.Entry<K, V>，Map.Entry为Map中的静态内部类，一个Map.Entry中存储一个键值对的k和v；
         2.通过Map.Entry类型的实例对象即可获取该键值对的k和v：getKey()、getValue()；同时也可以设置该节点的value：setValue();
 
-4.HashMap的遍历：
+6.HashMap的遍历：
     1.forEach直接遍历：
         hm.forEach((key,value)->{
             System.out.println(key+"->"+value);
@@ -138,7 +141,7 @@
             System.out.println(key+"->"+hm.get(key));
         }
 
-5.HashMap实现原理：
+7.HashMap实现原理：
     1.HashMap底层数据结构：
         1.JDK1.8底层使用数组+(链表/红黑树)实现；数组作为hash桶，用来确定一个元素的桶位；链表和红黑树用来解决hash冲突的问题；
     2.HashMap增加元素过程：

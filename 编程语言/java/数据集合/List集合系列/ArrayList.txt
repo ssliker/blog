@@ -32,15 +32,20 @@
     
     3.以其他Collection集合为参数创建ArrayList：
         ArrayList<> al = new ArrayList<>(collec)
-        内部具体实现：将collec调用toArray()的结果赋值给elementData，此时elementData的长度等于collec中的元素个数；
+        内部具体实现：检测collec是否是ArrayList类型，如果是则将collec调用toArray()的结果赋值给elementData，否则通过Arrays.copyOf将collec.toArray()的结果复制给elementData；
     
     4.特别注意：
         1.数组的长度表示当前ArrayList的容量，数组中实际存储元素的个数表示当前列表的长度；
-        2.ArrayList中的增删改查操作凡需要以索引下标访问元素时，均是以该索引下标与列表长度进行对比检查是否越界；
+        2.ArrayList中的增删改查操作凡需要以索引下标访问元素时，均是以该索引下标与·列表长度·进行对比检查是否越界，而不是数组长度，需要特别注意；
 
 5.ArrayList的功能API:
 
-6.ArrayList的遍历：
+
+6.ArrayList的扩容流程：
+
+7.ArrayList插入和删除元素的流程：
+
+8.ArrayList的遍历：
     //for()
     for(int i=0;i<al.size();i++){
         System.out.println(al.get(i));
@@ -68,7 +73,7 @@
         System.out.println(item);
     });
 
-7.ArrayList功能API使用说明：
+9.ArrayList功能API使用说明：
     1.对于增加元素：
         1.每次增加元素前会先检查是否需要扩容，如果需要扩容，将会先进行扩容，因此实际使用时为了避免频繁扩容，可以预设一个合理的大小；
         2.按照索引位置增加元素时，会调用System.arraycopy()方法进行数组拷贝，如果在数组头部添加元素，将会导致整个数组被拷贝，性能较差，这种情况应该尽量避免，或者选择LinkedList作为列表容器；

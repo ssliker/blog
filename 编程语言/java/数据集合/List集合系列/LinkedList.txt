@@ -1,0 +1,88 @@
+1.ArrayList特征：
+    1.ArrayList的数据结构特征是线性表，用来存储一组数据本身，不能像map一样存储k-v；
+    2.ArrayList底层通过能够动态扩容的数组实现，占用一段连续的内存空间,列表中每一个元素都有一个唯一的下标索引，索引值从左向右，由0开始计数；
+    3.ArrayList支持存储null值，并且允许存储重复元素；
+    4.ArrayList未添加任何同步措施，因此并非线程安全，不能直接用做多线程环境下的共享变量；
+
+2.ArrayList继承结构：
+    1.继承结构图：
+        List
+            |--AbstractList
+        |---|--ArrayList
+    
+    2.关于继承关系：
+        1.ArrayList既继承了AbstractList，又继承了List接口；
+        2.ArrayList还继承了RandomAccess接口，该接口无任何抽象方法需要实现，仅仅表示ArrayList支持随机访问特征；
+
+3.ArrayList内部实现原理：
+    1.ArrayList底层通过一个Object数组(elementData)存储列表中的元素；并且会在数组容量不足时进行扩容；
+    2.ArrayList能够存储的元素个数有限制，该限制体现在两个方面：
+        1.ArrayList中表示元素个数的属性size是int类型，因此元素个数最多不能超过2^31-1；
+        2.ArrayList在扩容时会检测数组长度是否超过MAX_ARRAY_SIZE(Integer.MAX_VALUE-8)，如果超过，那么数组最大长度会被设置为Integer.MAX_VALUE，该值最大为2^31-1；
+
+4.ArrayList的构造方法：
+    1.创建空列表：
+        ArrayList<> al1 = new ArrayList<>();
+        内部具体实现：将一个空Object数组赋值给elementData，此时数组容量为0；
+
+    2.指定初始容量创建ArrayList：
+        ArrayList<> al = new ArrayList<>(n)
+        内部具体实现：创建一个长度为n的Object数组，赋值给elementData，此时数组容量为n；
+        特别注意：n不能小于0，否则将抛出异常；
+    
+    3.以其他Collection集合为参数创建ArrayList：
+        ArrayList<> al = new ArrayList<>(collec)
+        内部具体实现：检测collec是否是ArrayList类型，如果是则将collec调用toArray()的结果赋值给elementData，否则通过Arrays.copyOf将collec.toArray()的结果复制给elementData；
+    
+    4.特别注意：
+        1.数组的长度表示当前ArrayList的容量，数组中实际存储元素的个数表示当前列表的长度；
+        2.ArrayList中的增删改查操作凡需要以索引下标访问元素时，均是以该索引下标与·列表长度·进行对比检查是否越界，而不是数组长度，需要特别注意；
+
+5.LinkedList的功能API:
+
+6.LinkedList插入和删除元素的流程：
+
+7.LinkedList的遍历：
+    //for()
+    for(int i=0;i<al.size();i++){
+        System.out.println(al.get(i));
+    }
+
+    //foreach()
+    for (String item : al){
+        System.out.println(item);
+    }
+
+    // forEach()
+    al.forEach(item->{
+        System.out.println(item);
+    });
+
+    //iterator+while
+    Iterator<String> iterator = al.iterator();
+    while (iterator.hasNext()){
+        System.out.println(iterator.next());
+    }
+
+    //iterator+forEachRemaining
+    Iterator<String> iteratorForEach = al.iterator();
+    iteratorForEach.forEachRemaining(item->{
+        System.out.println(item);
+    });
+
+9.LinkedList功能API使用说明：
+    1.对于增、删、改元素：
+        1.LinkedList增加元素本质上只是修改新增元素所在位置前后两个元素的指向关系，因此增删元素效率较高；
+        2.但是如果增删改元素的位置不在头部或者尾部，那么需要遍历整个链表，查找元素，此时效率可能会退化为O(n)，因此使用LinkedList时尽量避免增删改中间位置元素；
+        3.根据LinkedList的特性，其头部或者尾部元素的增删改效率非常高；
+    3.关于遍历和随机访问：
+        1.由于LinkedList并不会像ArrayList一样占用一段连续的内存空间，因此并不能很好的利用cpu缓存的局部性原理，整体遍历性能不如ArrayList；
+        2.LinkedList随机访问元素时，需要从头部或者尾部遍历整个链表查找元素，极端情况下，其复杂度为O(n)；因此随机访问性能较差；
+    4.关于遍历修改LinkedList的元素：
+        1.如果仅仅只是修改元素本身的属性值，那么所有的遍历方式都可以实现；
+        2.如果是希望将LinkedList某个位置的元素替换为另一个元素，那么只能使用for(int i;i<size;i++)循环按照索引遍历的方式，并调用set()方法实现；
+        3.如果是希望在遍历时删除某些元素，那么只能使用iterator+while的方式，并调用iterator.remove()实现；
+    5.关于LinkedList的去重和检测：
+        1.LinkedList内部检测元素是否存在的contains()方法与ArrayList相同，都是通过遍历来查找对比实现的，最差的时间复杂度是O(n)，因此效率很差，尽量避免直接使用ArrayList检测元素存在性，而是将ListList转为Set进行检测；Set内部使用hashcode实现元素的查找，效率较高；
+        2.同时避免使用contains()方法结合循环遍历实现LinkedList的去重，而是应当将LinkedList转为Set进行去重；
+    
