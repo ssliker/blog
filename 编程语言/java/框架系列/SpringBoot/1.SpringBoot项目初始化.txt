@@ -1,0 +1,103 @@
+1.项目基本机构
+    1.项目基本准则：
+        1.一个项目应该由父项目和子项目共同组成，不应该由一个单独项目完成所有功能或者类库；
+        2.项目根部必须是父项目，然后根据功能模块不同继续创建其他父项目或者子项目；
+
+    2.关于父项目：
+        1.父项目承担依赖管理的功能，统一管理该父项目下所有子项目所需的依赖和版本号；防止依赖冲突；
+        2.由于父项目不提供具体功能实现，因此父项目的packaging类型均为pom；
+        3.父项目之下可以根据该父项目要包含的功能特征，继续创建多个父项目，或者直接创建具体实现的子项目；
+        4.父项目与子项目在依赖关系上并不具备父子关系，直接依赖父项目并不能依赖到子项目；
+        3.子项目承担具体功能实现，并且子项目应该保持单一原则特性，一个子项目提供的功能、类库、特征应尽量保持单一；
+    
+    3.关于子项目：
+        1.子项目承担具体功能类库的实现；
+        2.子项目都应该保持单一原则，即一个子项目提供的功能、类库、常量、枚举等应该在功能特征上保持单一；
+        3.子项目提供具体的实现，因此通常情况下，子项目的packaging类型都应该是jar；
+        4.子项目内部则应该使用不同的包来管理不同的业务代码；
+
+2.父项目创建方式：
+    1.父项目基本结构：
+        1.声明该父项目的gav坐标
+            <groupId>com.ssliker</groupId>
+            <artifactId>boot-practice</artifactId>
+            <version>1.0.1</version>
+        2.声明该父项目的包类型：
+            <packaging>pom</packaging>
+        3.声明该父项目的名称和描述：
+            <name>project name</name>
+            <description>project description</description>
+        4.声明该父项目依赖的父项目(如果有的话)：
+            <parent>
+                <groupId>com.ssliker</groupId>
+                <artifactId>parent-pom</artifactId>
+                <version>1.0.1</version>
+            </parent>
+        5.声明该父项目管理的依赖以及依赖的版本号：
+            依赖的版本号：
+            <properties>
+                <logback.version>1.2.3</logback.version>
+                <slf4j.version>1.7.30</slf4j.version>
+            </properties>
+            依赖的jar包：
+            <dependencyManagement>
+                <!-- 日志配置-->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                        <version>${slf4j.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-core</artifactId>
+                        <version>${logback.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                        <version>${logback.version}</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+    2.关于父项目与子项目的关系：
+        1.父项目作为独立的pom存在：
+            1.这种关系下，父项目和子项目在目录结构上并无任何关系，子项目中通过parent标记设置父项目的maven坐标来依赖对应的父项目；
+            2.该模式适用于该父项目需要被多个不同的项目依赖；此时可将父项目独立出来；比如spring-boot-starter-parent可以被任意项目当做父项目依赖；
+            3.这种模式下，父项目只是一个pom项目，即父项目中只有一个pom文件来管理一些依赖，没有其他内容；
+        
+        2.父项目直接包含子项目：
+            1.这种关系下，父项目在目录结构上是子项目的父级目录，尽管如此，子项目中也必须通过在parent标记中设置父项目的maven坐标来依赖对应的父项目；
+            2.该模式适用于该父项目仅仅只是为当前子项目添加的父项目，不会再用作其他项目的父项目，那么和子项目放在一起也方便查看；
+            3.该模式下，父项目由一个pom文件和其他子项目组成；父项目的pom文件中管理相关依赖；
+    
+    3.关于父项目与子项目中依赖的管理：
+        1.父项目通过<dependencyManagement></dependencyManagement>设置需要管理的依赖；此种方式下，子项目仍旧需要使用<dependencies></dependencies>添加需要的依赖，只是不需要再显式声明版本号；
+        2.父项目直接通过<dependencies></dependencies>设置需要管理的依赖，此种方式下，子项目会自动继承父项目的<dependencies></dependencies>，对于父项目<dependencies></dependencies>中已经添加过的依赖，子项目可以直接使用；
+    
+4.关于子项目： 
+    1.子项目只是相对于其继承的父项目而言的，子项目本身可以直接是具体的实现：即jar项目，也可以是其他子项目的父项目：即pom项目；
+    2.当子项目作为jar项目时，其内部通过package来管理不同的业务代码；
+    3.package结构通常如下：
+        |--com
+            |--ssliker
+                |--project-name
+                    |~~controller
+                        |~~AController.java(class)
+                    |~~service
+                        |~~impl
+                            |~~AServiceImpl.java(class)
+                        |~~AService.java(interface)
+                    |~~mapper
+                        |~~AMapper.java(interface)
+                    |~~emtity
+                        |~~dto
+                            |~~ADto.java(class)
+                        |~~po
+                            |~~APo.java(class)
+                        |~~vo
+                            |~~AVo.java(class)
+                    |~~enum
+                        |~~AEnum.java(class)
+                    |~~constant
+                        |~~AConstants.java(class)

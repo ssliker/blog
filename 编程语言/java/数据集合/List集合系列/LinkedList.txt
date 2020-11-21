@@ -1,6 +1,6 @@
-1.ArrayList特征：
-    1.ArrayList的数据结构特征是线性表，用来存储一组数据本身，不能像map一样存储k-v；
-    2.ArrayList底层通过能够动态扩容的数组实现，占用一段连续的内存空间,列表中每一个元素都有一个唯一的下标索引，索引值从左向右，由0开始计数；
+1.LinkedList特征：
+    1.ListList的数据结构特征是线性表，用来存储一组数据本身，不能像map一样存储k-v；
+    2.ListList底层通过能够动态扩容的数组实现，占用一段连续的内存空间,列表中每一个元素都有一个唯一的下标索引，索引值从左向右，由0开始计数；
     3.ArrayList支持存储null值，并且允许存储重复元素；
     4.ArrayList未添加任何同步措施，因此并非线程安全，不能直接用做多线程环境下的共享变量；
 
@@ -20,21 +20,16 @@
         1.ArrayList中表示元素个数的属性size是int类型，因此元素个数最多不能超过2^31-1；
         2.ArrayList在扩容时会检测数组长度是否超过MAX_ARRAY_SIZE(Integer.MAX_VALUE-8)，如果超过，那么数组最大长度会被设置为Integer.MAX_VALUE，该值最大为2^31-1；
 
-4.ArrayList的构造方法：
+4.LinkedList的构造方法：
     1.创建空列表：
-        ArrayList<> al1 = new ArrayList<>();
+        LinkedList<> ll1 = new LinkedList<>();
         内部具体实现：将一个空Object数组赋值给elementData，此时数组容量为0；
 
-    2.指定初始容量创建ArrayList：
-        ArrayList<> al = new ArrayList<>(n)
-        内部具体实现：创建一个长度为n的Object数组，赋值给elementData，此时数组容量为n；
-        特别注意：n不能小于0，否则将抛出异常；
+    2.以其他Collection集合为参数创建ArrayList：
+        LinkedList<> ll2 = new LinkedList<>(collec)
+        内部具体实现：调用参数为空的构造方法，创建LinkedList对象，然后遍历collec，添加至LinkedList中；
     
-    3.以其他Collection集合为参数创建ArrayList：
-        ArrayList<> al = new ArrayList<>(collec)
-        内部具体实现：检测collec是否是ArrayList类型，如果是则将collec调用toArray()的结果赋值给elementData，否则通过Arrays.copyOf将collec.toArray()的结果复制给elementData；
-    
-    4.特别注意：
+    3.特别注意：
         1.数组的长度表示当前ArrayList的容量，数组中实际存储元素的个数表示当前列表的长度；
         2.ArrayList中的增删改查操作凡需要以索引下标访问元素时，均是以该索引下标与·列表长度·进行对比检查是否越界，而不是数组长度，需要特别注意；
 
