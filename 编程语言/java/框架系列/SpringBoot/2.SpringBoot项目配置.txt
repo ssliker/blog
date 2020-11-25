@@ -1,0 +1,21 @@
+1.关于OS与JVM环境参数
+    1.OS环境参数
+    2.JVM环境参数
+    3.访问OS与JVM环境参数
+    4.添加OS与JVM环境参数
+
+2.springBoot配置文件
+    1.配置文件名称
+    2.配置文件位置
+    3.配置文件加载顺序
+    4.加载自定义配置文件
+    5.配置项的访问
+        @Value
+        @ConfigureProperties
+        ConfigurableEnvironment
+
+3.SpringBoot配置详解
+    1.springBoot中加载配置的实现原理
+    2.springBoot中访问配置的实现原理
+    3.springBoot中配置文件的加载流程
+    4.springBoot中自定义配置加载方式

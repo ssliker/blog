@@ -1,13 +1,18 @@
 1.关于字符串类型：
-    1.java中基本数据类型并不支持字符串类型，仅支持字符类型；但是提供String、StringBuilder、StringBuffer类来表示字符串类型；
-    2.String表示一个具体的字符串，StringBuffer和StringBuilder表示一个字符串容器；
+    1.java中基本数据类型并不支持字符串类型，仅支持字符类型；但是提供String、StringBuilder、StringBuffer类来存储和表示字符串；
+    2.String表示一个具体的字符串类型，StringBuffer和StringBuilder表示一个字符串容器；
     3.无论是String还是StringBuffer还是StringBuilder，本质上都是通过一个字符数组来存储字符串内容的；
 
-2.关于String：
+2.关于字符串字面量：
+    1.字符串字面量使用""包裹；如："a","ab";
+    2.要特别注意，双引号包裹的单个字符和单引号包裹的单个字符意义并不相同，双引号包裹的单个字符是字符串，而单引号包裹的单个字符是字符类型；
+    3.字符串字面量会被当做String类型来对待；即字符串字面量可以直接访问String的实例方法；
+
+3.关于String类型：
     1.String字符串特征：
-        1.String内部使用一个字符数组存储字符串中的每一个字符，内部存储字符串内容的字符数组长度和字符串字符个数完全相同，因此String本质上表示的是一个具体的字符串；
+        1.String内部使用一个字符数组存储字符串中的每一个字符，存储字符串内容的字符数组长度和字符串字符个数完全相同，因此String概念上表示的是一个具体的字符串；
         2.String类是一个不可变类，并且存储字符串内容的字符数组是一个不可变数组，String类内部也没有提供对存储字符串内容的字符数组修改的方法，String类内部也不依赖其他可变类；因此由String类创建的字符串是一个不可变对象，可安全的用于多线程环境；
-        3.String对象虽然是不可变对象，但是String类内部也是提供了对String进行修改的方法，只是这些对String修改的方法都是通过新创建一个String对象进行操作的；因此程序中要特别注意，每次对String修改都会创建一个新的String对象；
+        3.String对象虽然是不可变对象，但是String类内部也是提供了对String进行修改的方法，只是这些对String修改的方法都是通过新创建一个String对象存储和表示修改结果的；因此程序中要特别注意，每次对String修改都会创建一个新的String对象，这一点要特别注意；
         4.String类继承自CharSequence接口，属于字符序列类型的一种；
 
     2.关于String类型的创建：
@@ -43,6 +48,7 @@
                 1.内部通过拷贝字符数组内容实现String创建；
     
     3.String类提供的对String操作的方法：
+        特别注意：以下对字符串操作的方法均是实例方法，需要通过String实例对象访问，因此在访问之前务必确认该实例对象是否为null；
         1.获取长度：
             str.length();
             备注：
@@ -87,6 +93,7 @@
             备注：
                 1.位置计数从0开始；
                 2.index如果超过字符串长度，将会返回-1，不会报告异常；如果index为负值，则会忽略index;
+
         8.截取字符串：
             /*从起始位置beginIndex截取至字符串结尾*/
             string.substring(int beginIndex);
@@ -195,9 +202,9 @@
 3.StringBuffer和StringBuilder：
     1.关于StringBuffer和StringBuilder：
         1.StringBuffer和StringBuilder本质上仍然是通过字符数组来存储一个字符串的值，但与String不同的是，SrtingBuffer和StringBuilder中的字符数组长度通常会大于等于字符串的字符个数；
-        2.StringBuffer和StringBuilder并非不可变对象，修改StringBuffer和StringBuilder类型的对象，本质上都是直接修改其内部的字符数组，并不会新建一个对象；
+        2.StringBuffer和StringBuilder并非不可变类，并且修改StringBuffer和StringBuilder类型的对象，本质上都是直接修改其内部的字符数组，并不会新建一个对象；
         3.对于StringBuffer和StringBuilder的追加都是直接将字符追加至其内部的字符数组中，因此当字符数组长度不足时将会进行扩容；
-        4.StringBuffer和StringBuilder都表示一个字符串容器，继承自同一个父类，并且其中大多数方法都是由同一个父类实现，但是StringBuffer所有的修改方法都被synchronized修饰，是一个同步方法，线程安全；StringBuilder则并未被synchronized修饰，因此并非线程安全；
+        4.StringBuffer和StringBuilder都表示一个字符串容器，继承自同一个父类，并且其中大多数方法都是由同一个父类实现，但是StringBuffer所有的修改方法都被synchronized修饰，是个线程安全类，线程安全；StringBuilder则并未被synchronized修饰，因此并非线程安全；
         5.在实际应用中，如果线程间无需共享字符串容器，没有线程安全问题时推荐使用StringBuilder，效率更高；如果需要在多线程间共享字符串容器，有线程安全问题时推荐使用StringBuffer，能够保证线程安全；
     2.关于StringBuffer和StringBuilder创建字符串：(以StringBuffer为例)
         1.创建字符数组初始容量为默认容量值，值为空的StringBuffer对象：
@@ -243,7 +250,7 @@
 
             2.具体扩容方法在AbstractStringBuilder中定义，代码如下：
                 void expandCapacity(int minimumCapacity) {
-                    //先将当前字符数组容量扩大为原来的2倍
+                    //先将当前字符数组容量扩大为原来的2倍+2
                     int newCapacity = value.length * 2 + 2;
 
                     //判断扩容之后的数组长度是否能够存储新的字符串
