@@ -1,12 +1,72 @@
-1.SpringBoot使用JDBC访问数据库
-    1.JDBC开发流程
-    2.SpringBoot中使用JDBC
+1.SpringBoot中配置数据源：
+    1.通过mysql驱动mysql-connector-java创建数据源DataSource：
+        1.方式：
+            MysqlDataSource dm = new MysqlDataSource();
+            dm.setURL("jdbc:mysql://localhost:3306/mybatis_test?serverTimezone=UTC");
+            dm.setUser("root");
+            dm.setPassword("123456");
+        2.特点：
+            1.仅仅只是对JDBC的封装，无连接池；
+            2.每次执行sql都会新建一个连接；
+    
+    2.通过spring-jdbc创建数据源：
+        1.通过DriverManagerDataSource创建数据源DataSource：
+            1.方式：
+                DriverManagerDataSource dm = new DriverManagerDataSource();
+                dm.setDriverClassName("com.mysql.cj.jdbc.Driver");
+                dm.setUrl("jdbc:mysql://localhost:3306/mybatis_test?serverTimezone=UTC");
+                dm.setUsername("root");
+                dm.setPassword("123456");
+            2.特点：
+                1.仅仅只是对JDBC的封装，无连接池；
+                2.每次执行sql都会新建一个连接；
+        
+        2.通过SimpleDriverDataSource创建数据源DataSource：
+            1.方式：
+                SimpleDriverDataSource dm = new SimpleDriverDataSource();
+                Driver driver = new Driver();
+                dm.setDriverClass(driver.getClass());
+                dm.setUrl("jdbc:mysql://localhost:3306/mybatis_test?serverTimezone=UTC");
+                dm.setUsername("root");
+                dm.setPassword("123456");
+            2.特点：
+                1.仅仅只是对JDBC的封装，无连接池；
+                2.每次执行sql都会新建一个连接；
 
-2.SpringBoot使用mubatis访问数据库：
-    1.SpringBoot与mybatis融合
-    2.SpringBoot以DAO方式访问数据库
-    3.SpringBoot以Mapper方式访问数据库
+        3.通过SingleConnectionDataSource创建数据源DataSource：
+            1.方式：
+                SingleConnectionDataSource dm = new SingleConnectionDataSource();
+                Driver driver = new Driver();
+                dm.setDriverClassName("com.mysql.cj.jdbc.Driver");
+                dm.setUrl("jdbc:mysql://localhost:3306/mybatis_test?serverTimezone=UTC");
+                dm.setUsername("root");
+                dm.setPassword("123456");
+            2.特点：
+                1.仅仅只是对JDBC的封装，无连接池；
+                2.采用单例模式实现，每次执行sql都采用的是同一个连接；
+    3.通过spring-boot创建数据源:
+        1.方式：
+            DataSource dm = DataSourceBuilder.create()
+                .driverClassName("com.mysql.cj.jdbc.Driver")
+                .url("jdbc:mysql://localhost:3306/mybatis_test?serverTimezone=UTC")
+                .username("root")
+                .password("123456")
+                .build();
+        2.特点：
+            1.仅仅只是对JDBC的封装，无连接池；
+            2.采用单例模式实现，每次执行sql都采用一个新的连接；
+    4.通过Druid连接池创建数据源：
+        1.方式：
+            DruidDataSource dm = new DruidDataSource();
+            dm.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            dm.setUrl("jdbc:mysql://localhost:3306/mybatis_test?serverTimezone=UTC");
+            dm.setUsername("root");
+            dm.setPassword("123456");
+        2.特点：
+            1.有连接池；
+            
+1.SpringBoot与Mybatis：
+    1.SpringBoot与Mybatis的融合方式：
+        1.使用DAO模式融合：通过直接调用mapper.xml中的查询id来执行查询操作；
+        2.使用Mapper模式融合：通过mapper接口调用mapper接口中的方法来执行查询操作；
 
-3.springBoot使用JDBCTemplate访问数据库：
-
-4.SpringBoot使用JPA访问数据库：
