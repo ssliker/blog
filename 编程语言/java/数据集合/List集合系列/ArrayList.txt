@@ -1,33 +1,35 @@
 1.ArrayList特征：
-    1.ArrayList的数据结构特征是线性表，用来存储一组数据本身，不能像map一样存储k-v；
-    2.ArrayList底层通过能够动态扩容的数组实现，占用一段连续的内存空间,列表中每一个元素都有一个唯一的下标索引，索引值从左向右，由0开始计数；
-    3.ArrayList支持存储null值，并且允许存储重复元素；
-    4.ArrayList未添加任何同步措施，因此并非线程安全，不能直接用做多线程环境下的共享变量；
+    1.ArrayList属于数据结构中的线性表，用来存储一组数据值本身；
+    2.ArrayList中底层通过数组实现，因此元素有序、可重复、可为null，有下标索引；
+    3.ArrayList中元素索引方向从左向右，索引值从0开始计数，可通过下标索引访问元素；
+    4.ArrayList未做任何同步措施，因此并非线程安全类型的数据集合，不能直接用作多线程环境下的共享变量；
+    5.ArrayList能够自动实现扩容，但其容量并非没有限制，其容量限制来自两个方面：
+        1.ArrayList中表示元素个数的属性size时int类型，因此ArrayList中元素个数超过Integer.MAX_VALUE之后将无法表示；
+        2.ArrayList中在扩容时会检测扩容之后的新容量大小，如果新容量大小超过MAX_ARRAY_SIZE(Integer.MAX_VALUE-8)，将会吧数组大小设置为Interger.MAX_VALUE；
 
-2.ArrayList继承结构：
+2.ArrayList的继承结构：
     1.继承结构图：
-        List
-            |--AbstractList
-        |---|--ArrayList
-    
-    2.关于继承关系：
-        1.ArrayList既继承了AbstractList，又继承了List接口；
-        2.ArrayList还继承了RandomAccess接口，该接口无任何抽象方法需要实现，仅仅表示ArrayList支持随机访问特征；
+        ArrayList：
+            --->AbstractList--->List--->Collection
+            --->List--->Collection
+            --->RandomAccess
+    2.继承结构说明：
+        1.通过继承结构图可知其所属类型；
+        2.在AbstractList中已经提供了部分实现，ArrayList继承自AbstractList则复用了其部分实现；
+        3.ArrayList同时继承了RandomAccess；关于RandomAccess而言，并无任何需要实现的方法，仅仅只是一个特征，表示ArrayList支持高效的随机访问；
 
-3.ArrayList内部实现原理：
-    1.ArrayList底层通过一个Object数组(elementData)存储列表中的元素；并且会在数组容量不足时进行扩容；
-    2.ArrayList能够存储的元素个数有限制，该限制体现在两个方面：
-        1.ArrayList中表示元素个数的属性size是int类型，因此元素个数最多不能超过2^31-1；
-        2.ArrayList在扩容时会检测数组长度是否超过MAX_ARRAY_SIZE(Integer.MAX_VALUE-8)，如果超过，那么数组最大长度会被设置为Integer.MAX_VALUE，该值最大为2^31-1；
+3.ArrayList的底层实现原理：
+    1.ArrayList底层通过一个Object数组实现，ArrayList中的元素都存储在Object数组中，因此ArrayList具备数组的所有特征；
+    2.ArayList在数组的基础上增加了自动扩容机制，在数组容量不足时会自动进行扩容；
 
 4.ArrayList的构造方法：
     1.创建空列表：
         ArrayList<> al1 = new ArrayList<>();
-        内部具体实现：将一个空Object数组赋值给elementData，此时数组容量为0；
+        内部具体实现：将一个空Object数组赋值给elementData，此时数组容量为0，元素个数为0；
 
     2.指定初始容量创建ArrayList：
         ArrayList<> al = new ArrayList<>(n)
-        内部具体实现：创建一个长度为n的Object数组，赋值给elementData，此时数组容量为n；
+        内部具体实现：创建一个长度为n的Object数组，赋值给elementData，此时数组容量为n，元素个数为0；
         特别注意：n不能小于0，否则将抛出异常；
     
     3.以其他Collection集合为参数创建ArrayList：
@@ -35,17 +37,75 @@
         内部具体实现：检测collec是否是ArrayList类型，如果是则将collec调用toArray()的结果赋值给elementData，否则通过Arrays.copyOf将collec.toArray()的结果复制给elementData；
     
     4.特别注意：
-        1.数组的长度表示当前ArrayList的容量，数组中实际存储元素的个数表示当前列表的长度；
-        2.ArrayList中的增删改查操作凡需要以索引下标访问元素时，均是以该索引下标与·列表长度·进行对比检查是否越界，而不是数组长度，需要特别注意；
+        1.ArrayList中数组长度和列表长度并不相同：
+            1.数组的长度即存储元素的Object数组的长度，表示当前列表的容量；
+            2.列表长度表示数组中实际存储元素的个数；
+        2.ArrayList中的增删改查操作凡需要以索引下标访问元素时：
+            1.都会先检查索引值是否越界，如果越界将会报越界异常；
+            2.并且检查均是以该索引下标与·列表长度·进行对比检查是否越界，而不是数组长度，需要特别注意；
 
 5.ArrayList的功能API:
+    1.增加元素：
+        add(Obejct o)：
+            1.在列表末尾增加元素o；
+            2.先检测是否需要扩容，然后追加元素至末尾；复杂度为O(1)；
+        add(int index, Object O)：
+            1.在列表指定索引位置插入元素o；
+            2.检测index是否越界，检测是否需要扩容，通过复制的方式将指定位置之后的元素全部向后复制一位，腾出指定位置的空间，然后将元素设置到指定位置；
+        addAll(Collection collec)：在列表末尾插入集合collec；
+        addAll(int index, Collection collec)：在列表指定位置插入集合collec；
 
+    2.删除元素：
+        remove(Object o)：
+            1.删除指定元素o；
+            2.遍历查找元素o所在位置，然后通过将该位置之后的元素全部向前复制一位覆盖掉该元素，达到删除的目的；
+        remove(int index)：
+            1.删除指定位置i处的元素；  
+            2.通过将该位置之后的元素全部向前复制一位覆盖掉该元素，达到删除的目的；
+        removeAll(Collection collec)：删除指定集合中的元素；
+    
+    3.修改元素：
+        set(int index, Object o)：
+            1.修改指定位置i处的元素值为o；
+            2.直接修改，无需定位，复杂度为O(1)；
+
+    4.查询操作：
+        1.获取元素：
+            get(int index)：
+                1.获取指定位置index处的元素；
+                2.直接定位元素，复杂度为O(1)；
+        
+        2.检测元素是否存在：
+            contains(Object o)：
+                1.查看指定元素是否在列表中存在；
+                2.遍历整个链表查找该元素，复杂度为O(n)；
+        
+    5.列表本身操作：
+        1.获取列表元素个数：
+            size()：返回列表元素个数；
+            isEmpty()：检测列表是否为空；
+        2.将列表转换为数组：
+            toArray()：将列表转换为对应类型的数组；
+        3.手动进行扩容：
+            ensureCapacity(int newCapacity)：手动进行扩容；
+        4.返回元素所知位置：
+            indexOf(Obejct o)：返回元素o首次查找到时所在位置；
+            lastIndexOf(Object o)：返回元素o反向首次查找到时所在的位置；
 
 6.ArrayList的扩容流程：
+    1.ArrayList的扩容时机：
+        1.手动调用ensureCapacity(int newCapacity)进行扩容；
+        2.增加元素时触发扩容；
+    
+    2.ArrayList的扩容流程：
+        1.计算待需要扩容的容量：使用列表中元素个数size+新增元素个数作为待扩容容量；
+        2.检测列表是否新建状态：如果列表是新建状态，那么比较默认长度(10)与待扩容容量比较，取其较大的值作为最终需要扩容的容量；
+        3.将modCount++，为快速失败机制做准备；
+        4.将数组旧长度+旧长度/2作为新容量；
+        5.检测新容量是否满足需要扩容的扩容，如果不满足，则间需要扩容的容量作为新容量；
+        6.检测新容量是否超过MAX_ARRAY_SIZE，如果超过，则将数组容量设置为Integer.MAX_VALUE；
 
-7.ArrayList插入和删除元素的流程：
-
-8.ArrayList的遍历：
+7.ArrayList的遍历：
     //for()
     for(int i=0;i<al.size();i++){
         System.out.println(al.get(i));
@@ -73,15 +133,15 @@
         System.out.println(item);
     });
 
-9.ArrayList功能API使用说明：
+8.ArrayList功能API使用说明：
     1.对于增加元素：
-        1.每次增加元素前会先检查是否需要扩容，如果需要扩容，将会先进行扩容，因此实际使用时为了避免频繁扩容，可以预设一个合理的大小；
-        2.按照索引位置增加元素时，会调用System.arraycopy()方法进行数组拷贝，如果在数组头部添加元素，将会导致整个数组被拷贝，性能较差，这种情况应该尽量避免，或者选择LinkedList作为列表容器；
+        1.关于拷贝：每次增加元素前会先检查是否需要扩容，如果需要扩容，将会先进行扩容，因此实际使用时为了避免频繁扩容，可以预设一个合理的大小；
+        2.关于扩容：按照索引位置增加元素时，会调用System.arraycopy()方法进行数组拷贝，如果在数组头部添加元素，将会导致整个数组被拷贝，性能较差，这种情况应该尽量避免，或者选择LinkedList作为列表容器；
     2.对于删除元素：
-        1.如果是按照指定位置删除，那么直接将指定位置之后的元素向前复制一份实现删除功能；如果是按照元素值删除，那么还需要找到首个该元素的位置，然后将该位置之后的元素向前复制一份实现删除功能；
-        2.由于删除功能本质上是通过数组拷贝实现的，因此尽量避免删除首个元素，否则将导致整个数组的拷贝；
+        1.关于查找：如果是按照指定位置删除，那么直接将指定位置之后的元素向前复制一份实现删除功能；如果是按照元素值删除，那么还需要找到首个该元素的位置，然后将该位置之后的元素向前复制一份实现删除功能；
+        2.关于拷贝：由于删除功能本质上是通过数组拷贝实现的，因此尽量避免删除首个元素，否则将导致整个数组的拷贝；
     3.关于遍历和随机访问：
-        1.由于ArrayList中每一个元素都有确定的下标索引，因此，ArrayList的随机访问性能很佳；
+        1.由于ArrayList中每一个元素都有确定的下标索引，因此，ArrayList的随机访问性能很好；
         2.同时由于ArrayList占用一段连续的内存空间，因此其对于cpu的缓存特性很友好，可以充分利用到cpu高速缓存的局部特性，因此遍历性能很好；
     4.关于遍历修改ArrayList的元素：
         1.如果仅仅只是修改元素本身的属性值，那么所有的遍历方式都可以实现；
