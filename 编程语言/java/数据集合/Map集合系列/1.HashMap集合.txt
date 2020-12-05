@@ -1,7 +1,8 @@
 1.HashMap特征：
-    1.HashMap用来存储k-v类型的键值对数据；
+    1.HashMap属于数据结构中字典类型，用来存储k-v类型的键值对数据，key必须唯一，value可以重复；
     2.HashMap允许接收键为null和值为null的k-v数据；但是在实际使用时尽量避免出现null类型的键和null类型的值被添加进去；
-    3.HashMap不会维护存储在其中的k-v顺序，在遍历HashMap时，并不会按照key的添加顺序或者key的大小顺序遍历；
+    3.由于Map中key的唯一性，最多只能添加一个key为null的键值对，但是允许多个key的值为null；
+    4.HashMap不会维护存储在其中的k-v顺序，在遍历HashMap时，并不会按照key的添加顺序或者key的大小顺序遍历；而是按照hash槽的顺序遍历；
     4.HashMap本身没有做任何线程同步处理，并非线程安全集合，不可以直接作为多线程环境下的共享变量；
 
 2.HashMap继承结构：
