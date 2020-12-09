@@ -1,0 +1,55 @@
+1.HashSet特征：
+    1.属于数据结构中的集合，用来存储数据值本身；
+    2.HashSet中的元素无序、不可重复、可为null，具有自动去重功能；
+    3.HashSet未做任何同步措施，因此不可直接使用于多线程环境下的共享变量；
+    4.HashSet通过HashMap实现，因此HashSet存储元素的个数等于HashMap中可容纳key的个数，最多为Integer.MAX_VALUE-1；
+
+2.HashSet继承结构：
+    1.继承结构图
+    --->AbstractSet--->Set--->Collection
+    --->AbstractSet--->AbstractCollection--->Collection
+    --->Set--->Collection
+    2.继承结构说明：
+        1.通过继承结构图即可看到HashSet所属类型；
+
+3.HashSet实现原理：
+    1.HashSet底层通过HashMap来实现，HashSet中的元素会被当做HashMap中的key，指向一个Object对象，存储在HashMap中；
+    2.HashSet复用了HashMap的以下几个特征：
+        1.借助HashMap中key的唯一性来实现HashSet的自动去重功能；
+        2.复用了HashMap中对key的操作方法；
+        3.由于HashMap中并不会维护key的添加顺序或者大小顺序，因此HashSet中也不会维护key的顺序；
+    整体上，HashSet就是一层HashMap的封装；
+
+4.构造方法：
+    1.创建一个空的HashSet：
+        HashSet set = new HashSet();
+    
+    2.创建一个指定初始容量大小的HashSet：
+        HashSet set = new HashSet(int inilizeCapacity)
+    
+    3.创建一个指定初始容量大小和扩容因子的HashSet；
+        HashSet set = new HashSet(int inilizeCapacity, float loadFactor)
+    
+    4.使用其他Collection作为参数创建一个HashSet：
+        HashSet set = new HashSet(Collection<? extends E> c)
+
+5.HashSet提供的功能方法：
+    1.增加元素：
+        add(Object o)：
+            1.调用HashMap的put()方法实现；
+            2.会将待添加元素o作为HashMap的key，然后创建一个Object对象作为key的值存储在HashMap中；
+            3.如果o对应的key已经存在，那么添加失败，返回false，否则返回true；
+    2.删除元素：
+        remove(Object o)：
+            1.调用HashMap的remove()方法实现；
+            2.会将待删除的元素o作为HashMap中待删除的key，查找该key是否存在，如果存在则在HashMap中删除该key；
+            3.如果删除成功赶回true，否则返回false；
+    3.查找元素是否在集合中存在：
+        contains(o):
+            1.调用HashMap的containsKey()方法实现；
+            2.会将待查找元素作为HashMap的key，然后再HashMap中查找该key是否存在；
+    4.获取集合本身信息：
+        1.集合元素个数：
+            size()：调用HashMap的size()方法实现；
+        2.集合是否为空：
+            idEmpty()：调用HashMap的isEmpty()实现；

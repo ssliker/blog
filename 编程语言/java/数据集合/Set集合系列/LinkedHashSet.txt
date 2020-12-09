@@ -1,0 +1,57 @@
+1.LinkedHashSet特征：
+    1.属于数据结构中的集合，用来存储数据值本身；
+    2.LinkedHashSet中的元素按照添加顺序排序、不可重复、可为null，具有自动去重功能；
+    3.LinkedHashSet未做任何同步措施，因此不可直接使用于多线程环境下的共享变量；
+    4.LinkedHashSet通过LinkedHashMap实现，因此LinkedHashSet存储元素的个数等于LinkedHashMap中可容纳key的个数，最多为Integer.MAX_VALUE-1；
+
+2.LinkedHashSet继承结构：
+    1.继承结构图
+    --->AbstractSet--->Set--->Collection
+    --->AbstractSet--->AbstractCollection--->Collection
+    --->Set--->Collection
+    2.继承结构说明：
+        1.通过继承结构图即可看到LinkedHashSet所属类型；
+
+3.LinkedHashSet实现原理：
+    1.LinkedHashSet底层通过LinkedHashMap来实现，LinkedHashSet中的元素会被当做LinkedHashMap中的key，指向一个Object对象，存储在LinkedHashMap中；
+    2.LinkedHashSet复用了HashMap的以下几个特征：
+        1.借助LinkedHashMap中key的唯一性来实现LinkedHashSet的自动去重功能；
+        2.复用了LinkedHashMap中对key的操作方法；
+        3.由于LinkedHashMap中会按照添加顺序来维护key的顺序，因此LinkedHashSet中也会以添加顺序来维护key的顺序；
+    整体上，LinkedHashSet就是一层LinkedHashMap的封装；
+
+4.构造方法：
+    1.创建一个空的LinkedHashSet：
+        LinkedHashSet set = new LinkedHashSet();
+    
+    2.创建一个指定初始容量大小的LinkedHashSet：
+        LinkedHashSet set = new LinkedHashSet(int inilizeCapacity)
+    
+    3.创建一个指定初始容量大小和扩容因子的LinkedHashSet；
+        LinkedHashSet set = new LinkedHashSet(int inilizeCapacity, float loadFactor)
+    
+    4.使用其他Collection作为参数创建一个LinkedHashSet：
+        LinkedHashSet set = new LinkedHashSet(Collection<? extends E> c)
+    
+    备注：LinkedHashSet本质上都是通过HashSet中通过LinkedHashMap作为底层存储结构的构造方法来创建的实例对象；
+
+5.LinkedHashSet提供的功能方法：
+    1.增加元素：
+        add(Object o)：
+            1.调用LinkedHashMap的put()方法实现；
+            2.会将待添加元素o作为LinkedHashMap的key，然后创建一个Object对象作为key的值存储在LinkedHashMap中；
+            3.如果o对应的key已经存在，那么添加失败，返回false，否则返回true；
+    2.删除元素：
+        remove(Object o)：
+            1.调用LinkedHashMap的remove()方法实现；
+            2.会将待删除的元素o作为LinkedHashMap中待删除的key，查找该key是否存在，如果存在则在LinkedHashMap中删除该key；
+            3.如果删除成功赶回true，否则返回false；
+    3.查找元素是否在集合中存在：
+        contains(o):
+            1.调用LinkedHashMap的containsKey()方法实现；
+            2.会将待查找元素作为LinkedHashMap的key，然后再LinkedHashMap中查找该key是否存在；
+    4.获取集合本身信息：
+        1.集合元素个数：
+            size()：调用LinkedHashMap的size()方法实现；
+        2.集合是否为空：
+            idEmpty()：调用LinkedHashMap的isEmpty()实现；
