@@ -1,0 +1,102 @@
+1.编码：
+1.Base64编码处理：
+    1.jdk7以前的处理方式：
+        1.处理类：
+            1.BASE64Encoder：进行编码
+            2.BASE64Decoder：进行解码
+        2.处理流程：
+            编码：
+                BASEEncoder encoder = new BASE64Encoder();
+                String encodeStr = encoder.encode(str.getBytes("UTF-8"));
+            解码：
+                BASE64Decoder decoder = new BASE64Decoder();
+                String decodeStr = new String(decoder.decodeBuffer(encodeStr),"UTF-8");
+    2.jdk8以后的处理方式：
+        1.处理类：
+            1.Base64.Enocder：进行编码；
+            2.Base64.Decoder：进行解码
+        2.处理流程：
+            编码：
+                Base64.Enocder encoder = Base64.getDecoder();
+                String encodeStr = encoder.encodeToString(str.getBytes("UTF-8"));
+            解码：
+                Base64.Decoder decoder = Base64.getDecoder();
+                String decodeStr = new String(decoder.decode(encodeStr),"UTF-8");
+    3.apache commons类库的处理方式：
+        1.处理类：
+            Base64：统一进行编码和解码
+        2.处理流程：
+            编码:
+                Base64 base64 = new Base64();
+                String encodeStr = base64.encodeAsString(str.getBytes("UTF-8"));
+            解码：
+                Base64 base64 = new Base64();
+                String decodeStr = new String(base64.decode(encodeStr),"UTF-8");
+
+2.URL编码解码处理：
+    1.URL编码：
+        1.类库：URLEncoder
+        2.处理方式：
+            String encodeStr = URLEncoder.encode(str,"UTF-8");
+    2.URL解码：
+        1.类库：URLDecoder
+        2.处理方式：
+            String decodeStr = URLDecoder.decode(encodeStr, "UTF-8");
+2.摘要：
+1.MD5处理：
+    1.JDK自带API处理：
+        1.类库：MessageDigest；
+        2.处理流程：
+                计算md5值
+            MessageDigest md5 = MessageDigest.getInstance("MD5")
+            byte[] md5Bytes = md5.digest(str.getBytes("UTF-8"));
+                转16进制字符串
+            1.通过apache commons codec工具转：
+                String hexString = Hex.encodeHexString(md5Bytes);
+            2.通过jdk手动转换
+
+    2.apache commons codec工具处理：
+        1.类库：DigestUtils：
+                1.提供多种参数支持、多种返回值支持的MD5运算；
+                2.支持MD5、MD2类型的摘要运算；
+        2.处理流程：    
+            String hexStrng = DigestUtils.md5Hex(str.getBytes("UTF-8"));
+
+2.SHA1、SHA3、SHA256、SHA512：
+    1.JDK自带API处理：
+        1.类库：MessageDigest；
+        2.处理流程：
+            // 计算sha1值
+            MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+            byte[] sha1Str = sha1.digest(str.getBytes("UTF-8"));
+
+            // 计算sha256值
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            byte[] sha256Str = sha256.digest(str.getBytes("UTF-8"));
+
+
+            // 获取16进制值：
+            String hex1str = Hex.encodeHexString(sha1Str);
+            String hex256str = Hex.encodeHexString(sha256Str);
+
+    2.apache commons codec工具处理：
+        1.类库：DigestUtils：
+                1.提供多种参数支持、多种返回值、多种级别支持的SHA运算；
+        2.处理流程：    
+            String hexStrng = DigestUtils.sha1Hex(str.getBytes("UTF-8"));
+            String hexStrng = DigestUtils.sha256Hex(str.getBytes("UTF-8"));
+            String hexStrng = DigestUtils.sha512Hex(str.getBytes("UTF-8"));
+
+3.uuid：
+    1.uuid表示时空中内容唯一的一段字符串；
+    2.uuid生成方案通常有四种：
+        1.基于时间生成的uuid：uuid的生成和时间、mac地址、随机数有关系；
+        2.基于DEC生成的uuid：算法和基于时间生成uuid的算法类似，但是会把表示时间的部分替换为POSIX的UID或GID；
+        3.基于命名种子生成的uuid：通过名字、名字的MD5值生成；相同名字种子在相同的运行环境中生成的MD5值是相同，不同的名字种子或者在不同的运行环境下生成的MD5值是不同的；
+        4.基于随机数生成的uuid：uuid的生成和随机数有关，有一定概率碰撞
+    3.使用uuid的方案推荐：
+        通常推荐使用第三中方案生成uuid；
+    4.java中生成uuid：
+        1.基于第三中方案：UUID.nameUUIDFromBytes(byte[] byteContent)    // 基于命名种子生成的uuid
+        2.基于第四种方案：UUID.randomUUID().toString()     // 基于随机数生成的uuid
+
