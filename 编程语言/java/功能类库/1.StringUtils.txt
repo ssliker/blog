@@ -83,7 +83,8 @@
         7.left(String str, int len)：截取字符串str前len个字符作为一个字符串；
         8.mid(String str, int pos, int len):从str中间pos位置开始，截取长度为len的子串并返回；
     
-    
+    10.字符串分割：
+        1.split(String spliter)：使用spliter分割字符串，返回字符串数组，默认情况下spliter为空白字符，如果被分割字符串为""，则返回{}，如果被分割字符串为null，则返回null；
     
     
     
