@@ -74,13 +74,14 @@
         2.compareIgnoreCase(String str1, String str2)：比较str1和str2是否相等，不区分大小；
     
     9.字符串截取：
-        1.StringUtils.substring(String str,int start)：截取str中start之后的字符串，包括start位置的字符；
-        2.StringUtils.substring(String str,int start,int end)：截取str中start与end之间的字符串，包括start，不包括end；
-        3.StringUtils.substringAfter(String str,String spliter)：截取str中首次匹配到的spliter之后的字符串，不包括spliter；
-        4.StringUtils.substringBefore(String str,,String spliter)：截取str中首次匹配到的spliter之前的字符串，不包括spliter；
-        5.StringUtils.substringBetween(String str, String open,String close)：截取str中open和close区间的字符串；不包括open和close；
-        6.StringUtils.right(String str, int len)：截取字符串str后len个字符作为一个字符串；
-        7.StringUtils.left(String str, int len)：截取字符串str前len个字符作为一个字符串；
+        1.substring(String str,int start)：截取str中start之后的字符串，包括start位置的字符；
+        2.substring(String str,int start,int end)：截取str中start与end之间的字符串，包括start，不包括end；
+        3.substringAfter(String str,String spliter)：截取str中首次匹配到的spliter之后的字符串，不包括spliter；
+        4.substringBefore(String str,,String spliter)：截取str中首次匹配到的spliter之前的字符串，不包括spliter；
+        5.substringBetween(String str, String open,String close)：截取str中open和close区间的字符串；不包括open和close；
+        6.right(String str, int len)：截取字符串str后len个字符作为一个字符串；
+        7.left(String str, int len)：截取字符串str前len个字符作为一个字符串；
+        8.mid(String str, int pos, int len):从str中间pos位置开始，截取长度为len的子串并返回；
     
     
     
