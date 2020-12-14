@@ -1,3 +1,24 @@
+提纲：
+    编码摘要：
+        |--编码：
+            |-- Base64编码
+                |-- jdk7-Base64
+                |-- jdk8-Base64
+                |-- codec-Base64
+            |-- URL编码
+                |-- URLEncoder
+                |-- URLDecoder
+        2--摘要：
+            |-- md5摘要
+                |-- jdk-MD5
+                |-- codec-MD5
+            |-- sha摘要
+                |-- jdk-sha
+                |-- codec-sha
+            |-- uuid
+                |-- nameUUIDFromBytes
+                |-- randomUUID
+
 1.编码：
 1.Base64编码处理：
     1.jdk7以前的处理方式：
@@ -6,22 +27,24 @@
             2.BASE64Decoder：进行解码
         2.处理流程：
             编码：
-                BASEEncoder encoder = new BASE64Encoder();
+                BASE64Encoder encoder = new BASE64Encoder();
                 String encodeStr = encoder.encode(str.getBytes("UTF-8"));
             解码：
                 BASE64Decoder decoder = new BASE64Decoder();
                 String decodeStr = new String(decoder.decodeBuffer(encodeStr),"UTF-8");
+
     2.jdk8以后的处理方式：
         1.处理类：
             1.Base64.Enocder：进行编码；
             2.Base64.Decoder：进行解码
         2.处理流程：
             编码：
-                Base64.Enocder encoder = Base64.getDecoder();
+                Base64.Enocder encoder = Base64.getEncoder();
                 String encodeStr = encoder.encodeToString(str.getBytes("UTF-8"));
             解码：
                 Base64.Decoder decoder = Base64.getDecoder();
                 String decodeStr = new String(decoder.decode(encodeStr),"UTF-8");
+
     3.apache commons类库的处理方式：
         1.处理类：
             Base64：统一进行编码和解码
@@ -38,6 +61,7 @@
         1.类库：URLEncoder
         2.处理方式：
             String encodeStr = URLEncoder.encode(str,"UTF-8");
+
     2.URL解码：
         1.类库：URLDecoder
         2.处理方式：
@@ -47,7 +71,7 @@
     1.JDK自带API处理：
         1.类库：MessageDigest；
         2.处理流程：
-                计算md5值
+            计算md5值
             MessageDigest md5 = MessageDigest.getInstance("MD5")
             byte[] md5Bytes = md5.digest(str.getBytes("UTF-8"));
                 转16进制字符串
