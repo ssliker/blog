@@ -21,7 +21,7 @@
         3.isNotEmpty(String str)：检测是否不为空，isEmpty()反向操作；不为null且长度大于0即返回true，否则返回false；
         4.isNotBlank(String str)：检测是否不为空，isBlank()反向操作；不为null且长度大于0且元素不能为纯空白字符即返回true，否则返回false；
     
-    2.空白字符过滤：
+    2.字符过滤：
         1.trim(String str)：去除两侧控制字符(\r\n\f\b\t)，如果输入null，则返回null；
         2.trimToNull(String str)：去除两侧控制字符(\r\n\f\b\t)，如果输入为null，则返回null；
         3.trimToEmpty(String str)：去除两侧控制字符(\r\n\f\b\t)，如果输入为null，则返回""；
@@ -31,39 +31,22 @@
         7.strip(String str,String waitStripStr)：去除str两侧在waitStripStr中存在的字符；
         8.stripStart(String str, String waitStripStr)：去除str左侧在waitStripStr中存在的字符；
         9.stripEnd(String str, String waitStripStr)：去除str右侧在waitStripStr中存在的字符；
+        10.removeStart(String str, String remove)：去除str左侧的remove字符串，如果str为""，则返回""，如果str为null，则返回null;
+        11.removeEnd(String str, String remove)：去除str右侧的remove字符串，如果str为""，则返回""，如果str为null，则返回null;
+        12.remove(String str, String remove):去除str中所有的remove内容；
+     
+    3.字符替换：
+        replace(String text, String repl, String with)：将text中的repl全部替换为with;
+        replace(String text, String repl, String with, int max) ：将text中的repl全部替换为with，且设置最大替换次数；
+        replaceOnce(String text, String repl, String with) ：将text中的从左至右，首次匹配到的repl替换为with；
+        
     
-    3.字符串比较：
-        1.compare(String str1, String str2)：比较str1和str2是否相等，不区分大小；
-        2.compareIgnoreCase(String str1, String str2)：比较str1和str2是否相等，不区分大小；
-    
-    4.字符串截取：
-        1.StringUtils.substring(String str,int start)：截取str中start之后的字符串，包括start位置的字符；
-        2.StringUtils.substring(String str,int start,int end)：截取str中start与end之间的字符串，包括start，不包括end；
-        3.StringUtils.substringAfter(String str,String spliter)：截取str中首次匹配到的spliter之后的字符串，不包括spliter；
-        4.StringUtils.substringBefore(String str,,String spliter)：截取str中首次匹配到的spliter之前的字符串，不包括spliter；
-        5.StringUtils.substringBetween(String str, String open,String close)：截取str中open和close区间的字符串；不包括open和close；
-        6.StringUtils.right(String str, int len)：截取字符串str后len个字符作为一个字符串；
-        7.StringUtils.left(String str, int len)：截取字符串str前len个字符作为一个字符串；
-    
-    5.字符串返回值：
+    4.字符串返回值：
         StringUtils.defaultIfBlank(String str, String defaultStr)：如果str为null，或者长度为0，或者是纯空白字符，则返回defaultStr；
         StringUtils.defaultIfEmpty(String str, String defaultStr)：如果str为null，或者长度为0，则返回defaultStr；
         StringUtils.defaultString(String str, String defaultStr)：如果str为null，返回defaultStr；
     
-    6.获取长度：
-        StringUtils.length(CharSequence cs)：获取cs的长度；
-    
-    7.大小写切换：
-        StringUtils.swapCase(String str))：大小写取反；
-        StringUtils.lowerCase(String str))：大写转小写；
-        StringUtils.upperCase(String str))：小写转大写；
-        StringUtils.capitalize(String str)：首字母切换为大写；
-    
-    8.等值检测类：
-        1.equals(String str1, String str2)：区分大小写检测str1和str2是否相等，如果相等则返回true，否则返回false，如果str1和str2都为null也返回true;
-        2.equalsIgnoreCase(String str1, String str2)：不区分大小写检测str1和str2是否相等，如果相等则返回true，否则返回false，如果str1和str2都为null也返回true；
-    
-    9.存在检测类：
+    5.存在检测类：
         1.前缀检测
             1.startsWith(CharSequence sequence, CharSequence prefix)：检测str是否已straim开头；
             2.startsWithAny(CharSequence sequence, CharSequence... searchStrings)：检测字符串sequence是否已searchStrings中的某一个字符串开头；
@@ -81,3 +64,40 @@
             5.containsAny(CharSequence cs, CharSequence... searchCharSequences)：检测cs中是否包含searchCharsSequences中的某个字符；
             6.containsNone(CharSequence cs, char... searchChars)：检测cs中是否不包含searchars中的某个字符；
             7.containsNone(CharSequence cs, String invalidChars)：检测cs中是否包括invalidChars中的某个字符；
+        
+    6.获取长度：
+        StringUtils.length(CharSequence cs)：获取cs的长度；
+        countMatches(String str，String sub)：检测子串sub在str中出现的次数；
+    
+    7.大小写切换：
+        StringUtils.swapCase(String str))：大小写取反；
+        StringUtils.lowerCase(String str))：大写转小写；
+        StringUtils.upperCase(String str))：小写转大写；
+        StringUtils.capitalize(String str)：首字母切换为大写；
+    
+    8.等值检测类：
+        1.equals(String str1, String str2)：区分大小写检测str1和str2是否相等，如果相等则返回true，否则返回false，如果str1和str2都为null也返回true;
+        2.equalsIgnoreCase(String str1, String str2)：不区分大小写检测str1和str2是否相等，如果相等则返回true，否则返回false，如果str1和str2都为null也返回true；
+    
+    9.字符串比较：
+        1.compare(String str1, String str2)：比较str1和str2是否相等，不区分大小；
+        2.compareIgnoreCase(String str1, String str2)：比较str1和str2是否相等，不区分大小；
+    
+    10.字符串截取：
+        1.substring(String str,int start)：截取str中start之后的字符串，包括start位置的字符；
+        2.substring(String str,int start,int end)：截取str中start与end之间的字符串，包括start，不包括end；
+        3.substringAfter(String str,String spliter)：截取str中首次匹配到的spliter之后的字符串，不包括spliter；
+        4.substringBefore(String str,,String spliter)：截取str中首次匹配到的spliter之前的字符串，不包括spliter；
+        5.substringBetween(String str, String open,String close)：截取str中open和close区间的字符串；不包括open和close；
+        6.right(String str, int len)：截取字符串str后len个字符作为一个字符串；
+        7.left(String str, int len)：截取字符串str前len个字符作为一个字符串；
+        8.mid(String str, int pos, int len):从str中间pos位置开始，截取长度为len的子串并返回；
+    
+    11.字符串分割：
+        1.split(String str)：使用空白分割符分割字符串，返回字符串数组，如果被分割字符串为""，则返回{}，如果被分割字符串为null，则返回null；
+        2.split(String str，char separatorChar)：使用separatorChar分割字符串，返回字符串数组，如果被分割字符串为""，则返回{}，如果被分割字符串为null，则返回null；
+        3.split(String str，String  separatorChars)：使用separatorChars分割字符串，返回字符串数组，如果被分割字符串为""，则返回{}，如果被分割字符串为null，则返回null；
+    
+    
+    
+    
