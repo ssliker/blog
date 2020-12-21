@@ -1,21 +1,64 @@
-1.关于OS与JVM环境参数
-    1.OS环境参数
-    2.JVM环境参数
-    3.访问OS与JVM环境参数
-    4.添加OS与JVM环境参数
+1.springBoot项目的配置
+    1.加载默认配置文件中的配置：
+        1.默认配置文件名称：
+            1.application.properties
+            2.application.yml
+        2.默认配置文件地址：
+            1.classpath:/
+            2.classpath:/config/
+            3.file:./
+            4.file:./config/*/
+            5.file:./config/
+        3.配置文件位置优先级：
+            1.配置文件位置优先级从高至低按顺序为：
+                file:/config -> file:/config/*/ -> file:/ -> classpath:/config -> classpath:/
+            2.文件位置优先级与配置文件加载关系：
+                文件位置优先级不会影响配置文件加载，所有配置文件中的内容都会被加载
+            3.文件位置优先级与配置项加载关系：
+                1.同名配置下，优先级高的将会覆盖优先级低的；
+                2.不同名配置，将会形成互补；
+    
+    2.加载指定配置文件：
+        1.通过spring.profiles.include指定待加载配置文件：
+            1.功能：
+                可以通过spring.profiles.include指定待加载配置文件的profiles，系统将会加载application-{profiles}.properties配置文件或者application-{profiles}.yml配置文件，是springBoot提供的一种扩展配置文件的方式；
+            2.使用方式：
+                在application.properties中指定spring.profiles.include的值为配置文件的前缀即可，如：
+                    指定：spring.profiles.include=dev
+                    那么系统将会加载application-dev.properties配置文件或者application-dev.yml配置文件
+                同时该参数允许同时指定过个前缀，多个前缀直接以,分隔即可，如：
+                    指定：spring.profiles.include=redis,mysql,kafka
+                    那么系统将会加载application-redis.properties、application-mysql.properties、application-kafka.properties配置文件或者对应application-{profiles}.yml配置文件；
+            3.注意事项：    
+                1.该参数要有效，必须先在顶层配置中配置，如默认配置文件配置或者应用启动时以命令参数配置；
+                2.该参数指定的仅仅只是配置文件的前缀，具体的配置文件必须以application-{profiles}.properties或者application-{profiles}.yml命名；
+                3.spring.profiles.active的使用场景在于：根据不同的配置目标使用不同的配置文件，如：
+                    分别在不同的文件中配置redis、kafka、mysql的相关配置，隔离不同类型的配置项，使配置更加简洁明了；
+                4.该参数可同时指定多个值，系统会依次加载对应的配置文件；对于同名配置，其profiles值越靠后则对应的配置文件优先级越高，非同名配置则互补；
+                5.整体上由spring.profiles.include指定的配置文件优先级高于任意位置配置的默认配置文件；
 
-2.springBoot配置文件
-    1.配置文件名称
-    2.配置文件位置
-    3.配置文件加载顺序
-    4.加载自定义配置文件
-    5.配置项的访问
-        @Value
-        @ConfigureProperties
-        ConfigurableEnvironment
+        2.通过spring.profiles.active指定待加载配置文件：
+            1.功能：
+                可以通过spring.profiles.active指定待加载配置文件的profiles：系统将会加载application-{profiles}.properties配置文件或者application-{profiles}.yml配置文件
+            2.使用方式：在application.properties中指定spring.profiles.active的值为配置文件的前缀即可，如：
+                指定：spring.profiles.active=dev
+                那么系统将会加载application-dev.properties配置文件或者application-dev.yml配置文件
+            3.注意事项：
+                1.该参数要有效，必须先在顶层配置中配置，如默认配置文件配置或者应用启动时以命令参数配置；
+                2.该参数指定的仅仅只是配置文件的前缀，具体的配置文件必须以application-{profiles}.properties或者application-{profiles}.yml命名；
+                3.spring.profiles.active一次仅能指定一个值，表示当前要加载的配置文件，不可以赋予多个值；
+                4.spring.profiles.active的使用场景在于：根据程序的运行环境不同，通过该值来切换不同场景下的配置文件，如：
+                    开发环境下指定该值为dev，测试环境下指定该值为test，生产环境下指定该值为prod，可以通过该值灵活使用不同环境下的配置文件；
+                3.spring.profiles.active指定的配置文件优先级高于spring.profiles.include指定的配置文件以及任何位置的默认配置文件；
 
-3.SpringBoot配置详解
-    1.springBoot中加载配置的实现原理
-    2.springBoot中访问配置的实现原理
-    3.springBoot中配置文件的加载流程
-    4.springBoot中自定义配置加载方式
+    3.通过注解加载指定配置文件：
+        1.@PropertySource(value={"classpath:a.properties","file:b.properties"})
+        2.@ImportResource(locations={"a.xml","b.xml"})
+
+3.springBoot配置管理方式：
+
+4.springBoot中读取配置
+    @Value
+    @ConfigurationProperties
+    ConfigurableEnvironment
+    System
