@@ -1,0 +1,44 @@
+1.logback功能简介：
+    1.logback是一个日志记录框架，提供了完整的日志记录功能；
+    2.logback提供记录日志的具体实现，使用时则需要结合SLF4J作为门面对外提供日志记录api；
+    3.logback支持以同步记录或者异步记录两种方式记录日志；
+    4.logback支持以固定文件记录、滚动文件记录的方式记录日志，同时在滚动策略上支持按照日期时间滚动或者按照日志文件大小滚动；
+    5.logback支持日志文件清理以及压缩，更加节省存储空间；
+    6.logback也是springBoot默认的日志记录框架；
+
+2.logback组成简介：
+    1.logback结构上主要由三部分组成：
+        Logger：负责记录日志，按照不同日志级别提供不同记录日志的api；
+        Appender：负责输出日志信息，按照配置将日志信息输出至不同位置，Appender需要作为Logger的组件来工作；
+        Encoder：负责格式化日志信息，按照配置将日志信息进行格式化，Encoder需要作为Appender的组件来工作；
+
+    2.logback需要引入的依赖：
+        1.logback本身需要引入logback-classic和logback-core依赖：
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>1.2.3<version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.3<version>
+            </dependency>
+        2.由于Logback以SLF4J作为门面，因此还需要引入slf4j-api依赖：
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.30</version>
+            </dependency>
+    
+    3.logback提供的日志级别：
+        1.级别类型：
+            TRACE：追踪级别
+            DEBUG：调试级别
+            INFO：信息级别
+            WARN：警告级别
+            ERROR：错误级别
+        2.级别范围大小：
+            TRACE < DEBUG < INFO < WARN < ERROR
+        3.级别兼容性：
+            logback只会记录和日志级别大于或者等于当前日志级别的日志信息；

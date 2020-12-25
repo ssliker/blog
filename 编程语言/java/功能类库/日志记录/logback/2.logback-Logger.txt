@@ -1,0 +1,28 @@
+1.Logger功能：
+    Logger负责记录日志，根据不同日志级别分别提供了不同的api；
+
+2.Logger记录日志的方法：
+    1.方法类型：
+        trace()：记录trace级别日志；
+        debug()：记录debug级别日志；
+        info()：记录info级别日志；
+        warn()：记录warn级别日志；
+        error()：记录error级别日志；
+    2.方法传参方式：
+
+3.Logger组织结构：
+    1.Logger组织形式：  
+        1.Logger之间会形成树状的层级结构，Logger之间的层级关系同时表示了其日志级别的继承关系，在没有为当前logger明确指定日志级别时，当前logger的日志级别则继承自其父级logger；如果明确指定了当前Logger的日志级别，则使用指定的日志级别；
+        2.Logger的层级通过名称体现，上层Logger与下层Logger之间通过`.`来分隔，`.`左侧的Logger是右侧Logger的父级Logger；除过root logger以外，所有的logger都有父级，如果没有通过名称来指定其父级的logger时，则默认当前logger直接继承自root logger；
+        3.root logger是logback中其他所有logger的根logger，root logger自身并无父级logger，由logback自动创建，日志级别默认为debug；
+    2.Logger的获取：
+        1.logger获取方式：
+            logback以上slf4j作为门面，需要通过slf4j的LoggerFactory来获取
+            Logger logger = LoggerFactory.getLogger();
+        2.getLogger参数：
+            1.可以直接使用字符串作为参数：
+                Logger logger = LoggerFactory.getLogger("logname");
+                备注：此时将会查找名称为logname的logger，如果找不到将会自动创建一个名称为logname的logger；
+            2.可以直接使用当前类的Calss对象作为参数：
+                Logger logger = LoggerFactory.getLogger(ClassName.class);
+                备注：此时将会以当前类全路径作为logger的名称自动创建一个logger；

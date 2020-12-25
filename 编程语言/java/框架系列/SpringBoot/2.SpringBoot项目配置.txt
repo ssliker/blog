@@ -55,8 +55,11 @@
         1.@PropertySource(value={"classpath:a.properties","file:b.properties"})
         2.@ImportResource(locations={"a.xml","b.xml"})
 
-3.springBoot配置管理方式：
+    4.通过启动命令参数指定配置
 
+3.springBoot配置管理方式：
+    1.配置项组织形式：
+    2.
 4.springBoot中读取配置
     @Value
     @ConfigurationProperties
