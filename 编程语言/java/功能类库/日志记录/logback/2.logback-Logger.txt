@@ -9,12 +9,13 @@
         warn()：记录warn级别日志；
         error()：记录error级别日志；
     2.方法传参方式：
-
+        1.
 3.Logger组织结构：
     1.Logger组织形式：  
-        1.Logger之间会形成树状的层级结构，Logger之间的层级关系同时表示了其日志级别的继承关系，在没有为当前logger明确指定日志级别时，当前logger的日志级别则继承自其父级logger；如果明确指定了当前Logger的日志级别，则使用指定的日志级别；
-        2.Logger的层级通过名称体现，上层Logger与下层Logger之间通过`.`来分隔，`.`左侧的Logger是右侧Logger的父级Logger；除过root logger以外，所有的logger都有父级，如果没有通过名称来指定其父级的logger时，则默认当前logger直接继承自root logger；
-        3.root logger是logback中其他所有logger的根logger，root logger自身并无父级logger，由logback自动创建，日志级别默认为debug；
+        1.Logger之间会形成树状的层级结构，Logger的层级通过名称体现，上层Logger与下层Logger之间通过`.`来分隔，`.`左侧的Logger是右侧Logger的父级Logger；除过root logger以外，所有的logger都有父级，如果没有通过名称来指定其父级的logger时，则默认当前logger直接继承自root logger；
+        2.root logger是logback中其他所有logger的根logger，root logger自身并无父级logger，由logback自动创建，日志级别默认为debug；
+        3.Logger之间的层级关系主要表示了其日志级别的继承关系，在没有为当前logger明确指定日志级别时，当前logger的日志级别则继承自其父级logger；如果明确指定了当前Logger的日志级别，则使用指定的日志级别；通过日志级别的继承关系可以很方便的实现对某一类logger的日志级别进行管理；
+        
     2.Logger的获取：
         1.logger获取方式：
             logback以上slf4j作为门面，需要通过slf4j的LoggerFactory来获取
@@ -26,3 +27,11 @@
             2.可以直接使用当前类的Calss对象作为参数：
                 Logger logger = LoggerFactory.getLogger(ClassName.class);
                 备注：此时将会以当前类全路径作为logger的名称自动创建一个logger；
+            实际使用时推荐以当前类的class对象作为logger的名称，这样做主要有两个好处：
+                1.类全路径的包名以.来分隔，与logger中以.来分隔相同，因此可以通过设置不同包路径的日志级别来统一管理该包下面所有类的日志级别；
+                2.以类的calss对象作为logger名称时，可以在配置文件中直接通过%logger来表示当前记录日志的类；
+    
+    3.Logger的配置：
+        在logback配置文件中可以通过以下方式来配置logger；
+        1.对于root Logger的配置：
+            

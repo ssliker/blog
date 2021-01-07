@@ -1,0 +1,33 @@
+1.logback配置文件名称及位置：
+    logback查找配置文件名及位置顺序如下：
+    1.首先在当前类路径下按顺序寻找名为 logback-test.xml、logback.groovy、logback.xml的配置文件。
+    2.如果是maven项目，则在resource目录下按顺序寻找名为logback-test.xml、logback.groovy、logback.xml的配置文件；
+    3.如果上述两步均未找到相关配置文件，将会通过JDK提供的ServiceLoader工具在类路径下寻找 META-INFO/services/ch.qos.logback.classic.spi.Configurator的具体实现类，并读取其中的配置；
+    4.如果上述三步均未找到配置文件，则将通过BasicConfigurator为自己进行配置；默认会将日志打印在控制台；
+
+2.logback的配置内容(以logback.xml为例)：
+    1.关于context：
+        1.每一个logger都会附加到一个logger context上，默认情况下，该context的名称时default；
+        2.通过 <contextName>myAppName</contextName>即可设置该context名称；
+        3.在pattern中则可以通过%contextName来获取该logger对应的contextName;在其他位置则可以通过${CONTEXT_NAME}来获取该属性；
+        4.该值通常建议设置为APP_NAME，并且在日志中打印出来；方便查看该日志所属app名称；
+    
+    2.关于属性的配置：
+        1.在logback中添加属性配置：
+            1.直接添加单个属性：
+                <property name="property_name" value="property_value" />
+            2.通过指定properties配置文件地址导入属性：
+                <property file="xxx\property.properties"/>
+                注：要使用property.properties中的配置项，必须先以上述方式导入配置文件；
+
+            3.通过访问maven项目的resource下的properties配置文件导入属性：
+                <property resource="application.properties"/>
+                注：要使用application.properties中的配置项，必须先以上述方式导入配置文件；
+                
+
+        2.在logback中访问属性：
+            1.访问方式：${属性名}
+            2.访问属性顺序：本地范围(logback配置文件配置的属性)、上下文范围、系统属性范围(SystemProperties)、系统环境变量(SystemEnvironment);
+            3.实际使用时，推荐需要在logback中使用到的属性均定义在logback配置文件中，便于查看和维护；
+            
+
