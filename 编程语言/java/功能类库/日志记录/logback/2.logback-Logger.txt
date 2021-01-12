@@ -34,4 +34,22 @@
     3.Logger的配置：
         在logback配置文件中可以通过以下方式来配置logger；
         1.对于root Logger的配置：
+            <root level="debug">
+                <appender-ref ref="STDOUT"></appender-ref>
+            </root>
+            说明：
+                1.根logger必须用root作为节点名称；
+                2.根logger只有一个属性：level，表示根logger的日志级别；
+                3.appender-ref表示为该logger分配的appender，一个logger可以分配多个appender；
+                
+        2.对于其他logger：
+            <logger name="demo" level="debug" additivity="false">
+                <appender-ref ref="FILE"></appender-ref>
+            </logger>
+            说明：  
+                1.其他logger必须用logger作为节点名称。通过name属性指定该logger的名称；
+                2.level表示该logger的日志级别，不指定时继承自其父logger的日志级别；
+                3.additivity：表示logger的叠加性，默认是true；
+                4.appender-ref表示为该logger分配的appender，一个logger可以分配多个appender；
+
             
