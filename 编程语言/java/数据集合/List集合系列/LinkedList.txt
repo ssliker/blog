@@ -1,7 +1,8 @@
 1.LinkedList特征：
     1.LinkedList属于数据结构中的线性表，用来存储一组数据值本身，由于实现了队列的接口，同时也具有队列的特征；
     2.LinkedList中底层通过双向链表实现，因此元素有序、可重复、可为null，但是并无下标索引；
-    3.LinkedList中元素虽然没有下标索引，但由于实现了List接口，因此仍然支持以下标索引的方式随机访问；
+    3.LinkedList中元素虽然没有下标索引，但由于实现了List接口，因此仍然支持以下标索引的方式随机访问，内部则通过遍历实现
+    ；
     4.LinkedList未做任何同步措施，因此并非线程安全类型的数据集合，不能直接用作多线程环境下的共享变量；
     5.LinkedList通过双向链表实现，无需扩容，理论上并无元素个数限制，但其容量实际上会受到其长度属性size的限制，由于其size属性为int类型，因此LinkedList中元素个数不能超过Integer.MAX_VALUE；
 
@@ -22,20 +23,16 @@
         1.LinkedList内部通过构建一个Node类型来存储元素，在Node中添加了两个属性：prev和next来表示该Node节点的前置节点和后继节点，通过prev和next建立起关于Node节点的双向链表；
         2.同时在LinkedList中添加了两个属性：head和tail：表示双向链表的头结点和尾节点；
     3.LinkedList内部还实现了Queue相关接口，来实现队列的相关特征；
-    4.LinkedList由于是通过双向链表实现，因此元素并不会占用连续的存储空间，而且元素没有实际的下标索引，也无需扩容；
+    4.LinkedList由于是通过双向链表实现，因此元素并不会占用连续的存储空间，而且元素没有实际的下标索引，但由于其能够充分利用零碎的空间存储元素，因此也无需扩容；
 
 4.LinkedList的构造方法：
     1.创建空列表：
         LinkedList<> ll1 = new LinkedList<>();
-        内部具体实现：将一个空Object数组赋值给elementData，此时数组容量为0；
+        内部具体实现：无任何具体内容，直接创建一个LinkedList实例对象；
 
     2.以其他Collection集合为参数创建LinkedList：
         LinkedList<> ll2 = new LinkedList<>(collec)
         内部具体实现：调用参数为空的构造方法，创建LinkedList对象，然后遍历collec，添加至LinkedList中；
-    
-    3.特别注意：
-        1.数组的长度表示当前LinkedList的容量，数组中实际存储元素的个数表示当前列表的长度；
-        2.LinkedList中的增删改查操作凡需要以索引下标访问元素时，均是以该索引下标与·列表长度·进行对比检查是否越界，而不是数组长度，需要特别注意；
 
 5.LinkedList的功能API:
     1.增加元素：
@@ -82,6 +79,8 @@
         4.返回元素所知位置：
             indexOf(Obejct o)：返回元素o首次查找到时所在位置；
             lastIndexOf(Object o)：返回元素o反向首次查找到时所在的位置；
+        5.清空整个列表：
+            clear()：清空整个列表；
 
     6.队列特征操作：
 
@@ -119,13 +118,13 @@
         2.但是如果增删改元素的位置不在头部或者尾部，那么需要遍历整个链表，查找元素，此时效率会退化为O(n)，因此使用LinkedList时尽量避免增删改中间位置元素；
         3.根据LinkedList的特性，其头部或者尾部元素的增删改效率非常高；
     3.关于遍历和随机访问：
-        1.由于LinkedList并不会像ArrayList一样占用一段连续的内存空间，因此并不能很好的利用cpu缓存的局部性原理，整体遍历性能不如LinkedList；
-        2.LinkedList随机访问元素时，需要从头部或者尾部遍历整个链表查找元素，极端情况下，其复杂度为O(n)；因此随机访问性能较差；
+        1.关于遍历：由于LinkedList并不会像ArrayList一样占用一段连续的内存空间，因此并不能很好的利用cpu缓存的局部性原理，整体遍历性能不如LinkedList；
+        2.关于随机访问：LinkedList随机访问元素时，需要从头部或者尾部遍历整个链表查找元素，极端情况下，其复杂度为O(n)；因此随机访问性能较差；
     4.关于遍历修改LinkedList的元素：
         1.如果仅仅只是修改元素本身的属性值，那么所有的遍历方式都可以实现；
         2.如果是希望将LinkedList某个位置的元素替换为另一个元素，那么只能使用for(int i;i<size;i++)循环按照索引遍历的方式，并调用set()方法实现；
         3.如果是希望在遍历时删除某些元素，那么只能使用iterator+while的方式，并调用iterator.remove()实现；
     5.关于LinkedList的去重和检测：
-        1.LinkedList内部检测元素是否存在的contains()方法与LinkedList相同，都是通过遍历来查找对比实现的，最差的时间复杂度是O(n)，因此效率很差，尽量避免直接使用LinkedList检测元素存在性，而是将LinkedList转为Set进行检测；Set内部使用hashcode实现元素的查找，效率较高；
+        1.LinkedList内部检测元素是否存在的contains()方法与ArrayList相同，都是通过遍历来查找对比实现的，最差的时间复杂度是O(n)，因此效率很差，尽量避免直接使用LinkedList检测元素存在性，而是将LinkedList转为Set进行检测；Set内部使用hashcode实现元素的查找，效率较高；
         2.同时避免使用contains()方法结合循环遍历实现LinkedList的去重，而是应当将LinkedList转为Set进行去重；
     
