@@ -91,6 +91,8 @@
         4.返回元素所知位置：
             indexOf(Obejct o)：返回元素o首次查找到时所在位置；
             lastIndexOf(Object o)：返回元素o反向首次查找到时所在的位置；
+        5.清空整个list
+            clear()：清空整个ArrayList;
 
 6.ArrayList的扩容流程：
     1.ArrayList的扩容时机：
