@@ -1,4 +1,5 @@
 1.Arrays.ArrayList特征：
     1.Arrays.ArrayList是Arrays的一个内部类，通过Arrays.asList得到；其继承自AbstractList；复用了AbstractList部分功能实现；
-    2.Arrays.ArrayList虽然继承自AbstractList，属于List类型，但其只实现了List接口的部分方法，对于未实现的方法，在编译时能够编译通过，但是实际运行时将会报错，必须要注意；
-    3.Arrays.ArrayList内部实现的方法具体有以下几个：get()、set()、sort()、indexOf()、lastIndexOf()、contains()，除此之外，不允许显式或隐式调用其他方法；
+    2.Arrays.ArrayList虽然继承自AbstractList，属于List类型，但其只实现了List接口的部分方法，具体有以下几个：get()、set()、sort()、indexOf()、lastIndexOf()、contains()，除此之外，不允许显式或隐式调用其他方法；
+
+2.将Arrays.ArrayList转换为真正的ArrayList
