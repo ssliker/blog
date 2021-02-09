@@ -6,8 +6,8 @@
 
 2.LinkedHashSet继承结构：
     1.继承结构图
-    --->AbstractSet--->Set--->Collection
-    --->AbstractSet--->AbstractCollection--->Collection
+    --->HashSet--->AbstractSet--->Set--->Collection
+               --->AbstractSet--->AbstractCollection--->Collection
     --->Set--->Collection
     2.继承结构说明：
         1.通过继承结构图即可看到LinkedHashSet所属类型；
