@@ -137,7 +137,7 @@
                 3.FutureTask使用到的设计模式：
                     1.本质上，FutureTask就是适配器模式的具体实现；通过FutureTask让Callable能够更好的适配Thread，方便以统一的方式创建线程；
 
-    4.不同创建线程方式的区别：
+    5.不同创建线程方式的区别：
         1.Runable和Thread的区别：
             1.继承方式不同：
                 1.Thread是抽象类，一旦继承了Thread之后将不能在继承其他类；
@@ -148,15 +148,15 @@
         2.关于Runable和Callable的区别：
             1.返回值差异：
                 1.Runable类型的run方法无返回值，因此无法返回线程执行结果；
-                2.Callable类型的call方法有返回值，可以返回线程执行结果；如果线程执行时间较长，那么获取执行结果的操作将会阻塞；
+                2.Callable类型的call方法有返回值，可以同步获取call方法的执行结果；如果线程执行时间较长，那么获取执行结果的操作将会阻塞；
             2.创建方式不同：
                 1.Runable实例可以直接作为Thread的参数创建线程实例；
                 2.Callable实例则需要通过适配器FutureTask适配之后，才能传递给Thread创建线程实例；
 
 4.线程的基本属性：
     1.当前正在被执行的线程：
-        1.通过Thread.currentThread()方法即可获取当前正在被cpu执行的线程；
-        2.该方法是一个静态方法，通常用在线程内部中，返回的是该线程对象(即Thread类的某一个实例对象)；
+        1.方法：Thread.currentThread()
+        2.currentThread方法是一个静态方法，通常用在线程内部中，返回的是正在执行该指令的线程对象；
     2.线程id：
         1.系统为每一个线程设置了一个整数id，用来唯一标识当前进程的线程，称为线程id；
         2.当前线程的id通过线程对象调用实例方法getId()即可获取，如：Thread.currentThread.getId();
@@ -182,8 +182,8 @@
     5.守护线程：
         1.守护线程是指运行在进程后台的线程，与之相对的是前台线程，默认情况下创建的线程均是前台线程；
         2.守护线程与前台线程本质上相同，只是进程结束与否只与前台线程相关，只要前台线程没有结束进程也不会结束，但是只要进程结束，无论守护线程是否结束，都将被终止；
-        3.前台线程通常用来执行一些必须的事物，后台线程则用来执行一些可以随时被终止的非必须事物；
-        4.设置为守护线程的方式：setDaemon(true)；如:Thread.currentThread().setDaemon(true);
+        3.前台线程通常用来执行一些必须的业务性事务，后台线程则用来执行一些可以随时被终止的非业务性事物；
+        4.设置为守护线程的方式：setDaemon(true)；
         5.特别注意的是，后台线程必须在前台线程未调用start()方法启动之前设置，并且一旦线程转换为守护线程之后将无法转换为前台线程；
 
 5.线程的生命周期：
@@ -201,25 +201,26 @@
             线程中的指令全部运行完毕，线程执行结束的状态；
 
 6.线程状态管理：
-    1.Object类以及Thread类提供了几个线程状态管理的相关方法，具体如下：
+    1.object类以及Thread类提供了几个线程状态管理的相关方法，具体如下：
         1.Object类：
-            Object.wait()、Object.notify()、Object.notifyAll()
+            object.wait()、object.notify()、object.notifyAll()
+            说明：上述方法均是实例方法；需要通过
         2.Thread类：
             Thread.sleep()、thread.join()、Thread.yield()
-    2.关于Object.wait()、Object.notify()、Object.notifyAll()方法：
+    2.关于object.wait()、object.notify()、object.notifyAll()方法：
         1.方法功能描述：
-            1.Object.wait()通常用来阻塞线程，使线程从运行状态进入阻塞状态，并释放持有的锁；
-            2.Object.notify()方法用来唤醒调用过Object.wait()而进入阻塞状态的指定线程；
-            3.Object.notifyAll()方法用来唤醒所有调用过Object.wait()而进入阻塞状态的线程；
+            1.object.wait()通常用来阻塞线程，使线程从运行状态进入阻塞状态，并释放持有的锁；
+            2.object.notify()方法用来唤醒调用过object.wait()而进入阻塞状态的指定线程；
+            3.object.notifyAll()方法用来唤醒所有调用过object.wait()而进入阻塞状态的线程；
         2.使用方式和场景：
             1.上述三个方法通常需要和synchronized以及条件变量配合使用，来满足线程间需要按照一定顺序同步执行的场景；
             2.相关原理如下：
                 1.通过synchronized可以实现线程间的同步执行；
-                2.通过条件变量配合Object.wait()阻塞需要暂停执行的线程；
-                3.通过调用Object.notify()唤醒其他线程，并通过条件变量的检测决定是否允许当前被唤醒的线程执行；
-        3.关于Object.notify()和Object.notifyAll()：
-            1.Object.notify()一次可以唤醒一个处于阻塞状态的线程，如果同时有多个线程处于阻塞状态时将随机唤醒一个；被唤醒的线程是否允许执行则要通过条件变量来判断；
-            2.Object.notifyAll()一次可以唤醒所有处于阻塞的状态的线程；
+                2.通过条件变量配合object.wait()阻塞需要暂停执行的线程；
+                3.通过调用object.notify()唤醒其他线程，并通过条件变量的检测决定是否允许当前被唤醒的线程执行；
+        3.关于object.notify()和object.notifyAll()：
+            1.object.notify()一次可以唤醒一个处于阻塞状态的线程，如果同时有多个线程处于阻塞状态时将随机唤醒一个；被唤醒的线程是否允许执行则要通过条件变量来判断；
+            2.object.notifyAll()一次可以唤醒所有处于阻塞的状态的线程；
             3.实际使用中：notifyAll()可能造成惊群效应，而notify()又可能造成死锁；
     3.关于Thread.sleep():  
         1.该方法是Thread类的静态方法，可以使线程在运行状态下直接进入阻塞状态，并且可以设置一个有效时间，在到达有效时间之后将会从新进入就绪状态，与该方法效果相同的还有TimeUnit.XXX.sleep(int sleepTime);
