@@ -1,0 +1,196 @@
+1.关于springMVC：
+    1.从应用角度看：springMVC是一个基于MVC结构的web框架；使用springMVC可以快速开发web应用；
+    2.从代码角度看：springMVC本质上就是一个封装过的servlet；简化了直接使用Servlet的开发web应用的方式；
+
+2.springMVC相对于servlet的简化点：
+    1.请求处理方式不同：
+        servlet一个path对应一个servlet,业务逻辑只能定义在servlet的service方法中，一个应用下可能会产生非常多的servlet；
+        springMVC一个path可以对应一个controller中的某个方法，可以对将同类型path的处理方法定义在一个类的不同方法中，减少servlet的数量，方便开发和管理；
+    2.路由注册方式不同：
+        servlet中必须向web.xml中手动注册所有的路径和servlet的映射关系；
+        springMVC基于RequestMapping注解的方式实现路径和处理方法的配置；
+    3.响应内容的不同：
+        servlet中只能向客户端响应一段字符串；不同格式数据需要自己手动处理；
+        springMVC中可以自动封装视图文件，也支持Restful方式返回接口数据；
+
+3.springMVC结构流程：
+    原始方式：
+        1.定义Controller，也就是继承自Controller接口的java类；在java类的handleRequest中即可执行具体的业务逻辑；一个Controller就是一个能够处理请求的handler，并且只能在handler中的handleRequest方法中定义业务逻辑；
+            public class MyController implements Controller {
+                public ModelAndView handleRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+                    System.out.println("AC---controller");
+                    ModelAndView mv = new ModelAndView("a");
+                    return mv;
+                }
+            }
+        2.向web.xml注册DispatcherServlet，配置请求路径和spring的配置文件等信息:
+            <servlet>
+                <servlet-name>springmvc</servlet-name>
+                <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+                <init-param>
+                    <param-name>contextConfigLocation</param-name>
+                    <param-value>classpath:springmvc-servlet.xml</param-value>
+                </init-param>
+                <load-on-startup>1</load-on-startup>
+            </servlet>
+            <servlet-mapping>
+                <servlet-name>springmvc</servlet-name>
+                <url-pattern>/</url-pattern>
+            </servlet-mapping>
+        3.在spring.xml中配置相关信息：
+            <!--映射器--HandlerMapping-->
+            <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping" id="handlerMapping"></bean>
+            <!--适配器器--HandlerAdapter-->
+            <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter" id="handlerAdapter"></bean>
+            <!--视图解析器--模板引擎-->
+            <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" id="viewResolver">
+                <property name="prefix" value="/web/WEB-INF/viewpage/"/>
+                <property name="suffix" value=".html"/>
+            </bean>
+            <!--处理器--继承自Controller的Handler类-->
+            <bean id="/ac" class="com.sslike.controller.AC"></bean>
+    注解方式：
+        1.定义Controller，通过@Controller注解定义，在类中可以通过@RequestMapping注解定义处理请求的方法；
+            @Controller
+            public class MyController{
+
+                @RequestMapping("/请求路径")
+                public void handlerRequestFun(){
+                    // 业务逻辑
+                }
+            }
+        2.向web.xml注册DispatcherServlet，配置请求路径和spring的配置文件等信息:
+            <servlet>
+                <servlet-name>springmvc</servlet-name>
+                <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+                <init-param>
+                    <param-name>contextConfigLocation</param-name>
+                    <param-value>classpath:springmvc-servlet.xml</param-value>
+                </init-param>
+                <load-on-startup>1</load-on-startup>
+            </servlet>
+            <servlet-mapping>
+                <servlet-name>springmvc</servlet-name>
+                <url-pattern>/</url-pattern>
+            </servlet-mapping>
+        3.在spring.xml中配置相关信息：
+            <!--自动注册HandlerAdapter、HandlerMapping-->
+            <mvc:default-servlet-handler></mvc:default-servlet-handler>
+            <!--开启自动扫描、自动注册Controller等bean-->
+            <context:component-scan base-package="com.sslike.controller"></context:component-scan>
+            <!--让RequestMapping生效-->
+            <mvc:annotation-driven></mvc:annotation-driven>
+           
+springMVC原理：
+    1.关于Handler：
+        1.Hadnler就是能够处理请求路径的方法；springMVC中解决这个问题有两个分支：
+            1.一个url映射到一个类，类时处理url的最小级别；然后调用类中固定的方法处理:
+                1.继承Controller，然后实现handler=Request方法；返回一个视图；
+                2.继承HttpRequestHandler，然后实现handler=Request方法；无返回值；
+                3.通过继承Servlet或者HttpServlet的方式实现一个Controller；
+            2.将一个url映射到一个类中的方法，方法是处理url的最小级别；
+                1.通过@Controller配合@RequestMapping来实现将一个请求对应到一个方法中；
+            
+    2.关于HandlerMapping：
+        1.用来维护url路径和处理该url路径的controller的映射关系；
+        2.根据Handler类型的不同，HandlerMapping也分为两个分支：
+            1.AbstractUrlHandlerMapping：处理将url映射至一个类的场景；
+            2.AbstractHandlerMethodMapping：处理将url映射至一个方法的场景；
+        3.对于AbstractUrlHandlerMapping常见的有两种实现类：
+            BeanNameUrlHandlerMapping：
+            SimpleUrlHandlerMapping：
+        4.对于AbstractHandlerMethodMapping：
+            RequestMappingHandlerMapping：
+    
+    3.关于HandlerAdapter：
+        1.为何需要HandlerAdapter：
+            1.由于Servlet中请求处理方法的入参就两个参数：ServletRequest和ServletResponse，但是通过@ReqeustMaping定义的处理方法入参多种多样；
+            2.请求处理方法的定义也是多种多样
+            3.请求处理方法的返回值类型也是多种多样；
+            总之对于一个请求的处理方式差异很大，单请求都是统一被dispatchServelet处理的，所以需要一个适配器，来简化DispatchServlet处理请求；
+        2.HandlerAAdapter主要解决三个问题：Handler方法适配、返回值适配、handler定义方式适配；原理在于，HandlerAdapter中定义了三个方法：
+            supports：返回布尔值，表示当前适配器是否能够适配当前Handler；即当前handler是否是当前适配器的子类；
+            handler：完成参数的适配、业务逻辑的执行、返回值的适配；
+            getLastModified：请求最后的修改时间；
+        3.HandlerAdapter常见实现类：
+            1.RequestMappingHandlerAdapter：处理@RequestMapping方式声明处理器的适配器；会检测handler是不是HandleMethod接口的实现类
+            2.HttpRequestHandlerAdapter：适配实现HttpRequestController接口的适配器，handle方法内部直接调用handleRequest方法；
+            3.SimpleServletHandlerAdapter：适配实现Servlet接口的适配器，handle方法内部直接调用handleRequest方法；
+            4.SimpleControllerHandlerAdapter：适配实现Controller接口的适配器，handle方法内部直接调用handleRequest方法；
+    
+    4.关于springMVC请求流程：
+        1.客户端发送请求给反向代理，反向代理将请求转发给web容器，web容器调用dispatcherServlet处理请求；
+        2.dispatcherServlet调用doDispatch处理请求；
+        3.doDispatch调用getHandler方法查找能够处理该请求的Handler，并将该handler和为该url添加的拦截器组装成一个FilterExecutionChain；即拦截器链，然后返回该拦截器链；具体的handler则是通过FilterExecutionChain调用getHandler获取；
+        4.调用getHandlerAdapter，然后把通过FilterExecutionChain调用getHandler获取到的handler传递进去查找能够处理该请求的HandlerAdapter;
+        5.通过FilterExecutionChain调用拦截器的前置处理方法，即执行拦截器的preHandler;
+        6.然后通过HandlerAdapter调用handler方法统一处理请求:
+            1.调用HttpMessageConvert来封装参数；
+            2.执行具体处理方法；
+            3.通过HttpMessageConvert来封装返回结果；
+        7.将handler方法返回的视图交给视图解析器解析，返回一个视图页面；
+        8.执行拦截器的后置处理方法，即postHandle方法；
+    
+    5.如何查找HandleMapping：
+        遍历所有的HandleMapping：查找与该url最匹配的Handler；
+    
+    6.如何查找HnalderAdapter：
+        遍历HandlerAdapter，并调用HandlerAdapter的supports方法获取能够处理该handler的适配器；
+    
+
+springMVC使用：
+
+1.springMVC如何解决乱码问题：
+    1.对于post请求：在web.xml中配置一个characterEncodingFilter过滤器即可；
+    2.对于get请求：修改tomcat配置文件的connector标签添加与工程编码一致的字符编码；
+                  或者对获取到的参数进行重新编码；String userName = new String(request.getParamter("userName").getBytes("ISO8859-1"),"utf-8")
+2.springMVC注册拦截器：
+    1.重写HandlerInterceptor接口中的preHandle和postHandle和afterCompletion方法；
+        说明：
+            1.不同拦截方法的区别：
+                preHandle：在调用处理器之前调用该方法；如果方法返回true则继续向下进行，否则直接被拦截；
+                postHandle：在调用完处理器后调用该方法
+                afterCompletion：在试图渲染完毕之后回调
+            2.调用顺序：请求->dispatcherServlet->preHandle->controller->dispatcherServlet->postHandle->dispatcherServlet->试图解析器->afterCompletion;
+
+    2.通过在*-dispatcher.xml中配置即可
+        <mvc:interceptors>
+            <mvc:interceptor>
+                <mvc:mapping path="/**"/>
+                <mvc:exclude-mapping path="/login"/> 　　
+                <mvc:exclude-mapping path="/index"/>
+                <bean class="package.interceptor.XXInterceptor"/>
+            </mvc:interceptor>
+        </mvc:interceptors>
+        说明：
+            1.<mvc:interceptors>包含一组拦截器；
+            2.mvc:interceptor会被解析成MappedInterceptor；
+            2.mvc:mapping：表示要拦截的路径；会被解析为MappedInterceptor的includePatterns属性；
+            3.mvc:execulde-mapping：表示要排除的路径；会被解析为MappedInterceptor的execludePatterns属性；
+            4.<bean>通常表示要使用的拦截器；会被解析为MappedInterceptor的interceptor属性；
+    3.拦截器链：
+        1.在项目中可以定义多个拦截器；多个拦截器按照拦截规则顺序执行，称为拦截器链；
+
+    4.指定拦截顺序：
+        1.拦截顺序：按照mvc:interceptors中定义的mvc:interceptor顺序来拦截；
+        2.调用情况：
+            1.preHandle按照定义顺序来顺序调用；
+            2.postHandle按照定义顺序逆序调用；
+            3.afterCompletion按照定义顺序逆序调用；
+        
+3.统一异常处理：
+    1.方法：使用@ControllerAdavice配合@ExceptionHandler实现；
+    2.原理：
+        在HandlerAdapter初始化时会注册很多工具，同时也会扫描被@ControllerAdavice修饰的类，将给类注册为异常处理工具；处理handle执行过程中发生的异常；
+
+4.常用注解：
+    1.@Controller
+    2.@Service
+    3.@component
+    4.@Respoistory
+    5.@RestController
+    6.@ResponseBody
+    7.@RequestMapping
+
+5.项目目录结构：
+    

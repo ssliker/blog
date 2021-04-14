@@ -1,0 +1,10 @@
+重定向：
+    responseServlet.sendRedirect("/new/path")
+转发：
+    request.getRequestDispatcher("/new/path").forward(requstServlet，responseServlet)；
+
+重定向与转发区别：
+    1.重定向发生在浏览器端，可以跳转至任意资源，转发发生在服务端，只能跳转至当前服务端有的资源；
+    2.重定向会引起浏览器一次新的请求，转发只是将请求转发给另一个servlet处理而已；
+    3.重定向会引起页面地址改变，转发不会引起页面地址改变；
+    4.重定向不能携带上次请求参数，只能手动传递字符串，转发会将本次请求的request和response都携带上；

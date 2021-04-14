@@ -1,0 +1,16 @@
+ServletConfig:
+    作用：用来获取web.xml中为servlet配置的init-param参数值；
+    使用流程：
+    web.xml
+        <servlet>
+            <servlet-name></servlet-name>
+            <servlet-class></servlet-class>
+            <init-param>
+                <param-name>attr_name</param-name>
+                <param-value>attr_value</param-value>
+            </init-param>
+        </servlet>
+    
+    servlet：
+        ServletConfig sc = this.getServletConfig();
+        String value = sc.getInitParamter("attr_name");

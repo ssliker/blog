@@ -1,0 +1,20 @@
+ServletRequest/HttpServletReqyest：
+    1.web容器每接收一个新的请求，就会创建一个ServletRequest实例，封装本次请求的所有信息；包括请求的头信息、请求体、协议、端口等等；
+    2.常用方法：
+        getRequestURL方法返回客户端发出请求时的完整URL。
+        getRequestURI方法返回请求行中的资源名部分。
+        getQueryString 方法返回请求行中的参数部分。
+        getPathInfo方法返回请求URL中的额外路径信息。额外路径信息是请求URL中的位于Servlet的路径之后和查询参数之前的内容，它以“/”开头。
+        getRemoteAddr方法返回发出请求的客户机的IP地址
+        getRemoteHost方法返回发出请求的客户机的完整主机名
+        getRemotePort方法返回客户机所使用的网络端口号
+        getLocalAddr方法返回WEB服务器的IP地址。
+        getLocalName方法返回WEB服务器的主机名
+        getHeader方法
+        getHeaders方法
+        getHeaderNames方法
+        getParameter方法
+        getParameterValues（String name）方法
+        getParameterNames方法
+        getParameterMap方法
+    3.request也可以作为一个请求上下文使用，可以向request中添加属性和获取属性，所加属性只对本次请求有效；

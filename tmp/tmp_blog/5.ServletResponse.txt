@@ -1,0 +1,28 @@
+ServletResponse/HttpServletResponse:
+    1.每接收一个新的请求就会创建一个ServletResponse对象，来封装需要返回给客户端的响应信息，包括响应头和响应体；
+    2.常用方法：
+        1.设置响应头：
+            setHeader()
+            setXXX()
+        
+        2.输出内容；
+            #输出二进制流
+            servletResponse.getOutPutStream().print()
+            servletResponse.getOutPutStream().write()
+            #输出字符流
+            servletResponse.getWriter().print()
+            servletResponse.getWriter().write()
+            字符编码：
+                1.浏览器要和输出内容的字符编码一致，通常使用UTF-8：
+                    对于getOutPutStream：
+                    #设置浏览器显示当前页面所需编码
+                        response.setHeader("Content-Type", "text/html;charset=UTF-8");
+                    #输出内容编码：
+                        servletResponse.getOutPutStream().print("".getBytes("UTF-8"))
+                        servletResponse.getOutPutStream().write("".getBytes("UTF-8"))
+                    对于getWriter：
+                    response.setContentType("text/html;charset=UTF-8");等同于：
+                        response.setHeader("Content-Type", "text/html;charset=UTF-8");
+                        response.setCharacterEncoding("UTF-8");
+                    因此只需要setContentType即可；
+        3.response也可以作为本次请求的上下文使用，可以添加和获取属性，只针对本次请求有效；

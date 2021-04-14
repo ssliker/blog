@@ -1,0 +1,476 @@
+# 多线程编程
+
+## 1.关于线程:
+
+### 1.线程和进程:
+
+​	1.进程是一个正在运行或等待运行的程序，进程本质上是程序运行时的一个概念；
+
+​	2.进程由线程组成，一个进程中至少包括一个线程，即进程的主线程；处理器在执行进程中的代码时也是以线程为单位的，即线程是cpu执行和调度的基本单位；
+
+​	3.主线程在进程启动时就会创建，其他线程则需要在主线程中创建；一个进程中的所有线程平等竞争处理器时间片，没有主次之分；
+
+​	4.计算机系统进行资源分配的最小单位就是进程，一个进程内的所有线程共享一个进程的资源，系统不会为线程单独分配资源；
+
+### 2.线程和操作系统：
+
+​	1.线程是系统调度和执行的基本单位，每个线程运行期间占用一个处理器核心，对于多核心处理器而言，使用多线程可以充分利用多个核心提高运算效率；
+
+​	2.操作系统允许的线程个数并不是任意的，不同平台会有不同的限制，主要来自两个方面：
+
+​		1.系统采用的线程模型：对于Linux：Linux操作系统主要有两种线程模型，LinuxThreads和NPTL：
+
+​				LinuxThreads模型下一个进程能够创建的线程数时1024个，也可以修改为其他值；
+
+​				NPTL模型下则无限制；
+
+​		2.系统的资源空间大小：即进程能够使用的虚拟地址空间大小以及物理内存空间的大小，物理虚拟地址空间还是物理内存大小都不是无线大的，任意一个空间被耗尽，系统都会kill掉进程；
+
+## 2.关于java中的线程:
+
+### 1.关于java中的多线程：
+
+​	1.java中的程序都运行在java虚拟机，也就是JVM上，而JVM本质上就是一个进程，所以java应用的线程本质上都是自定义在JVM上的线程；
+
+​	2.JVM中的线程和系统中的线程一一对应，方便实现线程的调度；
+
+### 2.java中创建线程:
+
+	#### 1.通过Thread创建线程:
+
+```java
+//自定义类继承Thread，并实现其run方法即可 
+public class SelfThread extends Thread
+ {
+   @override    
+   public void run()
+   {
+     System.out.println(“use Thread abstract class create thread!")
+   }
+ }
+                        
+ //创建线程
+Thread thread = new SelfThread()
+```
+
+#### 2.通过Runable创建线程:
+
+```java
+//自定义类继承Runable接口，然后实现其run方法即可
+public class SelfThread implements Runable
+{
+  @override    
+  public void run()
+  {
+    System.out.println(“use Thread abstract class create thread!")
+  }
+}
+//创建线程
+Thread thread = new Thread(new SelfThread())
+```
+
+#### 3.通过Callable创建线程:
+
+```java
+//自定义类继承Callable接口，然后实现其call方法即可
+public class SelfThread implements Callable<String>
+{
+  @override    
+  public String call()
+  {
+    System.out.println(“use Thread abstract class create thread!")
+    return "";
+  }
+}
+//创建线程
+SelfThread st = new SelfThread();
+FutureTask ft = new FutureTask(st);
+Thread thread = new Thread(ft);
+                       
+//获取线程执行结果
+ft.get();
+```
+
+#### 4不同方式创建线程区别:
+
+​	1.关于Thread和Runable：
+
+​		1.由于java语法的限制，一个类仅支持单继承，一旦继承了class之后将不能再继承其他class，因此通过Thread类来实现线程会对当前类带来一定限制；而继承Runable接口之后，该类仍然能够继承其他的类，可保证该类的可扩展性；
+​		2.通过继承Thread类来创建的多个线程各自独立，每个线程都有创建线程时的一份数据资源，各执行各的互不影响，类似于将同一个任务分别通过不同的线程执行了多次；通过继承Runable接口来创建的多个线程共享同一份线程资源，互相竞争处理资源，类似于多个线程共同完成一个任务;
+
+​	2.关于Callable：
+
+​		1.Callable实现线程可以返回一个值，而Runable和Thread都无法返回一个具体的值；
+
+​		2.Callable需要封装为FutureTask来接收其返回值；接收方式为ft.get()；但是由于get方法需要等待线程返回结果可能造成阻塞；
+
+#### 5.线程相关属性和方法:
+
+​	1：获取当前正在执行的线程：Thread.currentThread()；
+
+​        说明：
+
+​            1：Thread.currentThread()获取的是当前进程中被cpu正在执行的线程；
+​            2：在代码中，一个线程就是一个线程类的实例对象，因此Thread.currentThread返回的是当前进程中正在执行中的线程对象的引用；
+
+​    2：获取线程id：通过线程引用调用getId()即可获取，如：Thread.currentThread().getId()；
+
+​		说明：1.线程id是线程的唯一标识，整数，不可更改，主线程从1开始计数；
+
+​    3：关于线程名：
+​        设置方式：
+​            1：默认情况下会以Thread-0、Thread-1这种方式命名；
+​            2：也可以在创建线程时命名：
+​                #如果是继承Thread接口创建线程：
+​                    Thread thread = new SelfThread("自定义线程名称")
+​                #如果是继承Runable接口创建线程：
+​                    Thread thread = new Thread(new SelfThread(),"自定义线程名称")
+​            3：可以通过线程对象的setName方法命名：
+​                    thread.setName("线程名称");
+​                    Thread.currentThread().setName("线程名称");
+​        获取方式：
+​            1：通过线程对象获取线程名称：
+​                thread.getName()
+​                Thread.currentThread().getName()
+
+#### 6.关于守护线程:
+
+​	1.守护线程是指运行在进程后台的线程，只有进程结束，无论守护线程结束与否，都将随着进程一起结束，与守护线程相关的还有用户线程；
+
+​	2.用户线程是指运行在进程前台的线程，只要用户线程不结束，那么进程也不会结束，只要所有的用户线程结束，那么进程也将结束；
+
+​	3.守护线程和用户线程的区别：
+​            1：在线程本质上并无区别，只是对于线程的结束机制不同而已：一旦所有的用户线程结束，那么进程也将结束；如果进程结束，那么无论守护线程结束与否都将随着进程结束；即进程结束与否只和用户线程有关；
+​            2：守护线程和用户线程用来执行的任务不同：守护线程一般用来执行一些和具体业务逻辑无关的任务，用户线程一般用来执行具体的业务逻辑；
+
+​	4.创建守护线程和用户线程：
+
+​			1.默认情况下创建的线程都是用户线程；
+
+​			2.守护线程需要由用户线程转换得到，即用户线程调用setDaemon(true)即可将用户线程转换为守护线程；另外需要注意的是setDaemon必须在线程start之前设置；并且一旦线程转换为守护线程之后将无法在转换为用户线程；
+
+#### 7.线程优先级:
+
+​	1.默认情况下线程平等竞争cpu时间片，但是也可以为线程设置优先级，调整线程被调度的频次；
+
+​	2.线程优先级的设置方式：
+​            1：设置线程优先级：thread.setPriority(int priority);
+​                                Thread.currentThread().setPriority(int priority);
+​            2：获取线程优先级：thread.getPriority();
+​                                Thread.currentThread().getPriority();
+
+​    3.线程优先级的特征：
+
+​                1：线程优先级只是指导系统以不同概率调度线程，并非完全线性的设置不同线程的执行频率和顺序；
+
+​                2：不同操作系统对不同执行频率的线程分配时间片的策略不同，因此要慎重设置线程的优先级；
+
+​                3：线程优先级具有继承性，线程中启动的其他线程将会继承该线程的优先级；
+
+​				4.系统默认线程的优先级为5，最高可设置为10，最低可设置为1；
+
+####     8：线程的生命周期：
+​        1：线程状态类型：新建状态、就绪状态、运行状态、阻塞状态、结束状态；
+
+​        2：线程状态描述：
+​            1：新建状态：
+​                    即创建一个新的线程对象：Thread thread = new Thread(new SelfThread())；该线程对象在调用start()方法之前都属于新建状态；不能运行；
+​            2：就绪状态：
+​                    即使用线程对象调用start()方法之后将属于就绪状态：thread.start()；就绪状态的线程才能竞争cpu时间片；
+​            3：运行状态：
+​                    即当前线程处于正在被系统执行的状态，使用Thread.currentThread()即可获取当前正在执行中的线程；
+​            4：阻塞状态：
+​                    如果当前线程在执行状态下，等待获取synchronized锁或者等待IO方法返回或者调用了object.wait()、Thread.sleep()、Thread.join()方法之后当前线程将会处于阻塞状态，直至获取到synchronized锁或者IO方法返回；
+​            7：结束状态：
+​                    如果当前线程已经执行完毕，那么线程将结束；
+
+#### 9.线程状态管理：
+
+​	1.Object以及Thread类提供了几个线程状态管理的相关方法：Object.wait()；Object.notify()；Object.notifyAll()；Thread.sleep()；Thread.join()
+
+​	2.Object.wait()：
+
+​			1.该方法通常需要和synchronized以及条件变量配合使用，用来控制线程的执行状态；其使用模型如下：
+
+​					1.线程间有对共享资源的访问，必须通过synchronized来控制，同一时刻只能有一个线程执行同步代码；
+
+​					2.线程间对共享资源的访问需要根据条件控制访问顺序，而不是完全的乱序执行；因此需要借助wait和notify以及notifyAll来配合完成；
+
+​			2.线程调用了该方法之后挂起线程，让出执行机会，并释放线程持有的synchronized锁；
+
+​			3.调用该方法的线程需要通过其他线程调用notify和notifyAll()方法来唤醒；唤醒之后将会处于就绪状态，直到竞争到cpu时间片之后才能继续运行；
+
+​	3.object.notify()/object.notifyAll()
+
+​			1.可以唤醒调用了wait方法被挂起的线程；
+
+​			2.notify一次唤醒一个处于阻塞状态的线程，如果有多个阻塞的线程，那么随机唤醒一个；
+
+​			3.notifyAll一次可以唤醒所有处于阻塞状态的线程；
+
+​			4.实际使用中通常都是使用notifyAll而不是notify，因为notify可能造成死锁；
+
+​	4.Thread.sleep：
+
+​			1.该方法时Thread类提供的静态方法，用来让线程进入阻塞状态，和该方法功能相同的还有Timeunit.SECOND.sleep();
+
+​			2.该方法可以在线程任意地方使用，不必和synchronized配合，并且会响应线程中断；
+
+​			3.该方法如果在synchronized同步代码块中使用的话，并不会释放线程持有的锁；
+
+​			4.该方法需要设置超时时间，当超过时间之后线程会被自动唤醒，那么将会线程会自动进入就绪状态；
+
+​	5.thread.join()：
+
+​		1.该方法表示让出当前线程的执行机会，进入阻塞状态，由调用该方法的线程来执行；该方法是实例方法，必须由线程对象来调用；
+
+​		2.该方法支持设置超时时间，如果被让出的线程在超时时间到达之后还未执行完毕，那么将会自动唤醒当前被阻塞的线程；否则将会一直阻塞，直至被让出线程执行完毕；
+
+​	6.Thread.yield()：
+
+​		1.该方法用来让出执行机会给优先级比自己高或者和自己一样优先级的线程执行；
+
+​		2.但是调用该方法的线程并不会进入阻塞状态，而是重新进入就绪状态，等待被执行；
+
+​	7.除过使用JDK自带的系列方法以外，还可以使用juc包下Lock和Condition配合实现线程状态的精确管理；
+
+#### 10.线程异常处理：
+
+​		1.不能在主线程中捕获子线程中的异常；子线程一旦启动之后，将会独立运行，而主线程将捕获不到子线程中的异常；
+
+​		2.子线程中的异常需要由子线程内部来处理；
+
+## 3.关于线程池:
+
+	### 1.关于线程池:
+
+​	1.如果在每次需要使用到线程时都需要创建线程，使用完成之后又需要销毁线程，那么效率将会比较低；因此可以在程序启动时就创建好指定数量的线程，并同意管理线程的状态，在需要线程时无需创建线程，只需要从线程池中获取线程即可，在使用完线程之后只需要将线程归还到线程池即可，也无需销毁线程，避免每次都要创建和销毁线程；
+
+​	2.类似线程池的这种池化计数不仅仅只在线程池中有用到，比如网络连接中的连接池等；避免频繁的建立和销毁网络连接；
+
+​	3.使用池化技术可以带来以下这些优点：
+
+​		1.能够实现线程复用，避免过多创建线程，导致资源耗尽；
+
+​		2.避免频繁创建和销毁线程，提高线程使用效率；
+
+### 2.关于java中的线程池：
+
+#### 1.java中线程池体系结构：
+
+​										 Executor
+
+​									 ExecutorService
+
+​						       AbstractExecutorService
+
+​								  ThreadPoolExecutor
+
+​										  Executors:
+
+​												newFixedThreadPool
+​            									newSingleThreadPool
+​            									newCachedThreadPool
+​            									newScheduledThreadPool
+
+#### 2.java中线程池体系结构介绍：
+
+##### 1.关于Executor：
+
+​	1.Executor是线程池的顶级接口，但是Excecutor本身只是提供了执行线程的一个接口，并没有提供线程池的具体实现；
+
+​	2.Executor中仅仅提供了一个执行线程的execute方法；
+
+##### 2.关于ExecutorService：
+
+​	1.ExecutorService本身仍然是一个接口，继承自Executor，在Executor的基础上又增加了一系列管理线程池以及线程的抽象方法；
+
+​	2.ExecutorService本身只是在Executor基础上提供了：shutdown()、isShutdown()、shutdownNow()、terminated()、isTerminated()、submit()，invokeAll()、invokeAny()等方法；
+
+##### 3.关于AbstractExecutorService：
+
+​	1.继承自ExecutorService的抽象类，实现了线程管理的公共方法；
+
+​	2.该抽象类内部增加了一个将Callable和Runable接口封装为RunableFuture类型的方法newTaskFor()；除此之外还实现了ExecutorService中的submit以及invoke相关方法；
+
+##### 4.关于ThreadPoolExecutor：
+
+​	1.ThreadPoolExecutor类继承自AbstractExecutorService，是线程池的具体实现，提供了线程池本身的管理、线程池任务的管理、线程池中线程的管理等功能；是一个功能完备的可以直接使用的线程池；
+
+​	2.关于线程池的状态，ThreadPoolExecutor定义了五种状态来描述；分别是：RUNNING、SHUTDOWN、STOP、TIDYING、TERMINATED；这五种状态具体解释如下：
+​        RUNNING：
+​                线程池处于运行状态，能够正常接收任务并执行任务；
+​        SHUTDOWN：
+​                 线程池处于关闭状态，不再接收新的任务，但是可以正常执行之前已提交并阻塞在任务对列中的任务；在RUNNING状态下调用shutdown()方法可以进入该状态；
+​        STOP：
+​       		  线程池处于结束状态，即不再接收新提交的任务，也不会处理之前已提交并阻塞在任务对列中的任务；线程池处于RUNNING或者SHUTDOWN状态时调用shutdownNow()方法之后线程池将处于该状态；
+​        TIDYING：
+​                 如果所有的任务都已经执行完毕，任务对列中没有等到执行的任务，线程池中也没有线程正在执行任务，那么就会处于TIDYING状态；
+​        TERMINATED：
+​                            线程池在TIDYING状态下调用terminated()方法将会进入TERMINATED状态；
+
+​	3.ThreadPoolExecutor提交和执行任务的流程：
+​		1.调用submit()向线程池中提交任务；
+​		2.线程池检测此时核心线程数是否已满，如果未满则创建核心线程来执行任务；
+​		3：如果核心线程数已满，则检测任务对列是否已满，如果任务对列未满，则将任务放至任务对列；
+​		4：如果任务对列已满，则检测线程池中最大线程数是否已满，如果最大线程数未满，则创非核心建线程执行任务；
+​		5：如果线程池中最大线程数已满，则按照拒绝策略来拒绝任务；
+
+​	4.ThreadPoolExecutor中相关参数和描述：
+
+​		1.参数要求：
+​			1.核心线程数                   corePoolSize            int类型
+​			2.最大线程数                   maxPoolSize             int类型
+​			3.空闲线程存活时间              keepAliveTime           long类型
+​			4.等待被执行的任务对列           workQueue               BlockingQueue
+​			5.创建线程的工厂                threadFactory
+​			6.线程无法执行任务时的拒绝策略    Handler                 RejectedExecutionHandler			
+​		2：参数说明：
+​    		1.核心线程数（corePoolSize）：
+
+​       			1.线程池常驻线程个数；即线程池中最少要有的线程个数；
+
+​    		2.最大线程数（maxPoolSize）：
+
+​        			1.线程池最多容纳的线程个数；
+
+​					2.在核心线程数消耗完毕，并且任务对列也被占满时线程池将会创建线程来执行任务，最多创建最大线程数个线程；
+
+   		 3.空闲线程存活时间（keepAliveTime）：
+
+​				1.当前程池中的线程无任务可执行，且线程个数大于核心线程数时，那么多余的线程在等待线程存活时间之后将会被销毁；    
+
+​				2.当线程个数被销毁至核心线程数之后将会停止；    		
+
+​	   	 4.等待被执行的任务对列（workQueue）：
+
+​        		1：当前待执行的任务数超过当前线程池中核心线程数量之后，待执行任务将会暂时存放在任务对列中等待被执行；
+​        		2.任务对列的类型选择对线程池的工作方式有比较大的影响，大致分为两种类型：有界对列和无界对列；
+
+​					1.有界对列通常用来应对任务数可控且不多的场景，在任务对列已满，并且线程池中线程数已经达到最大线程数时将会按照预置的拒绝策略来拒绝任务；
+
+​					2.无界对列可以允许容纳任意多个任务，其容纳任务的个数取决于系统资源；一般用来应对任务数较多且可能出现突发任务的场景；但是对于这种对列，如果线程处理任务速度较慢，任务会一直堆积在对列中，如果堆积的任务国道导致资源耗尽也会导致程序崩溃，因此通常情况下都是使用有界对列；
+
+​				3.常用的对列有以下几种：
+
+​					1.PriorityBlockingQueue：是具有优先级的无界阻塞队列；    				
+
+​					2.LinkedBlockingQueue：基于链表实现的可设置容量的阻塞对列，如果不设置容量，那么成为无界对列；
+
+​    				3.ArrayBlockingQueue：基于数组实现的有界对列；
+
+​    				4.SynchronousQueue：同步对列，不会暂存等待执行的任务，每个插入操作都需要等到另一个线程调用移除操作，否则将一直处于阻塞状态；
+
+​    				5.DelayQueue：任务定时周期的延迟执行的队列。根据指定的执行时间从小到大排序，否则根据插入到队列的先后排			
+
+​			5.创建线程的工厂（threadFactory）:
+
+​				1.如果线程池中线程数量不足时，将会通过threadFactory来创建线程;可以自定义ThreadFactory类来实现线程的创建；
+
+​			6.线程无法执行任务时的拒绝策略（Handler）：
+
+​				1.如果当前线程池中的线程数已经达到最大线程数，且任务对列已满，线程池将会拒绝接受任务，此时将会根据提前配置的拒接策略来拒绝
+
+​				2.常用拒绝策略如下：
+
+​					AbortPolicy(抛出一个异常，默认的)
+
+​					DiscardPolicy(直接丢弃任务)
+
+​					DiscardOldestPolicy（丢弃队列里最老的任务，将当前这个任务继续提交给线程池）
+
+​					CallerRunsPolicy（交给线程池调用所在的线程进行处理)
+
+​		3.线程池中的一些细节:
+
+​			1：线程池创建时并不会直接创建corePoolSize个核心线程，而是单纯的创建线程池本身，只有接收到任务时才会创建线程，即便此时有空闲核心线程，只要核心线程数未达到corePoolSize,都会继续创建线程，直至核心线程数达到corePoolSize个；				
+
+​		 2：如果任务提交时，已无空闲核心线程，那么会首先将任务放至任务对列，而非直接创建非核心线程来执行任务；
+​		 3：如果此时线程池中线程数已经超过核心线程数，但是并无任务可执行，那么非核心线程将会按照设置的超时时间来销毁；
+
+##### 5.关于executors：
+
+​		1.executors是一个基于ThreadPoolExecutor实现的具体的线程池类，内部提供了多种不同实现的线程池：
+
+​			newFixedThreadPool
+​        	newSingleThreadPool
+​        	newCachedThreadPool
+​        	newScheduledThreadPool
+
+​		2.newFixedThreadPool：
+
+​			1.需要手动指定一个线程数，核心线程数和最大线程数相同，都是指定的线程数；
+
+​			2.空闲线程的存活时间是0.即只要有空闲线程，将会立即被销毁；
+
+​			3.任务对列采用的是LinkedBlockingQueue，即链表实现的无界对列；
+
+​			4.创建方式:
+
+````java
+//nThreads为线程的数量 
+Executors.newFixedThreadPool(int nThreads)；
+//nThreads为线程的数量，threadFactory创建线程的工厂方式 
+Executors.newFixedThreadPool(int nThreads，ThreadFactory threadFactory)；
+````
+
+​		3.newCachedThreadPool:
+
+​			1.核心线程数是0，最大线程数时Integer.MAX_VALUE；
+
+​			2.空闲线程的存活时间默认是1分钟，超过一分钟即被销毁；
+
+​			3.任务对列采用SynchronousQueue，即任务会直接提交给线程池，而不会暂存，如果线程不够将会立即重新创建线程；
+
+​			4.适用场景：一般用来执行耗时断，并发量大的任务；
+
+
+
+​		4.newSingleThreadExecutor:
+
+​			1.核心线程数和最大线程数均为1；
+
+​			2.空闲线程的存活时间默认为0，即一旦线程空闲将会立即被销毁；
+
+​			3.任务对列采用LinkedBlockingQueue无界对列；
+
+​			4.适用场景：适用于串行执行任务的场景；
+
+​		5.newScheduledThreadPool：
+
+​			1.核心线程数需要手动指定，最大线程数为Integer.MAX_VALUE;
+
+​			2.空闲线程的存活时间为0；
+
+​			3.任务对列采用DelayedWorkQueue延迟对列；线程池中线程执行任务时会根据对列中任务的延迟时间顺序执行；
+
+​			4.适用场景：一般用来执行一些周期性任务或者需要延迟执行的任务；
+
+	##### 6.关于线程池异常的处理:
+
+​		1.继承ThreadPoolExecutor，并重写afterExecute方法，在afterExecute方法中通过try...catch处理future调用get方法抛出的异常；
+
+​		2.创建线程池时为线程设置UncaughtExceptionHandler，在UncaughtExceptionHandler处理异常；
+
+​		3.通过submit方法执行任务抛出的异常，可以通过submit返回的Future调用get方法处理；
+
+​		4.在线程池执行的任务中添加try...catch处理任务本身的异常；
+
+​		
+
+
+
+
+
+
+
+​				
+
+
+
+
+
+​		
+
+
+

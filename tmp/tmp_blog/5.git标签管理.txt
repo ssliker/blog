@@ -1,0 +1,33 @@
+1.关于标签：
+    1.标签类似于commit_id，用来标识一个提交的版本，具有唯一性，一个tag对应一个commit；
+    3.标签相比版本id更有辨识度，更容易查找；
+
+2.tag管理：
+    1.为本次提交打tag：
+        git tag tagname
+    
+    2.为历史提交版本打tag：
+        git tag tagname 版本id
+    
+    3.为tag添加说明：
+        git tag -a tagname -m 'tag说明'
+    
+    4.删除tag：
+        git tag -d tagname
+
+    5.推送标签至远程仓库：
+        git push origin tagname  #推送一个指定标签
+        git push origin --tags  #推送所有未推送标签
+
+    6.将标签从远程仓库删除：
+        git push origin :refs/tags/标签名称
+    
+
+3.查看tag:
+    1.查看所有tag：
+        git tag
+        tag会以字母顺序的方式列出，跟打tag的顺序无关；
+    2.查看tag详细信息：
+        git show tagname
+        会列出本tag对应的版本详细信息，包括commit id、提交作者、提交时间等等；
+

@@ -1,0 +1,21 @@
+ServletContext：
+    1.表示当前web应用的上下文环境，一个web应用无论有几个Servlet都只会有一个ServletContext；其生命周期持续至整个web容器关闭，其作用域在整个web应用的所有servlet；
+    2.作用：
+        1.servlet之间共享数据；
+            ServletContext sc = this.getServletContext();
+            //设置数据：
+            sc.setAttribute("attr_name","attr_value");
+            //获取数据
+            sc.getAttribute("attr_name");
+        2.获取web.xml中context-param配置数据
+            web.xml:
+                <context-param>
+                    <param-name>attr_name</param-name>
+                    <param-value>attr_value</param-value>
+                </context-param>
+            servlet:
+                //获取到ServletContext对象
+                ServletContext sc=this.getServletContext();
+                //通过名称获取值
+                String value=sc.getInitParameter("attr_name");
+        

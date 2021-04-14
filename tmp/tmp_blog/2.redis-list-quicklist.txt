@@ -1,0 +1,113 @@
+1.关于quicklist:
+    1.在redis3.2之前，redis使用linkedlist和ziplist存储列表中的元素；在redis3.2之后，redis结合了linkedlist和ziplist的优势，创建出一个quicklist来存储列表中的数据；
+    2.quicklist整体上是一个双端循环链表，链表的每一个节点上都存储着一个ziplist，ziplist中实际存储列表中的数据，双端循环链表则起着连接各个ziplist的作用；
+    3.为何需要使用双端循环链表来连接多个ziplist，而不是直接使用一个大的ziplist：
+        原因在在于，ziplist始终使用一段连续的内存空间来存储元素，存储结构比较紧促，能够节省内存空间，而且可以保证ziplist的查找和追加效率较高，但是每次插入、修改、删除元素时，都需要对ziplist进行relloc，重新分配内存空间并拷贝原数据至新的内存空间；如果在ziplist内元素较多时，每次进行relloc和拷贝的代价会比较大，因此redis会使用多个小的ziplist来存储元素，然后通过双端循环链表将多个ziplist连接起来，既能够保证高效的查询，也能够保证高效的删除和修改；
+
+2.关于quicklist节点：
+    1.quicklist节点：
+        1.源码中quicklist节点的声明：
+            typedef struct quicklistNode {
+                struct quicklistNode *prev;
+                struct quicklistNode *next;
+                unsigned char *zl;
+                unsigned int sz;             /* ziplist size in bytes */
+                unsigned int count : 16;     /* count of items in ziplist */
+                unsigned int encoding : 2;   /* RAW==1 or LZF==2 */
+                unsigned int container : 2;  /* NONE==1 or ZIPLIST==2 */
+                unsigned int recompress : 1; /* was this node previous compressed? */
+                unsigned int attempted_compress : 1; /* node can't compress; too small */
+                unsigned int extra : 10; /* more bits to steal for future usage */
+            } quicklistNode;
+
+        2.quicklistNode各个成员说明：
+            prev：
+                指针类型，指向前一个quicklist节点；
+            next：
+                指针类型，指向后一个quicklist节点；
+            zl：
+                指针类型，指向当前节点挂载的ziplist或者quicklistLZF;
+                redis为了节省内存空间，会对ziplist的内容进行压缩，如果没有压缩时，数据以ziplist的方式存储，压缩之后以quicklistLZF的方式存储；
+            sz：
+                当前节点中ziplist占用内存空间大小；
+            count：
+                当前节点中ziplist内的元素个数；
+            encoding：
+                指定当前节点内存储数据的真实结构，1：ROW表示以ziplist的方式存储，2：LZF，表示对ziplist压缩过，以quicklistLZF的方式存储；
+            recompress：
+                解压缩标记，redis在查看压缩过的元素时，会先解压缩，查看完毕之后会重新压缩，该字段表示是否解压缩；
+            
+            attempted_compress：测试使用
+            extra：扩展字段，留作以后使用；
+    
+    2.quicklist链表：
+        1.源码中的quicklist:
+            typedef struct quicklist {
+                quicklistNode *head; 
+                quicklistNode *tail; 
+                unsigned long count;        
+                unsigned int len;           
+                int fill : 16;              
+                unsigned int compress : 16;
+            } quicklist;
+        2.quicklist各个节点说明：
+            head：
+                指针类型，指向quicklist的头部
+            tail：
+                指针类型，指向quicklist的尾部
+            count：
+                列表中所有数据元素的个数总和
+            len：
+                quicklist节点的个数；
+                因为一个quicklist中一个ziplist，因此该值也表示ziplist的个数；
+            fill：
+                单个节点内，ziplist大小限定，由list-max-ziplist-size配置项决定；
+                其值可正，可负：
+                    如果是正数表示ziplist中元素个数的限制，比如3，那么表示一个节点中的ziplist中最大存储3个元素；
+                    如果参数为负，表示按照字节数来限定每个节点中的元素个数，只能取1~5这几个数字：
+                    -1 每个节点的ziplist字节大小不能超过4kb
+                    -2 每个节点的ziplist字节大小不能超过8kb
+                    -3 每个节点的ziplist字节大小不能超过16kb
+                    -4 每个节点的ziplist字节大小不能超过32kb
+                    -5 每个节点的ziplist字节大小不能超过64kb
+
+            compress：
+                ziplist压缩深度，由list-compress-depth配置项决定，通常情况下，一个列表比较常访问两侧的元素，而非中间的元素，因此redis中提供了LZF压缩算法来对ziplist中间部分的元素进行压缩，以节省内存空间；
+                该值默认是0，即不压缩ziplist中的数据；
+                1 表示quicklist两端各有一个节点不压缩，中间的节点压缩
+                2 表示quicklist两端各有两个节点不压缩，中间的节点压缩
+                3 表示quicklist两端各有三个节点不压缩，中间的节点压缩
+                以此类推。
+
+    3.quicklistLZF：
+        1.源码中的quicklistLZF：
+            typedef struct quicklistLZF {
+                unsigned int sz; 
+                char compressed[]; 
+            } quicklistLZF;
+        2.quicklistLZF中各个字段：
+            sz：LZF压缩后占用的字节数
+            compressed：柔性数组，指向数据部分
+
+4.插入一个元素：
+    1.插入流程：
+        1.检查插入类型，是尾部插入还是首部插入；
+            1.如果是尾部插入：
+                1.确定尾部节点中ziplist的空间是否允许插入：
+                    1.如果允许插入则直接追加至ziplist尾部即可；
+                    2.如果不允许插入，则新创建一个quicklistNode节点并绑定至quicklist的尾部，并新创建一个ziplist，将元素插入ziplist中，并绑定ziplist到新建的quicklistNode节点上；
+                2.更新新建quicklistNode节点中元素个数和ziplist占用内存空间大小，更新quicklist的尾部节点指针地址，以及list中元素总数；
+            2.如果是头部插入：
+                1.确定头部节点中ziplist的空间是否允许插入：
+                    1.如果允许插入则直接追加至ziplist头部即可；
+                    2.如果不允许插入，则新创建一个quicklistNode节点并绑定至quicklist的头部，并新创建一个ziplist，将元素插入ziplist中，并绑定新建ziplist到新建的quicklistNode节点上；
+                2.更新新建quicklistNode节点中元素个数和ziplist占用内存空间大小，更新quicklist的头部节点指针地址，以及list中元素总数；
+    
+    2.弹出流程：
+        1.检查列表是否有元素，如果没有元素则返回0；如果有元素则：
+            1.确定弹出位置是尾部还是头部：
+                1.如果是尾部，则将弹出位置设置为-1，表示将要获取ziplist最后一个数据；
+                2.如果是头部，则将弹出位置设置为0，表示将要获取ziplist首个数据；
+            2.根据弹出位置是尾部还是头部确定要操作的quicklistNode节点；
+            3.深拷贝并删除quicklistNode节点内ziplist指定位置的元素数据，其中深拷贝是为了避免二次释放造成的异常；
+

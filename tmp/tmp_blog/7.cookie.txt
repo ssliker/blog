@@ -1,0 +1,15 @@
+Cookie：
+    1.Servlet中专门提供一个Cookie类处理cookie；创建cookie:
+        Cookie co = Cookie(Srting name,String value)
+    2.response中定义了addCookie方法，用来向response中添加cookie；
+        response.addCookie(co);
+    3.request中定义了getCookies方法，用来获取客户端提交的cookie；
+        Cookie[] cos = request.getCookies();
+    4.其他方法：
+        setPath()：设置cookie作用路径
+        setDomain()：设置cookie作用域名
+        setMaxAge()：设置cookie有效期
+    5.cookie失效和修改：
+        失效：将cookie的maxAge设置为0即可；
+        会话cookie：将cookit的maxAge设置为负数即可
+        修改cookie：使用addCookie添加同名cookie即可；

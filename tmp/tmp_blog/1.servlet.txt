@@ -1,0 +1,45 @@
+关于servlet：
+    1.servlet简介：
+        1.应用上：web容器提供的应用程序接口，web容器收到请求之后，会调用该接口的services方法处理对应的请求；
+        2.代码上：一个servlet就是一个实现了servlet接口的java类；可以实现servlet中的services方法来处理具体的业务逻辑；
+
+    2.工作流程：
+        请求至web容器、反向代理->web容器
+        web容器解析请求为ServletRequest和ServletResponse
+        根据请求路径和配置的servlet-mapping来选择处理请求的servlet
+        检测是否需要加载该servlet，如果需要先加载并初始化该servlet
+        调用servlet的services方法处理请求，并传入ServletRequest和ServletResponse
+        从ServletResponse提取响应头信息和响应体，封装为http响应返回给客户端
+
+    3.工作特征:
+        1.一个servlet可以对应1个或者多个请求路径，可以配置具体的路径也可以配置路径规则，通过servlet-mapping进行配置；
+        2.servlet中只能在services方法中实现具体的业务逻辑；
+        3.对于web容器，任何类型的请求都会先执行servlet；即便是静态请求也会先执行servlet；
+
+    4.servlet生命周期和load-on-startup：
+        servlet生命周期有5个阶段：
+            加载并创建：首次调用servlet的services方法时会先加载servlet并创建servlet的实例对象；
+            初始化：调用servlet的init方法进行初始化，只会在servlet首次加载之后执行一次；初始化完成之后servlet会常驻web容器，不会再初始化；
+            处理请求：执行servlet的services方法；
+            销毁：关闭web容器，或者长时间不请求该servlet，servlet将会被销毁，销毁时会先执行servlet的destory方法；
+            卸载：在servlet调用完destory方法之后，会进入卸载阶段；如果在卸载阶段继续调用servlet时会从新执行servlet的init方法；
+        关于load-on-startup：
+            servlet默认会在首次调用该servlet的services方法之前加载并初始化；如果在web.xml中配置了load-on-startup属性，并且其值大于0，那么会在web容器启动时就加载并初始化该servlet；
+            
+    5.servlet单利和线程安全；
+        1.servlet一旦被创建并初始化之后将会常驻web容器，之后每次请求都使用同一个servlet，并不会为每一次请求创建一个servlet；servlet是一个单利对象；
+        2.web容器在处理请求时，每接收一个请求就会分配一个线程，但是servlet是个单利，因此多个请求并发执行时将会有线程安全问题；对于线程安全问题，通常尽量避免在servlet中使用全局变量，如果必须使用，则为全局变量添加锁机制；或者在services方法中使用局部变量避免线程安全问题；
+
+    6.servlet和ServletRequest、ServletResponse：
+        1.servlet表示处理web请求的业务应用，web容器在执行业务应用之前，会先将请求封装为ServletRequest，在ServletRequest中保存了本次请求的所有信息：协议、端口、客户端ip、请求地址，氢气参数等等；web容器还会为本次请求创建一个响应ServletResponse，来存储要返回给客户端的响应结果；
+        2.servlet是一个单利，web容器中只会存在一个servlet实例；但是ServletRequest、ServletResponse在每次接收到请求时都会为该请求创建一个ServletRequest、ServletResponse对象；
+
+    7.servlet和HttpServlet
+        1.直接使用servlet创建web应用较为麻烦，因此web容器提供了一个基于不同请求方法执行不同业务逻辑的servlet，即HttpServlet；HttpServlet继承自GeneralServlet，而GeneralServlet继承自Servlet；因此HttpServlet本质上仍旧是一个servlet，仅仅只是在servlet基础上进行了封装，使用HttpServlet更便利，除此之外也可以安装需求自定义Servlet；
+        2.与HttpServlet封装servlet类型，web容器还提供了HttpServletRequest、HttpServletResponse；HttpServletRequest、HttpServletResponse分别是对ServletRequest、ServletResponse的封装，仍旧继承自ServletRequest、ServletResponse，只是使用起来更加方便；实际应用中也推荐直接使用HttpServletRequest、HttpServletResponse；
+    
+    8.servlet应用：
+        1.引入servlet相关jar包
+        2.编写servlet
+        3.配置servlet和servlet-mapping
+
