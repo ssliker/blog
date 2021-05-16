@@ -1,0 +1,32 @@
+1.请求参数获取
+     1.String httpServletRequest.getParameter(String parameterName)：
+        1.获取指定名称的参数值；
+        2.如果查询字符串中有多个同名参数，则取第一个。
+        3.如果查询字符串和表单中都有同名参数，则取表单中的参数。
+    2.String[] httpServletRequest.getParameterValues(String parameterName)：
+        1.获取指定名称的参数值，并以String数组的方式返回。
+    3.Enumeration<String> getParameterNames()：
+        1.获取所有请求参数的名称。
+    4.Map<String, String[]> getParameterMap()：
+        2.获取所有参数名和参数值的映射。
+
+2.请求头信息获取
+    1.getHeader(String name)：获取指定请求头名称的值，最常用；
+    2.getCharacterEncoding()：获取请求体使用的字符编码
+    3.getContentType()：获取请求体媒体类型
+    4.getContentLength()：获取请求体长度；
+    5.getHeaders(String name)：获取指定请求头名称的值，返回Enumeration； 
+    6.getHeaderNames()：获取所有请求头名称，请求返回Enumeration ；
+    7.getIntHeader(String name)：获取指定名称的请求头信息，并转换为int；
+    8.getDateHeader(String name)：获取指定名称的请求头信息，并转换为Date类型；
+
+3.请求路径信息获取：
+    getMethod()：获取请求方法；
+    getRequestURI()：获取资源名称部分
+    getQueryString()：获取查询字符串
+    getRemoteAddr()：获取客户端ip地址，如果有代理，则获取的是代理的ip，要获取真实ip，可以获取请求头中的x-forwarded-for中的ip地址
+    getRemoteHost()：获取客户端主机名
+    getRemotePort()：获取客户端端口号
+    getScheme()：获取协议名称
+    getProtocol()：获取协议名称及版本号
+

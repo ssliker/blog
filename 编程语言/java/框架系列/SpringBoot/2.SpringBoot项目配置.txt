@@ -1,9 +1,11 @@
 1.springBoot项目的配置
     1.加载默认配置文件中的配置：
-        1.默认配置文件名称：
+        1.关于配置文件：
+            springboot启动时会主动加载默认的配置文件。
+        2.默认配置文件名称：
             1.application.properties
             2.application.yml
-        2.默认配置文件地址：
+        3.默认配置文件允许放置的位置：
             1.classpath:/
             2.classpath:/config/
             3.file:./
@@ -17,16 +19,19 @@
             3.文件位置优先级与配置项加载关系：
                 1.同名配置下，优先级高的将会覆盖优先级低的；
                 2.不同名配置，将会形成互补；
+            4.导致配置文件优先级有差异的原因：
+                1.所有的配置都在List中放置，不同的配置文件会按照优先级顺序从高至低一次存放；
+                2.在查找指定名称的配置时，会遍历List中的所有配置，一旦找到立即返回，后面的不会再查找，因此等同于前面优先级高的配置覆盖了后面优先级低的配置；
     
     2.加载指定配置文件：
         1.通过spring.profiles.include指定待加载配置文件：
             1.功能：
-                可以通过spring.profiles.include指定待加载配置文件的profiles，系统将会加载application-{profiles}.properties配置文件或者application-{profiles}.yml配置文件，是springBoot提供的一种扩展配置文件的方式；
+                可以通过在默认配置文件中设置spring.profiles.include配置项来指定待加载配置文件的profiles，系统将会加载application-{profiles}.properties配置文件或者application-{profiles}.yml配置文件，是springBoot提供的一种扩展配置文件的方式；
             2.使用方式：
                 在application.properties中指定spring.profiles.include的值为配置文件的前缀即可，如：
                     指定：spring.profiles.include=dev
                     那么系统将会加载application-dev.properties配置文件或者application-dev.yml配置文件
-                同时该参数允许同时指定过个前缀，多个前缀直接以,分隔即可，如：
+                同时该参数允许同时指定多个前缀，多个前缀直接以,分隔即可，如：
                     指定：spring.profiles.include=redis,mysql,kafka
                     那么系统将会加载application-redis.properties、application-mysql.properties、application-kafka.properties配置文件或者对应application-{profiles}.yml配置文件；
             3.注意事项：    
@@ -51,17 +56,129 @@
                     开发环境下指定该值为dev，测试环境下指定该值为test，生产环境下指定该值为prod，可以通过该值灵活使用不同环境下的配置文件；
                 3.spring.profiles.active指定的配置文件优先级高于spring.profiles.include指定的配置文件以及任何位置的默认配置文件；
 
-    3.通过注解加载指定配置文件：
-        1.@PropertySource(value={"classpath:a.properties","file:b.properties"})
-        2.@ImportResource(locations={"a.xml","b.xml"})
+        3.通过注解加载指定配置文件：
+            1.@PropertySource(value={"classpath:a.properties","file:b.properties"})
+            2.@ImportResource(locations={"a.xml","b.xml"})
 
-    4.通过启动命令参数指定配置
+        4.通过启动命令参数指定配置
+
+        5.应用程序中添加指定配置
+            1.通过程序添加配置，主要是手动将配置添加至MutablePropertySources中：
+                1.创建Map，存储配置项：
+                    HashMap<String, String> configMap = new HashMap<>();
+                    config.put("cfg_name","cfg_value");
+                
+                2.将配置封装为PropertySource：
+                    MapPropertySource mapPropertySource = new MapPropertySource("cfg_source_name", configMap);
+
+                3.将配置添加至MutablePropertySources:
+                    1.获取MutablePropertySources:
+                        // 注入ConfigurableEnvironment
+                        @Autowired
+                        ConfigurableEnvironment environment;
+
+                        // 继承EnvironmentPostProcessor，并实现postProcessEnvironment，在该方法中ConfigurableEnvironment会以参数的形式给定
+                    2.向MutablePropertySource中添加配置：
+                        mutablePropertySources.addFirst/addLast(mapPropertySource);
 
 3.springBoot配置管理方式：
     1.配置项组织形式：
-    2.
+        1.springBoot中的每一个配置源中的配置都以PropertySource类型来组织的：
+            1.PropertySource中有两个关键属性：
+                1.name属性：存储配置的来源名称，字符串类型；
+                2.source属性：存储该配置来源的具体配置项；source使用了泛型，其类型并不确定；
+            2.PropertySource只是一个抽象类，配置的具体存储则有其子类实现，常用的子类如下：
+                1.MapPropertySource：
+                    1.通用的一个PropertySource；通常自定义配置项时使用；
+                    2.其source的类型是一个Map<String, Object>；即以String-Object这种key-value的形式组织配置项；
+                2.PropertiesPropertySource：
+                    1.用来存储JVM运行环境配置信息的PropertySource
+                    2.source的类型时Properties;
+                3.SystemEnvironmentPropertySource：
+                    1.用来存储当前操作系统环境配置信息的Properties；
+                    2.source的类型是一个Map<String, Object>；
+        2.所有配置源的配置则最终全部放在MutablePropertySources中，MutablePropertySources特征如下：
+            1.在继承关系上，MutablePropertySources继承自PropertySources，PropertySources则只是一个继承自Iterable的接口；
+            2.而MutablePropertySources中则内置了一个存放PropertySource的List，存储了所有配置来源的PropertySource，实现了所有配置项的存储；
+            3.同时MutablePropertySources则实现了PropertySources的get方法，即提供一个配置源名称，即可获取该配置源对应的PropertySource；
+            4.springBoot在启动之后会主动添加部分配置源，最常见的包括：
+                1.JVM运行环境配置信息：systemProperties
+                2.系统运行环境配置信息：systemEnvironment
+                3.默认配置文件配置信息：applicationConfig
+            5.MutablePropertySources中配置项的先后顺序：
+                systemProperties > 
+                    systemEnvironment > 
+                        注解指定的配置文件 >
+                            spring.profiles.active指定的配置文件 >
+                                spring.profiles.include指定的配置文件 >
+                                    默认配置文件；
+                MutablePropertySources中配置源的先后顺序也决定了配置的优先级，在查找配置项时，会从头向后查找，一旦找到将立即返回。因此多个配置源中若有同名配置，将导致后面的配置不会被查找到。
+        3.配置组织结构图示：
+            1.PropertySource：
+                |-- name：配置源名称
+                |-- source：该配置源下的具体配置
+            2.MutablePropertySources：
+                |-- List：存储所有的PropertySource；
+        
 4.springBoot中读取配置
-    @Value
-    @ConfigurationProperties
-    ConfigurableEnvironment
-    System
+    1.通过@Value读取配置：
+        1.@Value使用位置：
+            1.@Value可以用在属性上，将属性与配置或者常量绑定；
+        2.@Value使用方法：
+        1.与配置项绑定：
+            1.通过@Value绑定相关配置值：@Value("${cfg.name}")；
+            2.同时也可以设置默认值：@Value("${cfg.name}":123)、@Value("${cfg.name:string}");
+        2.与常量值绑定：
+            1.通过@Value绑定相关常量值：@Value("#{constant}")；
+            2.如果常量值是字符串，则使用''包裹，如：@Value("#{'constant'}")；
+            3.@Value也可以给属性绑定其他bean的属性，如：@Value("#{systemProperties.xxx}")；
+        3.配置项与常量值绑定混用：
+            可以混用@Value("${}")与@Value("#{}")，在将配置与属性绑定时设置默认值：@Value("${cfg.name:#{constant}}")
+    2.通过ConfigurationProperties与属性绑定：
+        1.使用位置：
+            1.@ConfigurationProperties可以用在class上，表示将该class的属性与@ConfigurationProperties指定前缀的配置绑定；
+            2.@ConfigurationProperties可以用在方法上，表示将该方法中返回值(必须是一个Object)的属性与指定前缀的配置项绑定；
+        2.使用方法：
+            1.属性与配置绑定：
+                @ConfigurationProperties("cfg.prefix")
+                @ConfigurationProperties(orefix="cfg.prefix")
+            2.忽略配置与属性类型不同的情况：
+                如果配置值得类型和属性值不同，强行绑定将会导致报错，如果需要兼容这种情况，可以设置ignoreInvalidFields：@ConfigurationProperties(orefix="cfg.prefix",ignoreInvalidFields=true)
+            3.兼容配置与属性不匹配的情况：
+                默认情况下，如果指定前缀中有与属性名不匹配的配置时，会自动忽略，如果希望能够在这种情况下报错的话，可以将ignoreUnknownFields设置为false：@ConfigurationProperties(orefix="cfg.prefix",ignoreUnknownFields=true)
+            4.复杂属性的绑定：
+                对于需要注入类型为List和Set的属性，其配置必须定义成数组的形式：
+                    1.cfg.prefix.attrValue[0]=attr1
+                    2.cfg.prefix.attrValue[1]=attr2
+        
+        3.绑定规则：
+            1.spring使用比较宽松的绑定规则，类似以下格式的配置都将绑定值属性attrValue上面：
+                cfg.prefix.attrValue=123
+                cfg.prefix.attrvalue=123
+                cfg.prefix.attr-value=123
+                cfg.prefix.attr_value=123
+                cfg.prefix.ATTR_VALUE=123
+    3.通过ConfigurableEnvironment手动获取配置项：
+        1.注入ConfigurableEnvironment：
+            @Autowired
+            ConfigurableEnvironment environment
+        
+        2.获取JVM运行配置信息：
+            environment.getSystemProperties()
+            说明：
+                1.返回一个存储JVM运行配置信息的Map；
+            
+        3.获取系统运行环境配置：
+            environment.getSystemEnvironment()
+            说明：
+                1.返回一个存储当前操作系统配置信息的Map；
+        4.直接根据配置名称获取配置值：
+            environment.getProperty()
+            说明：
+                1.返回对应名称的配置值，查找时从MutablePropertySources中的配置列表中从前向后查找，一旦找到立即返回。
+        5.先获取配置源列表，再从指定的配置源列表中获取配置：
+             MutablePropertySources propertySources = environment.getPropertySources();
+             PropertySource cfgList = propertySources.get("配置源名称")
+             cfgList.getSource()：饭会存储所有配置的Map；
+             cfgList.getProperty("cfgName")：返回指定配置名的配置值；
+    

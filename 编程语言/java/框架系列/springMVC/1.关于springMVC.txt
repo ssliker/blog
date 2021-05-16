@@ -1,0 +1,93 @@
+1.关于MVC：
+    1.MVC是一种代码组织模式，不是框架或者技术；
+    2.MVC由模型(Model)+View(jsp)+控制器(Controller)组成；
+    3.Model中由service和mapper组成，mapper负责直接和数据库交互，service负责对数据进行业务逻辑上的处理。
+    4.View指的是jsp，即负责处理数据的展示逻辑。
+    5.Controller指的是控制器，负责直接和客户部分交互，如：接收参数、校验参数、封装返回值等，连接客户部分和service，Controller本质上则是一个servlet。
+    6.MVC优势：对不同业务路基的代码进行分离，方便查看、编辑和维护。
+
+2.关于springMVC:
+    springMVC是基于spring框架实现的一个轻量级mvc web框架，具有以下几个特点：
+    1.基于mvc模式，基本项目结构由controller、service+mapper、jsp构成；对于前后端分离的项目，则只有controller和service+mapper；
+    2.是一个web框架，所以springMVC上是对servlet的封装，封装的具体实现就是DispatcherServlet，DispatcherServlet负责对请求进行分发、处理、返回响应结果；
+    3.基于Spring实现，具有spring的所有功能特性，如自动注入、事务管理、切面等特性。
+    4.提供了相关web注解，简化了web编程中的配置，如URL路由配置等。
+
+3.springMVC工作流程：
+    1.当客户端发送请求会统一路由至DispatchServlet；
+    2.DispatchServlet会通过HadnlerMapping查找该url匹配的Handler;
+    3.DispathcServlet接着选择合适的HadnlerAdapter对请求参数、返回结果等进行适配；
+    4.通过HandlerAdapter简介调用Handler中的方法来处理对应请求，并获取返回结果；
+
+4.关于Handler:
+    1.Handler的作用：
+        1.Handler是用来处理业务逻辑的，每一个Handler都需要和一个URL进行映射，DispatchServlet会通过HandlerMapping找到当前URL对应的Handler，然后调用Handler中的doService进行业务逻辑的处理。
+    2.springMVC中实现Handler的方式：
+        1.继承Controller接口，并实现其handlerRequest()方法：
+            public interface Controller {    
+                // 允许返回一个ModelAndView视图对象，可以处理视图和接口类型的请求；
+                ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception;
+            }
+        2.继承HttpRequestHandler接口，并实现其handlerRequest()方法：
+            public interface HttpRequestHandler {    
+                // 不允许有任何返回值，可以处理接口类型的请求；
+                void handleRequest(HttpServletRequest request, HttpServletResponse response)            throws ServletException, IOException;
+            }
+            备注：
+                1.springMVC有两个默认的实现：
+                    DefaultServletHttpRequestHandler：将静态资源交给容器进行处理；
+                    ResourceHttpRequestHandler：由springMVC自己处理静态资源；
+        3.直接继承Servlet接口，并实现其对应方法：
+            1.继承Servlet，并实现其三个生命周期方法和两个辅助方法；
+            2.继承GenericServilet，并实现其service方法；
+            3.继承HttpServlet，并实现其doXxx()系列方法；
+        
+        4.通过@Controller和@RestController注解的方式实现：
+            1.关于@Controller
+                1.仅通过@Controller标注的controller只允许返回一个字符串，并且会配合时解析将该字符串解析为jsp页面；
+                2.如果在@Controller注解的基础上加上@ResponseBody注解，则不会再将该字符串解析为jsp页面名称，而是直接返回字符串内容，同时能够自动将对象转换为json格式的字符串；
+            2.关于@RestController：
+                1.@RestController等同于@Controller+@ResponseBody;
+                2.@RestController可以直接返回字符串内容，也可以将对象格式化为json字符串返回；
+            3.通过@Controller和@RestController实现Handler时，Handler实际上是由@RequestMapping注解修饰的方法；
+    3.关于HandlerMapping:
+        1.HandlerMapping作用：
+            HandlerMapping用来注册url地址与Handler的关系，DispatchServlet需要通过HandlerMapping来查找能够处理该url的Handler；
+        2.关于HandlerMapping：
+            1.由于Handler的不同实现方式，导致Handler由两种表现形式：一个class或者一个method；因此HnadlerMapping也分为两个分支：
+                1.AbstractHandlerMethodMapping：处理URL和Method级别的handler对应关系；
+                2.AbstractUrlHandlerMapping：
+            2.AbstractUrlHandlerMappiing:
+                1.处理URL和类级别的handler对应关系；
+                2.根据不同的实现由两种具体实现类：
+                    1.BeanNameUrlHandlerMapping：
+                        1.适用于直接继承Controller、HttpRequestHandler、Servlet接口来实现Handler的方式，此种方式下会将url做为bean的名称，将Handler作为bean的class注册至spring容器。
+                        2.BeanNameUrlHandlerMapping会根据url返回一个handler的名称，该handler已经作为bean注册至spring容器中，只需要该名称即可获取对应的handler对象。
+                    2.SimpleUrlHandlerMapping:
+                        1.适用于直接继承Controller、HttpRequestHandler、Servlet接口来实现Handler的方式，此种方式下会将url和对应的handler统一管理至一个map中；
+            3.AbstractHandlerMethodMapping：
+                1.处理URL和Method级别的handler对应关系；
+                2.只有一个具体实现：
+                    1.RequestMappingHandlerMapping：
+                        1.适用于使用@Controller、@RestController配合@RequestMapping来实现Handler的方式；
+                        2.其中保存了url和对应Controller及其中Method的信息；
+    4.关于HandlerAdapter：
+        1.HandlerAdapter作用：
+            1.HandlerAdapter本质上就是一个适配器，用来适配Servlet标准接口与Handler实现之间的差异，主要包括三个方面：
+                1.入参：Servlet中只有ServletRequest和ServletResponse两个参数，但是Handler中允许接收各种不同的参数；
+                2.返回值：Servlet中返回的数据格式固定(todo:?啥格式)，但是Handler中可以返回不同的数据类型数据。
+                3.Handler的定义：Handler有四种不同的定义方式，框架无从得知当前handler属于哪一种定义方式。
+            2.HandlerAdapter接口定义：
+                public interface HandlerAdapter {    
+                    boolean supports(Object handler);   
+                    ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;long getLastModified(HttpServletRequest request, Object handler);
+                }
+                备注：
+                    1.supports用来判断当前适配器是否支持适配当前Handler；
+                    2.handle用来对handler执行的方法进行适配，包括参数、返回值的适配；
+                    3.getLastModified：用来实现缓存；
+            3.常见的HandlerAdapter有以下四种，分别用来适配不同方式创建的Handler：
+                1.HttpRequestHandlerAdapter：supports中会检测是否属于HttpRequestHandler类型；用来适配通过继承HttpRequestHandler实现Handler的方式。
+                2.SimpleControllerHandlerAdapter：supports中会检测是否属于Controller类型；用来适配通过继承Controller实现Handler的方式。
+                3.SimpleServletHandlerAdapter：supports中会检测是否属于Servlet类型；用来适配通过继承Servlet实现Handler的方式。
+                4.RequestMappingHandlerAdapter：supports中会检测是否属于HandlerMethod类型；用来适配通过@RequestMapping实现Handler的方式。

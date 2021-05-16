@@ -1,0 +1,20 @@
+1.关于cookie
+    1.添加cookie:
+        1.创建Cookie对象：
+            Cookie cookie = new Cookie(name,value);
+        2.设置cookie相关属性：
+            cookie.setDomain();
+            cookie.setPath();
+            cookie.setMaxAge();
+            cookie.setHttpOnly();
+        3.重新设置值：
+            cookie.setValue();
+        4.向客户端传递cookie:
+            httpServletResponse.addCookie(cookie);
+
+    2.获取cookie:
+        Cookie[] httpServletRequest.getCookies();
+
+    3.删除cookie:
+        Cookie cookie = new Cookie("待删除cookie名称","");
+        cookie.setMaxAge(0);

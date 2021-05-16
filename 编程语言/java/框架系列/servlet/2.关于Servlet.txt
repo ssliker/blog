@@ -1,0 +1,112 @@
+1.关于Servlet:
+    servlet是连接web容器和应用程序的桥梁
+    1.狭义上理解：Servlet只是一个能够与WEB容器进行交互的标准接口，web容器在不同阶段会主动调用servlet接口中的方法完成请求的处理。
+    2.广义上理解：Servlet只是一个接口，并不具备处理请求的能力，实际处理请求的是实现了Servlet接口的程序。因此把实现了该接口的程序也称之为一个Servlet
+    
+2.关于Servlet的特点：
+    1.servlet是一个标准的接口，只需实现接口中的方法即可完成业务处理程序的编写，实现方式简单。
+    2.web容器已经将请求信息解析并封装为固定格式的对象，业务处理程序只需获取对象中的信息即可。
+    2.内嵌在web容器中运行，共享web容器的内存地址，无需独立的进程，效率更高。
+
+3.Servlet接口具体形式：
+    1.标准Servlet接口
+        标准的Servlet接口有3个生命周期方法和2个非生命周期方法，具体如下：
+        interface Servlet{
+            /**
+            * 该方法属于Servlet的生命周期方法，只会在该Servlet第一次加载时调用，且只会在整个Servler生命周期中调用一次。
+            **/
+            public void init(ServletConfig arg0) throws ServletException;
+
+            /**
+                * 该方法属于Servlet的生命周期方法，用来处理每一次的客户请求，在生命周期期间，每处理一次请求就会被调用一次。
+            **/
+            public void service(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException;
+
+            /**
+                * 该方法属于Servlet的生命周期方法，当Servlet被销毁时会调用一次，通常情况下只有tomcat关闭的时候才会销毁该Servlet。
+            **/
+            public void destroy();
+
+            /**
+                * 该方法不属于Servlet的生命周期方法，用来获取Servlet的相关配置
+            **/
+            public ServletConfig getServletConfig();
+
+            /**
+                * 该方法不属于Servlet的生命周期方法，用来获取Servlet的相关信息
+            **/
+            public String getServletInfo();
+        }  
+
+        2.带默认实现的Servlet接口：GenericServlet
+            GenericServlet默认实现了标准Servlet中的init、destory、getServletConfig、getServletInto方法。
+            abstract class GenericServlet implements Servlet,ServletConfig{
+                
+                //GenericServlet通过将ServletConfig赋给类级变量
+                private trServletConfig servletConfig;
+
+                public void init(ServletConfig servletConfig) throws ServletException {
+
+                    this.servletConfig=servletConfig;
+
+                    /*自定义init()的原因是：如果子类要初始化必须覆盖父类的init() 而使它无效 这样
+                    this.servletConfig=servletConfig不起作用 这样就会导致空指针异常 这样如果子类要初始化，
+                    可以直接覆盖不带参数的init()方法 */
+                    this.init();
+                }
+                
+                //自定义的init()方法，可以由子类覆盖  
+                //init()不是生命周期方法
+                public void init(){
+                
+                }
+                
+                //实现service()空方法，并且声明为抽象方法，强制子类必须实现service()方法 
+                public abstract void service(ServletRequest request,ServletResponse response) 
+                    throws ServletException,java.io.IOException{
+                }
+                
+                //实现空的destroy方法
+                public void destroy(){ }
+            }
+            
+        3.扩展了HTTP内容的Servlet:HttpServlet：
+            实现了GenericServlet中的service方法：
+                1、封装GenericServlet中的service方法，在service方法中调用自定义接收HttpServletRequest和HttpServletResponse参数的service方法。
+                2、在自定义的service方法中根据请求方法的不同调用对应的doGet、doPost等doXxx方法()；
+            abstract HttpServlet extends GenericServlet {
+                
+                protected void service(HttpServletRequest httpServletRequest,
+                                    HttpServletResponse httpServletResponse){
+                        //该方法通过httpServletRequest.getMethod()判断请求类型调用doGet() doPost()、doPut()等方法。
+                }
+                
+                //必须实现父类的service()方法
+                public void service(ServletRequest servletRequest,ServletResponse servletResponse){
+                    HttpServletRequest request;
+                    HttpServletResponse response;
+                    try{
+                        request=(HttpServletRequest)servletRequest;
+                        response=(HttpServletResponse)servletResponse;
+                    }catch(ClassCastException){
+                        throw new ServletException("non-http request or response");
+                    }
+                    //调用service()方法
+                    this.service(request,response);
+                }
+            }
+
+4.Servlet的生命周期：
+    1.Servlet的生命周期表示一个servlet程序从创建到销毁的整个过程，和Servlet中的方法一一对应。
+    2.Servlet的生命周期对应的方法执行情况具体如下：
+          3.关于Servlet生命周期的描述：
+            1.加载：
+                Servlet默认情况下会在第一次接收到url请求并路由至该Servlet中时进行加载，也可以配置为在web容器启动时进行加载。
+                Servlet在整个生命周期中只会加载一次。
+            2.初始化：
+                Servlet加载完成后会调用Servlet的init方法完成Servlet的初始化。
+                Servlet生命周期中只会加在一次，因此也只会初始化一次，对应的init方法也只会执行一次。
+            3.处理请求：
+                web容器每收到一个请求之后，都会创建一个线程，并根据路由配置，创建对应的Servlet实例对象，然后调用Servlet中的service方法处理请求。            
+            4.销毁：
+                web容器关闭时将会销毁已经加载的Servlet，在销毁之前会先调用Servlet的destory方法。
