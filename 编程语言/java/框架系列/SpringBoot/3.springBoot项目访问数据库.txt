@@ -1,4 +1,15 @@
-1.SpringBoot中配置数据源：
+1.关于数据库通用访问流程：
+    1.创建数据源DataSource，设置数据库连接信息；
+    2.通过数据源DataSource获取数据库连接Connection；
+    3.通过数据库连接Connection获取执行sql语句的Statement；
+    4.通过Statement调用execute相关方法执行sql；
+
+2.关于数据源DataSource：
+    1.DataSource用来存储数据库连接信息，并能够获取数据源对应的数据库连接；
+    2.同一个系统中可以配置多个不同的DataSource，每个DataSource都表示一个独立的数据源；通过不同的DataSource获取的Connection可以访问不同的数据库；
+    3.DataSource只是一个接口，具体的功能由子类提供实现；
+
+3.在SpringBoot中配置数据源：
     1.通过mysql驱动mysql-connector-java创建数据源DataSource：
         1.方式：
             MysqlDataSource dm = new MysqlDataSource();
@@ -36,7 +47,6 @@
         3.通过SingleConnectionDataSource创建数据源DataSource：
             1.方式：
                 SingleConnectionDataSource dm = new SingleConnectionDataSource();
-                Driver driver = new Driver();
                 dm.setDriverClassName("com.mysql.cj.jdbc.Driver");
                 dm.setUrl("jdbc:mysql://localhost:3306/mybatis_test?serverTimezone=UTC");
                 dm.setUsername("root");
@@ -54,8 +64,15 @@
                 .build();
         2.特点：
             1.仅仅只是对JDBC的封装，无连接池；
-            2.采用单例模式实现，每次执行sql都采用一个新的连接；
+            2.每次执行sql都采用一个新的连接；
     4.通过Druid连接池创建数据源：
+        1.引入相关依赖：
+            <!-- druid依赖-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>1.1.22</version>
+            </dependency>
         1.方式：
             DruidDataSource dm = new DruidDataSource();
             dm.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -64,9 +81,3 @@
             dm.setPassword("123456");
         2.特点：
             1.有连接池；
-            
-1.SpringBoot与Mybatis：
-    1.SpringBoot与Mybatis的融合方式：
-        1.使用DAO模式融合：通过直接调用mapper.xml中的查询id来执行查询操作；
-        2.使用Mapper模式融合：通过mapper接口调用mapper接口中的方法来执行查询操作；
-
