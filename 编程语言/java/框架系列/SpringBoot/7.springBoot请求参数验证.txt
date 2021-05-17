@@ -1,0 +1,61 @@
+1.关于参数接收：
+    1.参数接收主要接收三大类参数：
+        1.路径中的参数
+        2.查询字符串参数
+        3.请求实体中的参数
+    2.参数接收方式:
+        1.通过HttpServletRequest来接收；
+        2.通过springMVC提供的注解来接收；
+
+2.接收策略：
+    1.路径参数：使用@PathVariable接收参数;
+    2.查询字符串参数：使用@RequestParam或者直接使用形参来接收参数；
+    3.编码类型为form-data、x-www-form-urlencode的实体参数：使用@RequestParam或者直接使用形参来接收参数；
+    4.编码类型为raw格式(如：application/json)的实体参数：使用@RequestBody来接收参数；
+    5.实际编码中尽量避免同名参数出现，无论是同类型的同名参数还是不同类型的同名参数都不要出现；
+
+3.参数接收详情
+    1.路径参数接收：
+        1、@PathVariable只能接收请求路径中的参数；
+        2、接收方式：
+            1.路径中必须先声明：@RequestMapping("/p1/{a}/{b}")
+            2.形参中必须要接收：public String tre(@PathVariable("a") String a, @PathVariable("b") int b)
+    2.查询字符串参数接收/编码类型为form-data、x-www-form-urlencode的实体参数接收:
+        1.@RequestParam接收参数：
+            @RequestParam只能通过两种方式接收参数：
+            1.@RequestParam使用语法：
+                1.设置待接收参数名：@RequestParam("paramName")、@RequestParam(value="paramName")、@RequestParam(name="paramName");
+                2.也可以设置参数是否为必传参数：@RequestParam(name="paramName"，required=false)
+                3.也可以为参数设置默认值：@RequestParam(name="paramName",defaultValue="xxx")
+            2.@RequestParam接收参数方式：
+                1.通过map接收参数：
+                    1.所有查询字符串参数会以name-value的形式解析至map中；
+                    2.使用语法：fun(@RequestParam HashMap query)；
+                2.通过单个形参变量接收参数：
+                    1.所有查询字符串按照名称的对应关系一一对应填充至形参变量中
+                    2.使用语法：fun(@RequestParam(name="queryParamName",required=false,defaultValue="xxx") String query)；
+        2.通过形参变量接收参数：    
+            1.通过单个形参变量接收：
+                1.语法：
+                    1.fun(String query)
+                2.说明：
+                    1.通过单个形参变量接收时，会将参数按照名称应设至形参变量；
+                    2.形参变量声明过得参数，不能设置默认值，必须通过客户端必须传入，否则报错，即required=true
+                    3.客户端传入的参数数据类型必须和对应形参变量的数据类型一致，否则报错；
+            2.通过对象实体接收：
+                1.语法：
+                    1.fun(User user)
+                2.说明：
+                    1.通过对象实体接收时，会将参数按照名称应设至对象实体的属性中；
+                    2.对象实体接收，可以设置默认值；
+                    3.客户端传入的参数数据类型必须和对应属性变量的数据类型一致，否则报错；
+            
+    3.编码类型为raw格式(如：application/json)的实体参数：
+        此种类型的实体参数通过@RequestBody来接收参数；
+        1.@ReuqestBody专用来接收请求实体为raw的请求；
+        2.@RequestBody接收请求参数根据参数的类型不同有两种方式：
+            1.如果参数是application/json，并且需要解析json，那么只能以以下两种方式接收：
+                1.通过map接收，要求客户端传参类型必须是application/json；并且只会将实体中的参数解析到map中；
+                2.通过bean接收，要求客户端传参类型必须是application/json，并且只会将实体中的参数解析到bean中；
+            3.如果参数不是application/json，如：application/xml/html/javascript、text/plain，或者不解析application/json时：
+                1.则只能通过String类型的变量来接收：

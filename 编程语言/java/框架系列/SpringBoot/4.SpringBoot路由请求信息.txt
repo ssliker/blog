@@ -1,0 +1,57 @@
+1.关于路由配置：
+    1.路由配置是指配置URI与处理该URI请求的Handler之间的映射关系；
+    2.springBoot的路由信息需要通过@RequestMapping来设置
+
+2.关于RequestMapping：
+    1.RequestMapping作用：
+        1.可以用在class或者Method上，用来配置URI与Handler的映射关系；
+        2.同时可以限制请求允许的方法、请求header等其他信息；
+    2.RequestMapping使用方法：
+        1.默认值为请求路径：
+            示例：
+                1.@RequestMapping("/request/path")
+                2.@RequestMapping(value="/request/path")
+                3.@RequestMapping(path="/request/path")
+                4.@RequestMapping(value={"/path1","/path2"})
+            说明：
+                1.路径必须以/开头；
+                2.如果用在类上，那么路径表示该Controller中所有方法的路径前缀；在发送请求时必须在方法上设置的路径前面带上该前缀；
+                3.如果用在方法上，那边表示当前方法能够处理的请求路径；
+                4.也可以通过数组的方式一次指定多个路径；
+        2.允许的请求方法：
+            示例：
+                1.@RequestMapping(method={RequestMethod.GET})
+            说明：
+                1.如果在类上添加method限制，表示当前Controller中所有的路径都必须以method指定的方式请求；
+                2.如果在方法上添加method限制，表示只有当前方法上的路径必须以method指定的方式请求；
+        3.路径中必须要携带的参数及值:
+            示例：
+                1.@RequestMapping(params={"pathParam=value"})
+            说明：
+                1.表示该请求必须携带名为pathParam的请求参数，并且其只也必须是value，否则不予处理；
+                2.如果在类上添加params限制，表示当前Controller中所有的路径都必须携带上述参数；
+                3.如果在方法上添加params限制，表示只有当前方法上的路径携带上述参数；
+        4.请求中必须携带的请求头信息：
+            示例：
+                1.@RequestMapping(headers={"User-Agent"})
+            说明：
+                1.表示该请求必须携带名为headers的请求头，否则不予处理；
+                2.如果在类上添加headers限制，表示当前Controller中所有的路径都需要携带上述请求头；
+                3.如果在方法上添加headers限制，表示只有当前方法上的请求需要携带上述参数；
+        
+        5.请求携带的数据类型：
+            示例：
+                1.@RequestMapping(consumes={"application/json"})
+            说明：
+                1.表示该请求发送的数据类型必须是consumes中允许的数据类型，实际匹配时是按照请求头中的Content-Type来匹配的；
+                2.如果在类上添加consumes限制，表示当前Controller中所有的路径的请求发送的数据类型都需要符合限制；
+                3.如果在方法上添加headers限制，表示只有当前方法上的请求需要符合限制；
+        
+        6.限制客户端允许的返回值类型：
+            示例：
+                1.@RequestMapping(produces={"*/*"})
+            说明：
+                1.该配置用来限制请求中的Accept的值是否是produces指定的值，如果是则允许处理，否则不予处理；
+                2.如果在类上添加produces限制，表示当前Controller中所有的路径的请求的Accept都必须符合限制；
+                3.如果在方法上添加headers限制，表示只有当前方法上的请求需要符合限制；
+        
