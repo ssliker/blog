@@ -1,61 +1,102 @@
-1.关于参数接收：
-    1.参数接收主要接收三大类参数：
-        1.路径中的参数
-        2.查询字符串参数
-        3.请求实体中的参数
-    2.参数接收方式:
-        1.通过HttpServletRequest来接收；
-        2.通过springMVC提供的注解来接收；
+1.关于参数验证方式：
+    1.手动进行参数的数据类型、内容格式、范围等进行验证；
+    2.通过Validate进行验证；
 
-2.接收策略：
-    1.路径参数：使用@PathVariable接收参数;
-    2.查询字符串参数：使用@RequestParam或者直接使用形参来接收参数；
-    3.编码类型为form-data、x-www-form-urlencode的实体参数：使用@RequestParam或者直接使用形参来接收参数；
-    4.编码类型为raw格式(如：application/json)的实体参数：使用@RequestBody来接收参数；
-    5.实际编码中尽量避免同名参数出现，无论是同类型的同名参数还是不同类型的同名参数都不要出现；
+2.通过Validate进行参数验证：
+    1.引入Validation依赖：
+        1.对于SpringBoot项目，可以通过starter启动器引入Javax.validation:
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-validation</artifactId>
+                <version>2.3.3.RELEASE</version>
+            </dependency>
+        2.也可直接引入Javax.引入Validation依赖：    
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>2.0.1.Final</version>
+            </dependency>
+        注：通过上述引入的依赖均在：Javax.validation.constraints
+    2.关于Validation提供的验证注解：
+        参考：https://github.com/ssliker/blog/blob/master/tmp/Hibernate%20Validation%E6%95%B0%E6%8D%AE%E9%AA%8C%E8%AF%81.md
+    
+    3.关于web中使用Validator进行参数验证：
+        1.参数验证注解：
+            1.@Valid：遵守标准JSR-303规范，配合BindingResult可以直接提供参数验证结果；
+            2.@Validated时Spring对@Valid的一层封装；
+            3.在检验Controller的入参是否符合规范时，使用@Validated或者@Valid在基本验证功能上没有太多区别。但是在分组、注解位置、嵌套验证等功能上两个有所不同，具体如下：
+                1.关于分组功能：
+                    @Validated：提供了一个分组功能，可以在入参验证时，根据不同的分组采用不同的验证机制
+                    @Valid：作为标准JSR-303规范，还没有吸收分组的功能。
+        
+        2.验证方式：
+            1.方法参数验证：直接在方法参数上添加Validator相关注解进行验证；
+            2.DTO验证：在DTO属性上添加Validator相关注解进行验证，并在方法参数位置使用@Validated注明要验证的DTO；
+        
+        4.验证信息获取：
+            1.直接在方法中注入BindingResult来获取
+                if (result.hasErrors()){
+                    FieldError error = result.getFieldError();
+                    if (error != null) {
+                        System.out.println(error.getDefaultMessage());
+                    }
+                }
+            2.通过切面配置BindingResult来获取：
+                @Aspect
+                @Component
+                @Order(2)
+                public class BindingResultAspect {
+                    @Pointcut("execution(public * com.demo.test.controller.*.*(..))")
+                    public void BindingResult() {
+                    }
 
-3.参数接收详情
-    1.路径参数接收：
-        1、@PathVariable只能接收请求路径中的参数；
-        2、接收方式：
-            1.路径中必须先声明：@RequestMapping("/p1/{a}/{b}")
-            2.形参中必须要接收：public String tre(@PathVariable("a") String a, @PathVariable("b") int b)
-    2.查询字符串参数接收/编码类型为form-data、x-www-form-urlencode的实体参数接收:
-        1.@RequestParam接收参数：
-            @RequestParam只能通过两种方式接收参数：
-            1.@RequestParam使用语法：
-                1.设置待接收参数名：@RequestParam("paramName")、@RequestParam(value="paramName")、@RequestParam(name="paramName");
-                2.也可以设置参数是否为必传参数：@RequestParam(name="paramName"，required=false)
-                3.也可以为参数设置默认值：@RequestParam(name="paramName",defaultValue="xxx")
-            2.@RequestParam接收参数方式：
-                1.通过map接收参数：
-                    1.所有查询字符串参数会以name-value的形式解析至map中；
-                    2.使用语法：fun(@RequestParam HashMap query)；
-                2.通过单个形参变量接收参数：
-                    1.所有查询字符串按照名称的对应关系一一对应填充至形参变量中
-                    2.使用语法：fun(@RequestParam(name="queryParamName",required=false,defaultValue="xxx") String query)；
-        2.通过形参变量接收参数：    
-            1.通过单个形参变量接收：
-                1.语法：
-                    1.fun(String query)
-                2.说明：
-                    1.通过单个形参变量接收时，会将参数按照名称应设至形参变量；
-                    2.形参变量声明过得参数，不能设置默认值，必须通过客户端必须传入，否则报错，即required=true
-                    3.客户端传入的参数数据类型必须和对应形参变量的数据类型一致，否则报错；
-            2.通过对象实体接收：
-                1.语法：
-                    1.fun(User user)
-                2.说明：
-                    1.通过对象实体接收时，会将参数按照名称应设至对象实体的属性中；
-                    2.对象实体接收，可以设置默认值；
-                    3.客户端传入的参数数据类型必须和对应属性变量的数据类型一致，否则报错；
-            
-    3.编码类型为raw格式(如：application/json)的实体参数：
-        此种类型的实体参数通过@RequestBody来接收参数；
-        1.@ReuqestBody专用来接收请求实体为raw的请求；
-        2.@RequestBody接收请求参数根据参数的类型不同有两种方式：
-            1.如果参数是application/json，并且需要解析json，那么只能以以下两种方式接收：
-                1.通过map接收，要求客户端传参类型必须是application/json；并且只会将实体中的参数解析到map中；
-                2.通过bean接收，要求客户端传参类型必须是application/json，并且只会将实体中的参数解析到bean中；
-            3.如果参数不是application/json，如：application/xml/html/javascript、text/plain，或者不解析application/json时：
-                1.则只能通过String类型的变量来接收：
+                    @Around("BindingResult()")
+                    public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
+                        Object[] args = joinPoint.getArgs();
+                        for (Object arg : args) {
+                            if (arg instanceof BindingResult) {
+                                BindingResult result = (BindingResult) arg;
+                                if (result.hasErrors()) {
+                                    FieldError fieldError = result.getFieldError();
+                                    if(fieldError!=null){
+                                        return CommonResult.validateFailed(fieldError.getDefaultMessage());
+                                    }else{
+                                        return CommonResult.validateFailed();
+                                    }
+                                }
+                            }
+                        }
+                        return joinPoint.proceed();
+                    }
+                }
+            3.通过统一异常处理来获取：
+                @RestControllerAdvice
+                public class ExceptionAdvice {
+
+                    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+                    public String handlerValidException(MethodArgumentNotValidException exception) {
+                        BindingResult bindingResult = exception.getBindingResult();
+                        if (bindingResult.hasErrors()) {
+                            FieldError error = bindingResult.getFieldError();
+                            if (null != error) {
+                                return error.getDefaultMessage();
+                            }
+                        }
+                        return null;
+                    }
+
+                    @ExceptionHandler(value= BindException.class)
+                    public String handlerBindException(BindException exception) {
+                        BindingResult bindingResult = exception.getBindingResult();
+                        if (bindingResult.hasErrors()) {
+                            FieldError error = bindingResult.getFieldError();
+                            if (null != error) {
+                                return error.getDefaultMessage();
+                            }
+                        }
+                        return null;
+                    }
+                }
+
+
+
