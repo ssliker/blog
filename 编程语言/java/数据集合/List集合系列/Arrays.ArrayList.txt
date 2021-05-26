@@ -3,3 +3,4 @@
     2.Arrays.ArrayList虽然继承自AbstractList，属于List类型，但其只实现了List接口的部分方法，具体有以下几个：get()、set()、sort()、indexOf()、lastIndexOf()、contains()，除此之外，不允许显式或隐式调用其他方法；
 
 2.将Arrays.ArrayList转换为真正的ArrayList
+    1.将Arrays.Arraylist作为ArrayList的参数，创建一个ArrayList即可；
