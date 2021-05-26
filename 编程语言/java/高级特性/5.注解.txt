@@ -1,0 +1,90 @@
+1.注解和注释：
+    1.注释用来对代码解释说明，不会对代码的运行产生任何影响；注解则不仅仅有对代码解释说明的作用，还能够在源码阶段、编译阶段、运行阶段对代码的行为产生影响；
+    2.注解(Annotation)从JDK1.5开始引入，使用时通过"@注解名"或者"@注解名(参数)"这种方式来使用注解；
+    3.注解可以被使用在类、接口、成员属性、成员方法、参数、局部变量、其他注解上；
+
+2.内置注解：
+    1.java中自带的注解只有5个：@Override、@Deprecated、@SupressWarnings、@FunctionaInterface、@SafeVarargs
+    2.@Override：
+        功能：表示当前方法是重写父类的方法，只能用在方法上；如果使用了@Override确没有重写父类方法将会报错；但是重写父类方法并非必须使用@Override注解；
+        使用示例：
+            class ClassName{
+                @Override
+                public String toString(){
+                    //重写Object类中的toString方法
+                }
+            }
+    3.@Deprecated：
+        功能：表示当前方法、属性、类已经过期，不推荐再使用；只能用在方法、属性、类上；如果强行使用被@Deprecated修饰的方法、属性、类时编译器将会报警告信息；
+        使用示例：
+            class ClassName{
+                @Deprecated
+                public void testFunction(){
+                    //测试@Deprecated注解
+                }
+            }
+            //其他位置调用testFunction时将会报警告信息；
+    4.@SupressWarnings：
+        功能：表示忽略当前编译器发出的警告信息，使用该注解时必须携带一个或者多个参数；具体参数如下：
+            deprecated：表示使用了过期的方法、属性、类发出的警告信息
+            unchecked：执行力未检查的转换时警告
+            fallthrough：表示switch程序块直接通往下一种情况而没有break时的警告；
+            path：当类路径、源文件路径有不存在路径时的警告；
+            serial：当序列化一个类的实例对象时没有serialVersionUID时的警告；
+            finally：任何finally子句不能正常完成时的警告；
+            all：关于以上所有的警告信息；
+        实际在使用时也可以通过 && || !来组合需要忽略的警告信息；
+
+3.自定义注解：
+    1.除过java内置的注解以外还能够自定义注解；自定义注解需要通过元注解来进行；
+    2.元注解：
+        1.创建注解的注解称之为元注解，java中包括5个元注解：@Retention、@Target、@Documented、@Inherited
+        2.@Retention：表示注解的作用时期，必须指定参数，@Retention(参数),包括以下取值：
+            RententionPolicy.SOURCE //持续至源代码阶段
+            RententionPolicy.CLASS  //持续至编译阶段
+            RententionPolicy.RUNTIME //持续至运行阶段
+            通常情况下自定义的注解都是设置为RententionPolicy.RUNTIME，即注解会持续作用至运行阶段
+        3.@Target：表示注解的作用目标，必须指定参数，@Target(参数);包括以下取值：
+            ElementType.TYPE                //作用在类、接口、Enum上
+            ElementType.FIELD               //作用在属性
+            ElementType.METHOD              //作用在方法上
+            ElementType.PARAMETER           //作用在参数上
+            ElementType.LOCAL_VARIABLE      //作用在局部变量上
+            ElementType.ANNOTATION_TYPE     //作用在注解上
+            ElementType.PACKAGE             //作用在包上
+            ElementType.ANNOTATION_TYPE     //作用在注解上
+            ElementType.COUNSTRUCTOR        //作用在构造方法
+            ElementType.TYPE_PARAMETER      //作用在泛型参数上
+            ElementType.TYPE_USE            //作用在任何类型上
+            实际使用时还可以通过 && || !来组合多种作用目标；
+        4.@Documented：表示输出类的注释文档时是否输出类中使用的自定义注解，该元注解没有参数；
+        5.@Inherited：表示子类是否能够继承父类使用的自定义注解；
+        6.如果自定义的注解能够作用在注解时，也可以使用其他自定义的注解来修饰当前注解；
+    3.自定义注解：使用@interface自定义注解：
+        @Retention(RententionPolicy.RUNTIME)
+        @Target(ElementType.TYPE && ElementType.METHOD)
+        @Documented
+        @Inherited
+        public @interface MyAnnotation{
+
+        }
+    4.注解的参数：
+        1.注解的参数由：参数类型 参数名() default 默认值 组成；default 默认值是可选的，如果没有默认值则不需要使用 default 默认值，没有默认值时表示使用该注解必须给定该参数；
+        2.注解的默认参数，即不用指定参数名称的参数，通过value声明；其他参数在传递给注解时必须使用(参数名=参数值)的方式；
+        3.定义示例
+        @Retention(RententionPolicy.RUNTIME)
+        @Target(ElementType.TYPE && ElementType.METHOD)
+        @Documented
+        @Inherited
+        public @interface MyAnnotation{
+            //注解的默认参数：参数类型 value() default 默认值；
+            //传递的实参如果没有指定名称将会赋值给该参数；("值")默认将会给value参数；
+            String value() default "";
+
+            //设置value的别名,valueAlias和value是同一个参数，但是valueAlias需要通过valueAlias=值的方式传入注解；
+            @AliasFor("value")
+            String  valueAlias() default "";
+
+            //没有默认值的参数：参数类型 参数名(),使用注解时必须给定该参数；
+            String paramtName1();
+        }

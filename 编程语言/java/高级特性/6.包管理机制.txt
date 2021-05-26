@@ -1,0 +1,64 @@
+包:package
+    1：包机制简介：
+        1.java中通过package来组织管理类文件；
+        2.package和文件系统中的目录类似，package之下可以继续放置其他的包或者其他class文件；
+        3.实际项目中，package和文件系统中的目录结构一一对应，class文件加载时也是通过package路径来查找class文件的；
+        4.package的主要作用在于避免文件命名冲突，不同package下的文件其相同命名不会冲突；
+        5.同时package与类中成员的权限也有关系，可以让权限控制更加丰富；
+    
+    2：包声明：
+        1：java中需要通过package关键字来声明当前文件所属包，具体语法如下：package 包名;
+        说明：
+            1.包名必须符合java标识符命名规范，并且推荐以全小写的方式命名；
+            2.多级包名可以通过 . 分隔开，表明左边的包包含右边的包；
+            3.如果声明了当前文件的包名和包层级结构，那么对应的源文件和class文件必须放置在包层级结构对应的目录路径中，系统在加载文件时才能通过包路径找到对应文件；
+            4.一个文件只能有一个包的声明，并且package的声明语句要放在文件首行；
+            5.一个包中可以包含其他文件和其他包；
+
+    3.package使用的注意事项：
+        1.包层级的根层级应和项目所在根目录保持一致，按照项目路径设置包层级；并且java源文件和java类文件都应该遵守包层级一次放置在合适的目录下；
+        2.源文件和类文件所在的根路径要分开，按照包层级各自有一套自己的目录结构；
+        3.系统在加载类时会安装类的包路径查找类文件，因此类的包路径必须和目录路径一一对应；
+    
+    4：包的导入：
+        1：import
+            1.在使用包中的class、属性、方法时，必须先使用import通过包路径导入对应的class、属性、方法才能够使用；
+            2：import导入class：如：现有包结构如下：
+                paca：
+                    |--Testa.class
+                    |pacb
+                        |--Testb.class
+                        |--Testc.class
+                1.导入pacb包下的所有class文件
+                    import paca.pacb
+                    import paca.pacb.*
+                2：单独导入Testa.class文件：
+                    import paca.pacb.Testb
+                3.导入paca包下的所有文件：
+                    import paca
+                    import paca.*
+                    注意：上述操作只能导入paca包下的Testa.class文件，并不会导入pacb包以及pacb包下的文件
+            3：使用import时的注意事项：
+                1：java默认会导入java.lang包下的所有类库，其他包中的类库都需要手动导入才能使用；
+                2：如果两个包中有同名类文件，在使用import导入之后，仍然需要使用带包名的全路径来访问，否则无法区分具体的类文件；
+                3.import语句要在类使用之前，当前类package声明之后，一般在文件的顶部；
+
+        2：import static
+            1：import static 用来导入某个类文件中的静态属性、静态方法；
+            2：import static用法：
+                1：导入Testb类中所有的静态属性、静态方法：
+                    import static paca.pacb.Testb.*
+
+                2：导入Testb类中指定的某个静态属性、静态方法：
+                    import static paca.pacb.Testb.staticField
+            3：使用import static时的注意事项：
+                1：import static在文件中的位置和import在文件中的位置相同，都是在package声明之后，在类声明之前；
+                2：import static只能导入类中的静态属性和静态方法；
+                
+    5：常用的包：
+        1：java.lang：包含了常用的核心类库，例如：Math、String、System、Thread类，无需手动导入；
+        2：java.util：包含了java常用的工具类、工具接口以及集合框架类、集合框架接口；
+        3：java.net：包含了网络编程相关的类、接口；
+        4：java.io：包含了一些java输入、输出编程相关的接口；
+        5：java.text：包含了一些java格式化相关的类；
+        6：java.sql：包含了java进行jdbc编程的相关类、接口；
