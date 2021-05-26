@@ -1,0 +1,33 @@
+1.全局统一异常处理：
+    1.思路：
+        借助@ControllerAdvice及@ExceptionHandler来实现；
+    2.示例：  
+    @RestControllerAdvice
+    public class ExceptionAdvice {
+
+        @ExceptionHandler(value = MethodArgumentNotValidException.class)
+        public String handlerValidException(MethodArgumentNotValidException exception) {
+            BindingResult bindingResult = exception.getBindingResult();
+            if (bindingResult.hasErrors()) {
+                FieldError error = bindingResult.getFieldError();
+                if (null != error) {
+                    return error.getDefaultMessage();
+                }
+            }
+            return null;
+        }
+
+        @ExceptionHandler(value= BindException.class)
+        public String handlerBindException(BindException exception) {
+            BindingResult bindingResult = exception.getBindingResult();
+            if (bindingResult.hasErrors()) {
+                FieldError error = bindingResult.getFieldError();
+                if (null != error) {
+                    return error.getDefaultMessage();
+                }
+            }
+            return null;
+        }
+    }
+
+    

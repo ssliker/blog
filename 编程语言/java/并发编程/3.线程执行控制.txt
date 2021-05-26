@@ -1,0 +1,223 @@
+1.线程控制类库：
+    1.Java提供了线程执行控制工具：CountDownLantch、CyclicBarrier、Semaphore；
+    2.通过上述工具可以控制协调线程的执行顺序；
+
+2.关于CountDownlantch：
+    1.CountDownLantch功能：
+        1.CountDownLantch是java.util.concurrent包下提供的一个类库；
+        2.是一个倒数的计数器，通过计数器倒数控制线程的执行状态；
+        3.主要用在某个线程需要等待其他线程执行完成之后再继续向下执行的场景；
+
+    2.CountDownLantch提供的方法：
+        // 调用await()方法的线程会被挂起，它会等待直到CountDownLantch中count的值为0才继续执行
+        public void await() throws InterruptedException { };   
+
+        // 和await()类似，只不过等待一定的时间后count值还没变为0的话直接继续执行，不再继续等待；
+        public boolean await(long timeout, TimeUnit unit) throws InterruptedException { };  
+
+        // 将CountDownLantch中count的值减一；方法执行完成之后，线程可继续向下执行；
+        public void countDown() { };  //将count值减1
+    
+    3.CountDownLantch使用方法：
+        1.创建CountDownLantch，并设置计数值：
+            CountDownLantch countDownLantch = new CountDownLantch(5);
+        2.等待其他线程的线程需要调用await()方法来阻塞等待；
+        3.被等待的线程执行完成之后调用countDown()方法对计数器减一；
+        4.等计数器的值减为0之后，调用await()的线程将会被唤醒继续向下执行；
+        5.示例：
+            CountDownLatch countDownLatch = new CountDownLatch(2);
+            int i = 2;
+            while (i>0) {
+                new Thread(()->{
+                    System.out.println(Thread.currentThread().getName()+"isRuning...");
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    countDownLatch.countDown();
+                }).start();
+                i--;
+            }
+            countDownLatch.await();
+            System.out.println("main thread is Runing...");
+    4.CountDownLantch实现原理：
+
+2.关于CountDownlantch：
+    1.CountDownLantch功能：
+        1.CountDownLantch是java.util.concurrent包下提供的一个类库；
+        2.是一个倒数的计数器，通过计数器倒数控制线程的执行状态；
+        3.主要用在某个线程需要等待其他线程执行完成之后再继续向下执行的场景；
+
+    2.CountDownLantch提供的方法：
+        // 调用await()方法的线程会被挂起，它会等待直到CountDownLantch中count的值为0才继续执行
+        public void await() throws InterruptedException { };   
+
+        // 和await()类似，只不过等待一定的时间后count值还没变为0的话直接继续执行，不再继续等待；
+        public boolean await(long timeout, TimeUnit unit) throws InterruptedException { };  
+
+        // 将CountDownLantch中count的值减一；方法执行完成之后，线程可继续向下执行；
+        public void countDown() { };  //将count值减1
+    
+    3.CountDownLantch使用方法：
+        1.创建CountDownLantch，并设置计数值：
+            CountDownLantch countDownLantch = new CountDownLantch(5);
+        2.等待其他线程的线程需要调用await()方法来阻塞等待；
+        3.被等待的线程执行完成之后调用countDown()方法对计数器减一；
+        4.等计数器的值减为0之后，调用await()的线程将会被唤醒继续向下执行；
+        5.示例：
+            CountDownLatch countDownLatch = new CountDownLatch(2);
+            int i = 2;
+            while (i>0) {
+                new Thread(()->{
+                    System.out.println(Thread.currentThread().getName()+"isRuning...");
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    countDownLatch.countDown();
+                }).start();
+                i--;
+            }
+            countDownLatch.await();
+            System.out.println("main thread is Runing...");
+    4.CountDownLantch实现原理：
+
+
+2.关于CountDownlantch：
+    1.CountDownLantch功能：
+        1.CountDownLantch是java.util.concurrent包下提供的一个类库；
+        2.是一个倒数的计数器，通过计数器倒数控制线程的执行状态；
+        3.主要用在某个线程需要等待其他线程执行完成之后再继续向下执行的场景；
+        4.CountDownLantch中的计数器不支持重置，计数器的值归0之后必须重新创建CountDownLantch实例才能继续使用；
+
+    2.CountDownLantch提供的方法：
+        // 调用await()方法的线程会被挂起，它会等待直到CountDownLantch中count的值为0才继续执行
+        public void await() throws InterruptedException { };   
+
+        // 和await()类似，只不过等待一定的时间后count值还没变为0的话直接继续执行，不再继续等待；
+        public boolean await(long timeout, TimeUnit unit) throws InterruptedException { };  
+
+        // 将CountDownLantch中count的值减一；方法执行完成之后，线程可继续向下执行；
+        public void countDown() { };  //将count值减1
+    
+    3.CountDownLantch使用方法：
+        1.创建CountDownLantch，并设置计数值：
+            CountDownLantch countDownLantch = new CountDownLantch(5);
+        2.等待其他线程的线程需要调用await()方法来阻塞等待；
+        3.被等待的线程执行完成之后调用countDown()方法对计数器减一；
+        4.等计数器的值减为0之后，调用await()的线程将会被唤醒继续向下执行；
+        5.示例：
+            CountDownLatch countDownLatch = new CountDownLatch(2);
+            int i = 2;
+            while (i>0) {
+                new Thread(()->{
+                    System.out.println(Thread.currentThread().getName()+"isRuning...");
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    countDownLatch.countDown();
+                }).start();
+                i--;
+            }
+            countDownLatch.await();
+            System.out.println("main thread is Runing...");
+    4.CountDownLantch实现原理：
+        1.关于计数器：
+            CountDownLantch借助AQS来实现，CountDownLantch中的计数器实质上是AQS中的state值；
+        2.关于await：
+            1.线程调用await之后会获取AQS中的state值，并比较其是否等于0，如果等于0，那么返回1，否则返回-1；
+            2.如果返回-1，则表明计数器还未归零，那么会将当前线程挂起放在AQS队列中，等待被唤醒；
+        3.关于countDown():
+            1.在死循环中获取AQS的state值，并判断该值是否为0，如果为0则返回false，减一失败；
+            2.如果不为0，则将通过CAS的方式将state值减一；
+2.关于CyclicBarrier：
+    1.CyclicBarrier功能：
+        1.CyclicBarrier是java.util.concurrent包下提供的一个类库；
+        2.同样也是一个倒数的计数器，通过计数器倒数控制线程的执行状态；
+        3.但是其使用在需要多个线程都达到某个状态之后同时运行的场景，是一个线程栅栏；
+        4.CyclicBarrier的计数器值支持重试，
+    2.CyclicBarrier提供的方法：
+        // 调用await()方法的线程会被挂起，然后将CyclicBarrier中的计数值减一，并一直等待到CyclicBarrier中count的值为0才继续执行
+        public void await() throws InterruptedException { };   
+
+        // 和await()类似，只不过等待一定的时间后count值还没变为0的话直接继续执行，不再继续等待；
+        public boolean await(long timeout, TimeUnit unit) throws InterruptedException { };  
+
+    3.CyclicBarrier使用方法：
+        1.创建CyclicBarrier，并设置计数值：
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(5);
+        2.线程在执行之前调用await()方法来阻塞等待，同时对CyclicBarrier中的计数值减一；
+        4.等CyclicBarrier计数器的值减为0之后，所有调用await()的线程将会被唤醒继续向下执行；
+        5.示例：
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
+            int i = 2;
+            while (i>0) {
+                new Thread(()->{
+                    System.out.println(Thread.currentThread().getName()+"ready Runing...");
+
+                    try {
+                        Thread.sleep(2);
+                        cyclicBarrier.await();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(Thread.currentThread().getName()+"run end"+System.currentTimeMillis());
+
+                }).start();
+                i--;
+            }
+            System.out.println("main thread is Runing...");
+    4.CyclicBarrier实现原理：
+        1.关于计数器：
+            1.CyclicBarrier内置了一个计数器count；该值在创建CyclicBarrier时指定；并在线程调用await时减一；
+
+        2.关于await()：
+            1.在线程调用await之后，会执行到dowait方法，在dowait方法中先通过ReentrantLock加锁保证线程安全；
+            2.检测线程中断情况，如果发生线程中断，则抛出InterruptedException异常；
+            3.对count减一；并检测count是否为0：
+                1.如果count为0，则调用线程的run方法执行线程；并调用signalAll()方法唤醒其他所有处于阻塞的线程；
+                2.如果count不为0，则进入死循环：
+                    1.在循环中先检测当前是否设置了超时时间：如果设置了超时则调用awaitNanos挂起线程，否则调用await()挂起线程；
+                    2.检测是否发生中断，如果发生中断，则抛出中断异常；
+                    3.检测是否超时，如果超时则调用signalAll()方法唤醒所有线程，并抛出TimeOutException异常；
+3.Semaphore：
+    1.Semaphore功能：
+        1.Semaphore可以于提供一个信号量获取机制，能够从Semaphore中获取到信号之后线程才能够继续向下执行，否则额将处于阻塞等待状态；
+        2.Semaphore最大的特征就在于可以控制同时执行的线程个数，提供线程级别的限流服务；同时提供了公平竞争和非公平竞争两种模式；
+
+    2.Semaphore构造器：
+        # 非公平竞争，permits表示能够发放的最大许可证个数；
+        public Semaphore(int permits) {          
+            sync = new NonfairSync(permits);
+        }
+        # 自主定义公平/非公平竞争：permits表示能够发放的最大许可证个数；fair表示使用公平还是非公平竞争；
+        public Semaphore(int permits, boolean fair) {  
+            sync = (fair)? new FairSync(permits) : new NonfairSync(permits);
+        }
+    3.Semaphore提供的方法：
+        1.释放许可：
+            // 释放一个许可
+            public void release() { }   
+            // 释放permits个许可       
+            public void release(int permits) { } 
+        2.阻塞式获取许可：
+            // 获取一个许可
+            public void acquire() throws InterruptedException {  }     
+            // 获取permits个许可
+            public void acquire(int permits) throws InterruptedException { }    
+             
+        2.非阻塞式获取许可：
+            # 尝试获取一个许可，如果获取成功则立即返回true，否则返回false；
+            public boolean tryAcquire() { };    
+            # 尝试在超时时间内获取一个许可，超时时间内获取到就返回true，否则返回false；
+            public boolean tryAcquire(long timeout, TimeUnit unit) throws InterruptedException { };  
+            # 尝试获取permits个许可，若获取成功，则立即返回true，若获取失败，则立即返回false
+            public boolean tryAcquire(int permits) { };
+             //在超时时间内尝试获取permits个许可。获取成功，则立即返回true，否则则立即返回false
+            public boolean tryAcquire(int permits, long timeout, TimeUnit unit) throws InterruptedException { };
+    4.Semaphore实现原理：
+        1.Semaphore通过AQS结合ReentrantLock来实现；

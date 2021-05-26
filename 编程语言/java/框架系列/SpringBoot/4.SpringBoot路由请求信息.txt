@@ -24,6 +24,7 @@
             说明：
                 1.如果在类上添加method限制，表示当前Controller中所有的路径都必须以method指定的方式请求；
                 2.如果在方法上添加method限制，表示只有当前方法上的路径必须以method指定的方式请求；
+                3.如果类上和method上都有设置，但是不同，则以class上设置的为准；
         3.路径中必须要携带的参数及值:
             示例：
                 1.@RequestMapping(params={"pathParam=value"})

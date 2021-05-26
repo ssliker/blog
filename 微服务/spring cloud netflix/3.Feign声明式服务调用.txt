@@ -1,0 +1,87 @@
+1.关于Fegin:
+    1.Fegin是Spring Cloud Netflix组件中一个轻量级RESTful风格的http服务客户端；可以像调用本地方法一样发起http请求，简化HTTP服务请求过程；
+    2.Fegin内置了Ribbon，因此使用Fegin时会自动进行负载均衡；能够简化编程过程；
+
+2.Fegin和OpenFegin：
+    1.Fegin本身并不支持SpringMVC相关注解，和Spring体系兼容度不够，因此Spring Cloud在Fegin基础上进行了封装，实现了OpenFegin；
+    2.OpenFegin能够支持SpringMVC相关注解，如：@RequestMapping、@Pathvariable等。其中的FeginClient可以解析SpringMVC中被@RequestMapping注解的接口，并能够通过动态代理的方式产生实现类，在实现类汇中做负载均衡并调用服务。
+
+3.Fegin使用步骤：
+    1.引入Fegin依赖：
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+    2.通过@FeginClient声明待调用服务接口：
+        # FeginClient中注明要调用的服务spring.application.name值
+        @FeignClient("user-service-provider")
+        public interface UserService {
+
+            # 通过XXXMapping注明要调用的URL；
+            @GetMapping("/user/info")
+            public User getUser();
+        }
+    
+    3.在当前服务中注入FeginClient：
+        @Autowired 
+        UserService userService;
+    
+    4.调用URL对应的接口方法：
+        userService.getUser()   # 即可发起http请求；将会请求http://ip:port/user/info；
+
+    5.Fegin中修改负载均衡策略：
+        1.全局使用同一种负载均衡策略：
+            在启动类或者配置类中注入负载均衡策略对象即可，完成之后，所有的服务请求均使用该策略；
+            @Bean
+            public RandomRule getRandomRule() {
+                return new RandomRule();
+            }
+        2.不同的服务使用不同的负载均衡策略：
+            service-provider: # 服务应用名(服务的spring.application.name)
+                ribbon:
+                    NFLoadBalanceRuleClassName: com.netflix.loadbalancer.RandomRule
+    6.Fegin中的传参：
+        1.路径参数使用@PathVariable传参；
+        2.查询字符串参数使用@RequestParam传参；
+        3.请求实体传参直接使用形参变量传参，但是只能有一个参数，要么是实体，要么是HashMap！
+    
+    7.Fegin中使用Http连接池：
+        1.Fegin的HTTP客户端支持3中框架：HttpURLConnection、HttpClient、OkHttp；默认是HttpURLConncetion；因此只需要添加对应的HTTP客户端依赖，然后配置连接池信息，并向Fegin注册即可；
+        2.具体配置方式：
+            1.引入OkHttp或者HttpClient客户端：
+                1.SpringCloud本身已经引入了Okhttp和HttpClient的依赖，因此直接使用即可，
+                2.也可以自己引入需要的依赖版本；
+            2.Fegin中替换Httpclient或者OkHttp只需要引入fegin-httpclient或者fegin-okhttp依赖即可；
+                <dependency>
+                    <groupId>io.github.openfeign</groupId>
+                    <artifactId>feign-okhttp</artifactId>
+                    <version>11.0</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>io.github.openfeign</groupId>
+                    <artifactId>feign-httpclient</artifactId>
+                    <version>11.1</version>
+                </dependency>
+            3.配置feign，使用对应的客户端：
+                1.feign:
+                    okhttp:
+                        enabled: true
+                2.feign:
+                    httpclient:
+                        enabled: true
+    8.feign的请求超时处理：
+        1.全局配置：
+            ribbon:
+                ConnectionTimeout: 5000 # 请求连接超时时间即5s，默认超时时间是1s
+                ReadTimeout: 5000 # 请求处理超时时间；
+        2.局部配置：
+            局部配置基本模式是：
+                服务名.ribbon.配置项
+            service-provider:
+                ribbon:
+                    OkToRetryObAllOperations: true    # 对所有请求都进行重试
+                    MaxAutoRetries: 2    # 对当前实例的重试次数
+                    MaxAutoRetriesNexServer: 0    # 切换实例重试次数；
+                    ConnectTimeout: 3000     #请求连接的超时时间；
+                

@@ -1,0 +1,157 @@
+
+1.关于线程池:
+    1.线程池概念：
+        1.线程的创建和销毁都是比较消耗cpu资源的，为了提高线程的使用效率，可以提前创建并维护一批线程，在需要执行任务时可以从线程池中直接获取已经创建好的线程，而无需再执行线程创建流程，任务执行完毕之后，直接将线程归还线程池即可，无需执行线程销毁流程，这些线程及其管理线程称之为线程池。
+    2.线程池的优点：
+        1.避免频繁执行创建和销毁流程，任务的执行效率较高。
+        2.线程池可以设置线程上限，避免极端情况下手动创建线程数过多导致资源耗尽；
+        3.不同的线程池可以实现资源隔离，避免多个任务公用一个线程池，那么使用线程较多的任务也不会挤占其他任务的线程资源；
+3.java中的线程池体系：
+    1.Executor
+        说明：
+            只是一个接口，定义了线程池执行任务的方法名称及参数：void execute(Runnable command);
+    2.ExecutorService
+        说明：
+            1.继承自Executor，同样是一个接口;
+            2.在Executor的基础上增加了部分线程池管理方法：
+                shutdown()、shutdownNow()、isShutdow()、awaitTermination()、isTerminated()
+            3.增加了一种执行任务的submit方法：
+                # 接收Callable为参数的方法
+                <T> Future<T> submit(Callable<T> task);
+                # 接收Runable为参数的方法，并且支持返回一个预置的结果：result；
+                <T> Future<T> submit(Runnable task, T result);
+                # 接收Runable为参数的方法，并且支持返回一个Future类型的结果，如果任务执行成功，其为null，
+                Future<?> submit(Runnable task);
+            4.增加了批量执行任务的方法：
+                <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+                <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+                <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+                <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+    3.AbstractExecutorService
+        说明：
+            1.抽象类，继承自ExecutorService；
+            2.提供了两个将Runable和Callable封装为RunableFuture类型的方法：newTaskFor()
+            3.实现了ExecutorService的submit方法，在该方法中先通过newTaskFor()方法将Runable和Callable方法封装为RunableFuture类型，然后调用execute()方法执行任务；
+            4.实现了ExecutorService的invokeAll()及invokeAny()方法，在该方法中遍历任务，并提交给execute()来执行；
+    4.ThreadPoolExecutor：
+        1.说明：
+            1.ThreadPoolExecutor是一个线程池完整的实现，具备线程池任务执行、线程管理、线程池管理等完整的功能；
+            2.ThreadPoolExecutor类继承自AbstractExecutorService：
+                1.定义了线程池的运行生命周期，并实现了对应的钩子方法；
+                2.定义了线程池中线程的创建方式、执行任务的策略、线程池配置等；
+            实现了执行任务的execute方法以及线程池管理的shutdown()等相关方法；
+            3.
+    5.Executors:
+        1.说明：
+            1.基于ThreadPoolExecutor提供了四个具有默认配置的线程池；
+
+5.ThreadPoolExecutor实现的线程池生命周期：
+    1.生命周期描述：
+        1.RUNNING：可以接受新的任务，并且会执行队列中的待执行任务；
+        2.SHUTDOWN：不再接受新的任务，但是会继续执行队列中的待执行任务；
+        3.STOP：不再接受新的任务，也不会继续执行队列中的待执行任务；
+        4.TIDYING：进入TERMINATED状态的过度状态队列中所有的任务都已经执行完毕，而且工作线程数为0时将处于该状态；
+        5.TERMINATED：线程池已经彻底关闭的状态；
+    2.生命周期函数：
+        1.shutdown()：将会让线程池从RUNING状态进入SHUTDOWN状态。
+        2.shutdownNow()：将会让现场池从RUNGING或者SHUTDOWN状态进入STOP状态。
+        3.terminated()：将会让现场从TIDYING状态进入TERMINATED状态。
+
+6.​ThreadPoolExecutor提交和执行任务的流程：
+​	1.调用submit()/execute()/invokeAll()/invokeAny()向线程池中提交任务；
+​	2.线程池检测此时核心线程数是否已满，如果未满则创建核心线程来执行任务；
+​	3：如果核心线程数已满，则检测任务对列是否已满，如果任务对列未满，则将任务放至任务对列；
+​	4：如果任务对列已满，则检测线程池中最大线程数是否已满，如果最大线程数未满，则创非核心建线程执行任务；
+​	5：如果线程池中最大线程数已满，则按照拒绝策略来拒绝任务；
+
+7.ThreadPoolExecutor创建线程池的相关配置：
+    1.配置项：
+        1.核心线程数                   corePoolSize            int类型
+    ​    2.最大线程数                   maxPoolSize             int类型
+    ​	 3.空闲线程存活时间              keepAliveTime           long类型
+    ​	 4.等待被执行的任务对列           workQueue               BlockingQueue
+    ​	 5.创建线程的工厂                threadFactory
+    ​	 6.线程无法执行任务时的拒绝策略    Handler                 RejectedExecutionHandler		
+    2.配置项说明：
+        1.核心线程数（corePoolSize）：
+            1.线程池常驻线程个数；即线程池中最少要有的线程个数；
+            2.线程池刚刚启动的时候，并不会立即创建核心线程数个线程，而是等有新的任务时才会创建。
+        2.最大线程数（maxPoolSize）：
+            1.线程池中允许的线程数最大值；
+            2.线程池中核心线程数消耗完毕，且队列已经存满之后才会根据新接受的任务创建工作线程数直至最大线程数。
+            3.当线程池中的线程数已经达到最大线程数，且队列已经被占满之后还有新的任务，那么线程池将会按照拒绝策略来拒绝任务；
+
+   		3.空闲线程存活时间（keepAliveTime）：
+            1.当线程池中暂无任务可执行，且配置了timed为true之后(通过allowCoreThreadTimeOut()方法即可设置，默认即为true)将会销毁多于的工作线程；
+            2.当线程池中的线程数销毁至核心线程数之后将会停止； 		
+​	   	 4.等待被执行的任务对列（workQueue）：
+            1.当前待执行的任务数超过当前线程池中核心线程数量之后，待执行任务将会暂时存放在任务对列中等待被执行；
+​            2.任务对列的类型选择对线程池的工作方式有比较大的影响，大致分为两种类型：有界对列和无界对列；
+                1.有界对列通常用来应对任务数可控且不多的场景，但缺陷是在任务对列已满，并且线程池中线程数已经达到最大线程数时将会按照预置的拒绝策略来拒绝任务；
+                2.无界对列可以允许容纳任意多个任务，其容纳任务的个数取决于系统资源；一般用来应对任务数较多且可能出现突发任务的场景；但是缺陷是，如果线程处理任务速度较慢，任务会一直堆积在对列中，如果堆积的任务国道导致资源耗尽也会导致程序崩溃，因此通常情况下都是使用有界对列；
+                3.常用的对列有以下几种：
+                    1.LinkedBlockingQueue：
+                        基于链表实现的可设置容量的阻塞对列，如果不设置容量，那么成为无界对列(也是有上限的，上限为int的最大值)
+                    2.ArrayBlockingQueue：
+                        基于数组实现的有界对列，使用时必须指定容量；
+                    3.SynchronousQueue
+                        1.同步对列，对于同一个线程而言，每插入一个值，必须等其他线程取出一个值之后才可以继续插入，但是多个不同的线程可以同时向该队列中插入数据；
+                        2.基于AQS实现，具有公平和不公平之分，公平的话即为先进先出的队列，不公平的话为先进后出的栈；先进入的任务先被处理不会暂存等待执行的任务，每个插入操作都需要等到另一个线程调用移除操作，否则将一直处于阻塞状态；
+​					 4.PriorityBlockingQueue：
+                        1.是具有优先级的无界阻塞队列；    				
+                    5.DelayQueue：
+                        1.任务定时周期的延迟执行的队列。根据指定的执行时间从小到大排序，否则根据插入到队列的先后排			
+​		 5.创建线程的工厂（threadFactory）:
+            1.如果线程池中线程数量不足时，将会通过threadFactory来创建线程;可以自定义ThreadFactory类来实现线程的创建；
+
+​		6.线程无法执行任务时的拒绝策略（Handler）：
+            1.如果当前线程池中的线程数已经达到最大线程数，且任务对列已满，线程池将会拒绝接受任务，此时将会根据提前配置的拒接策略来拒绝
+            2.常用拒绝策略如下：
+                1.AbortPolicy(抛出一个异常，默认的)
+                2.DiscardPolicy(直接丢弃任务)
+                3.DiscardOldestPolicy（丢弃队列里最老的任务，将当前这个任务继续提交给线程池）
+                4.CallerRunsPolicy（交给线程池调用所在的线程进行处理)
+8.Executors中提供了默认配置的线程池：
+    1.newFixedThreadPool：
+        1.使用时需要手动指定一个线程数，而且核心线程数和最大线程数相同的线程池；
+        2.线程空闲时间为0，及只要未从队列中获取到任务，那么线程会被立即销毁；
+        3.任务对列采用的是LinkedBlockingQueue，即链表实现的无界对列；
+        4.创建方式：
+            // nThreads为线程的数量 
+            Executors.newFixedThreadPool(int nThreads)；
+            // nThreads为线程的数量，threadFactory创建线程的工厂方式 
+            Executors.newFixedThreadPool(int nThreads，ThreadFactory threadFactory)；
+        
+    2.newCachedThreadPool：
+        1.核心线程数默认是0，最大线程数是int的最大值；
+        2.线程空闲存活时间是1分钟；
+        3.任务队列采用SynchronousQueue；
+        4.创建方式：
+            Executors.newCachedThreadPool()；
+            Executors.newCachedThreadPool(ThreadFactory threadFactory) 
+        5.适用场景：
+            1.适合用在任务执行时间短，任务量大的场景，但是由于最大线城市是int最大值，所以任务量过得多的情况下可能造成内存溢出风险；
+    3.newSingleThreadExecutor:
+        1.核心线程数和最大线程数均为1；
+        2.空闲线程存活时间默认为0，即线程一旦从队列中获取不到任务将会被立即销毁；
+        3.任务对列采用LinkedBlockingQueue无界对列；
+        4.创建方式：
+            Executors.newSingleThreadExecutor()；
+            Executors.newSingleThreadExecutor(ThreadFactory threadFactory) 
+        5.适用场景：
+            1.通常适用在需要异步串行执行任务的场景；
+    4.newScheduledThreadPool：
+        1.核心线程数需要手动指定，最大线程数为int的最大值；
+        2.空闲线程存活时间为0；
+        3.任务对列采用DelayedWorkQueue延迟对列；线程池中线程执行任务时会根据对列中任务的延迟时间顺序执行；
+        4.创建方式：
+            newScheduledThreadPool(int corePoolSize)
+            newScheduledThreadPool(int corePoolSize, ThreadFactory threadFactory)
+        5.一般用来执行一些周期性任务或者需要延迟执行的任务
+
+6.关于线程池异常的处理:
+        1.通过submit方法执行任务抛出的异常，可以通过submit返回的Future调用get方法获取异常信息；
+        2.创建线程池时通过为ThreadFactory设置UncaughtExceptionHandler来处理异常；
+        3.在线程池执行的任务本身添加try...catch处理任务本身的异常；
+        4.继承ThreadPoolExecutor，并重写afterExecute方法，在afterExecute方法中通过try...catch处理future调用get方法抛出的异常；
+​		

@@ -1,11 +1,13 @@
 1.关于过滤器：
     1.过滤器概述：
         1.过滤器Filter的功能：可以对接收到的请求进行过滤；
-        2.过滤器Filter的过滤范围：Filter是Servlet提供的功能，针对的是所有的请求，包括静态请求和动态请求；
-        3.过滤器Filter的作用时机：请求进入Servlet处理之前就会被过滤；
+        2.过滤器Filter的过滤范围：Filter是Servlet提供的接口，只能用在web环境中；并且会对所有进入到Servlet中的请求进行拦截，包括静态请求和动态请求；
+        3.过滤器Filter的作用时机：请求进入Handler之前就会被过滤；
         4.过滤器Filter允许配置多个，此时：
             1.FilterChain会依次调用每一个Filter的doFilter方法对请求进行过滤；
             2.多个Filter可以指定执行顺序，按照指定的顺序对请求进行过滤；
+        5.由于SpringMVC启动时会先创建spring容器，后创建Servlet容器，因此当Filter加载并初始化之后bean已经创建完成，所以Filter中可以注入bean；
+        6.过滤器是基于函数回调实现的，即当前拦截器主动调用doFilter方法实现拦截器链式调用的；
     2.关于Filter接口：
         1.接口内容：
             public interface Filter {
@@ -62,15 +64,16 @@
             3.设置作用url:
                 通过addUrlPatterns()方法设置当前过滤器允许过滤的URL；
                 
-
 2.关于拦截器
     1.拦截器概述：
         1.过滤器Intercepter的功能：可以对需要由Handler处理的请求进行拦截过滤；
-        2.过滤器Intercepter的过滤范围：Intercepter是SpringMVC提供的功能，只针对需要由Handler处理的请求进行拦截和处理；
-        3.过滤器Intercepter的作用时机：请求进入Handler处理之前、之后均会被过滤；
+        2.过滤器Intercepter的过滤范围：Intercepter是Spring提供的功能，能够用在除过web以外的其他类型程序中；只能够对需要由Handler处理的请求进行拦截
+        3.过滤器Intercepter的作用时机：请求进入Handler处理之前、之后均会被拦截；
         4.过滤器Intercepter允许配置多个，此时：
             1.系统会依次调用每一个Intecepter的相关方法对请求进行过滤；
             2.多个Intercepter可以指定执行顺序，按照指定的顺序对请求进行过滤；
+        5.特别注意一点：拦截器的加载是在spring容器创建之前完成的，因此拦截器中不同通过@Autowired注入bean；
+        6.拦截器是基于反射实现的动态代理；
 
     2.关于Intercepter：
         1.接口内容：
@@ -114,8 +117,8 @@
             2.注册Intercepter：
                 @Override
                 public void addInterceptors(InterceptorRegistry registry) {
-                    registry.addInterceptor(new Bitfa()).addPathPatterns("/gu");
-                    registry.addInterceptor(new Aitfa()).addPathPatterns("/gu");
+                    registry.addInterceptor(new Bitfa()).addPathPatterns("/gu");  // 只拦截/gu
+                    registry.addInterceptor(new Aitfa()).excludePathPatterns("/gu"); // 拦截除过/gu以外的所有url
                 }
 
             3.执行顺序：

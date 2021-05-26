@@ -11,6 +11,7 @@
             3.file:./
             4.file:./config/*/
             5.file:./config/
+            说明：file：是指项目根目录下
         3.配置文件位置优先级：
             1.配置文件位置优先级从高至低按顺序为：
                 file:/config -> file:/config/*/ -> file:/ -> classpath:/config -> classpath:/
@@ -20,7 +21,7 @@
                 1.同名配置下，优先级高的将会覆盖优先级低的；
                 2.不同名配置，将会形成互补；
             4.导致配置文件优先级有差异的原因：
-                1.所有的配置都在List中放置，不同的配置文件会按照优先级顺序从高至低一次存放；
+                1.所有的配置都在List中放置，不同的配置文件会按照优先级顺序从高至低依次从前往后存放；
                 2.在查找指定名称的配置时，会遍历List中的所有配置，一旦找到立即返回，后面的不会再查找，因此等同于前面优先级高的配置覆盖了后面优先级低的配置；
     
     2.加载指定配置文件：
@@ -37,7 +38,7 @@
             3.注意事项：    
                 1.该参数要有效，必须先在顶层配置中配置，如默认配置文件配置或者应用启动时以命令参数配置；
                 2.该参数指定的仅仅只是配置文件的前缀，具体的配置文件必须以application-{profiles}.properties或者application-{profiles}.yml命名；
-                3.spring.profiles.active的使用场景在于：根据不同的配置目标使用不同的配置文件，如：
+                3.spring.profiles.include的使用场景在于：根据不同的配置目标使用不同的配置文件，如：
                     分别在不同的文件中配置redis、kafka、mysql的相关配置，隔离不同类型的配置项，使配置更加简洁明了；
                 4.该参数可同时指定多个值，系统会依次加载对应的配置文件；对于同名配置，其profiles值越靠后则对应的配置文件优先级越高，非同名配置则互补；
                 5.整体上由spring.profiles.include指定的配置文件优先级高于任意位置配置的默认配置文件；
@@ -59,6 +60,8 @@
         3.通过注解加载指定配置文件：
             1.@PropertySource(value={"classpath:a.properties","file:b.properties"})
             2.@ImportResource(locations={"a.xml","b.xml"})
+            说明：
+                1.通过注解加载的配置文件优先级要高于上述三种；
 
         4.通过启动命令参数指定配置
 
@@ -78,7 +81,11 @@
                         ConfigurableEnvironment environment;
 
                         // 继承EnvironmentPostProcessor，并实现postProcessEnvironment，在该方法中ConfigurableEnvironment会以参数的形式给定
-                    2.向MutablePropertySource中添加配置：
+                    
+                    2.获取PropertySource：
+                        MutablePropertySources propertySources = ce.getPropertySources();
+
+                    3.向MutablePropertySource中添加配置：
                         mutablePropertySources.addFirst/addLast(mapPropertySource);
 
 3.springBoot配置管理方式：
@@ -127,7 +134,7 @@
         2.@Value使用方法：
         1.与配置项绑定：
             1.通过@Value绑定相关配置值：@Value("${cfg.name}")；
-            2.同时也可以设置默认值：@Value("${cfg.name}":123)、@Value("${cfg.name:string}");
+            2.同时也可以设置默认值：@Value("${cfg.name:123}")、@Value("${cfg.name:string}");
         2.与常量值绑定：
             1.通过@Value绑定相关常量值：@Value("#{constant}")；
             2.如果常量值是字符串，则使用''包裹，如：@Value("#{'constant'}")；
@@ -145,7 +152,7 @@
             2.忽略配置与属性类型不同的情况：
                 如果配置值得类型和属性值不同，强行绑定将会导致报错，如果需要兼容这种情况，可以设置ignoreInvalidFields：@ConfigurationProperties(orefix="cfg.prefix",ignoreInvalidFields=true)
             3.兼容配置与属性不匹配的情况：
-                默认情况下，如果指定前缀中有与属性名不匹配的配置时，会自动忽略，如果希望能够在这种情况下报错的话，可以将ignoreUnknownFields设置为false：@ConfigurationProperties(orefix="cfg.prefix",ignoreUnknownFields=true)
+                默认情况下，如果指定前缀中有与属性名不匹配的配置时，会自动忽略，如果希望能够在这种情况下报错的话，可以将ignoreUnknownFields设置为false：@ConfigurationProperties(orefix="cfg.prefix",ignoreUnknownFields=false)
             4.复杂属性的绑定：
                 对于需要注入类型为List和Set的属性，其配置必须定义成数组的形式：
                     1.cfg.prefix.attrValue[0]=attr1

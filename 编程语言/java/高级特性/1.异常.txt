@@ -1,0 +1,145 @@
+1.关于异常：
+    1.程序执行正常逻辑时，可能发生的意外称为异常；
+    2.在编码时不仅要考虑正常的业务逻辑，也要尽可能全面的可能发生的异常，以及如何处理这些异常；
+2.java中的异常体系：
+    1.Java中通过类来描述一个异常，一旦发生异常之后，将会创建一个该异常类的实例，并在该实例中保存异常发生时的信息；
+    2.Java中已经提供了一系列常见异常的class，用来表示不同的异常，除此之外也允许自定义异常类；
+    3.Java中异常类的继承体系结构：
+        Object
+            |-- Throwable    # 所有异常类的父类
+                |-- Error    # JVM异常类的父类
+                |-- Exception    # 表示应用在运行中发生的异常
+                    |-- RuntimeException    # 表示发生的运行时异常,即Runtime Exception
+                    |-- XxxException    # 表示发生的检查异常，即Checked Exception
+    4.Java中异常的设计原理：
+        1.Error与Exception：
+            1.Error表示JVM发生的异常：
+                1.通常JVM一旦发生异常，表示程序出现严重错误，无法再继续运行，因此JVM进程将会结束；
+                2.应用无法捕获以及处理JVM发生的异常，因此发生了JVM异常时，只能根据最终的dump文件来查看并修复程序；
+            2.Exception表示应用发生的异常：
+                1.应用中发生的异常，表示程序运行期间出现了运行逻辑、运行环境上的问题，允许业务程序提前捕获并处理，如果未及时捕获处理，那么异常将会一直上抛至虚拟机；
+                2.Exception根据是否需要强制处理，又分为Runtime Exception和Checked Exception；
+        2.Runtime Exception和Checked Exception：
+            程序中导致异常的场景一般有两种：
+                1.程序本身的设计问题，如空指针异常、数组越界异常、格式化异常、除零异常等，这类问题可以通过修改程序来避免的；
+                2.程序运行环境的问题，如：磁盘io异常，网络连接异常、类加载异常等，这类问题是程序本身无法解决却又有可能发生的；
+            因此，java中为了更好的区分和保证程序的健壮，通过Runtime Exception和Checked Exception来表示上述两种不同的异常类型；
+            1.Runtime Exception
+                1.Runtime Exception表示程序本身设计的异常，通过Runtime Exception可以定位到异常发生的位置以及异常信息，用来辅助解决程序设计缺陷，避免再发生类似问题，所以Runtime Exception更像是程序bug的通知机制；
+                2.程序中的Runtime Exception不要求在发生位置立即处理，如果当前位置不知道如何处理，那么可以不出理，只需在调用链的上层任意位置通过try...catch捕获处理即可；所以异常的处理无需整个调用链路参与，如果下层发生的异常类型有改变，只需要改动上层处理的位置即可；
+                3.Runtime Exception的劣势就在于，上层调用者可能不知道需要处理调用对象的哪些异常，有可能发生异常被漏处理；
+            2.Checked Exception：
+                1.Checked Exception表示程序运行环境上的异常，通过Checked Exception也仅仅可以定位到异常发生的位置以及异常信息，但是程序本身并不能去解决这一类问题，如磁盘坏掉、网络崩溃等等，程序能够做的就是在发生这些异常时更好的善后整个业务处理结果；
+                2.程序中的Checked Exception要求在发生位置立即处理，如果知道如何处理，那么可以直接通过try...catch处理，如果当前位置不知道如何处理，可以通过throws声明要抛出异常，而当前层级的上层也必须处理当前层声明的异常；所以异常的处理需整个调用链路参与，如果下层发生的异常类型有改变，调用链上的每一层都需要改变；
+                3.Checked Exception的优势就在于上层调用者可以知道自己需要处理调用对象的哪些异常，防止异常被漏处理；
+    5.自定义异常：
+        1.除过系统预置的异常以外，应用还可以根据需要自定义异常，自定义的异常可以直接继承自Exception和RuntimeException；如果继承的是Exception，那么该异常会成为Checked Exception，如果继承自RuntimeException那么该异常会成为RuntimeException；
+        2.自定义异常类必须听一个无惨构造方法和一个接受String类型参数的构造方法；
+        3.示例：
+            // 如果继承自Exception，那么自定义异常是Checked Exception类型的异常
+            public class MyException extends Exception
+            {
+                public MyException()
+                {
+                    /*无参构造方法*/
+                }
+                public MyException(String exceptionMessage)
+                {
+                    /*有参构造方法*/
+                }
+            }
+
+            // 如果继承自RuntimeException，那么自定义异常是Runtime Exception类型的异常
+            public class MyRunException extends RuntimeException
+            {
+                public MyException()
+                {
+                    /*无参构造方法*/
+                }
+                public MyException(String exceptionMessage)
+                {
+                    /*有参构造方法*/
+                }
+            }
+3.Java中处理异常：
+    1.通过throws声明：
+        1.适用于前层级不知道如何处理Checked Exception类型异常时的场景；
+        2.throws声明的异常，上层调用方必须手动处理；
+        3.示例：
+            // 通过throws声明需要上层调用方处理的异常，多个异常之间通过,隔开；
+            public void testException()
+                throws Exception1,Exception2{
+                
+            }
+    2.通过throw抛出异常：
+        1.适用于当前层级不知道如何处理Runtime Exception类型异常时的场景；
+        2.throw抛出的异常，上层调用方不强制立即处理；
+        3.示例：
+            throw new Exception("异常信息");
+    3.通过try...catch处理异常：
+        1.适用于当前层级知道如何处理Exception的场景；
+        2.try...catch的语法结构：
+            try{
+                /*有可能发生异常的正常业务代码*/
+            }catch (AException e1){
+                /* 捕获并处理预置异常*/
+            }catch (BException e2){
+                /* 捕获并处理预置异常*/
+            }finally{
+                /* 无论是否发生异常都会执行该代码*/
+            }
+        3.关于try语句块：
+            try语句块中放置可能发生异常的业务代码
+            try{
+                /*有可能发生异常的正常业务代码*/
+            }
+        4.关于catch语句块：
+            1.catch语句块用来捕获并处理异常
+                catch (ExceptionType e){
+                    /* 捕获并处理预置异常*/
+                }
+            2.在catch中处理异常：
+                1.catch中捕获到的是发生异常的class实例，因此可以直接调用其实例方法来获取异常信息：
+                2.常用方法如下：
+                    //获取发生的异常信息，以字符串形式返回；
+                    e.getMessage();
+                    //获取发生的异常栈信息，以字符串形式返回；
+                    e.getStackTrace();
+                    //向控制台打印异常栈信息；
+                    e.printStackTrace();
+                    //向指定输出流中打印异常栈信息；
+                    e.printStackTrace(PrintStream s);
+            3.catch允许同时捕获多个异常：
+                catch (ExceptionType1 e){
+                    /* 捕获并处理预置异常*/
+                }
+                catch (ExceptionType2 e){
+                    /* 捕获并处理预置异常*/
+                }
+                注意：
+                    1.catch捕获多个异常时，异常class的继承结构应该从上之下要从小到大，否则父类异常放置在最上层时将导致下层的异常永远也捕获不到；
+                    2.JDK1.7对于捕获多个异常新增了更简洁的语法，其语法结构如下：
+                        /*
+                        * 需要捕获的多个异常使用 | 分隔开；
+                        * e仍然表示捕获到的异常的实例对象，e有隐式的final修饰，是一个不可变量，不允许在catch语句快中对e重新赋值！
+                        */
+                        catch (AException|BException|CException e){}
+        5.finally语句块：
+            1.finally语句块中的代码，无论在try块中是否发生异常，都会执行，一般会在finally中进行资源回收的操作；
+            2.在执行到finally语句块之前如果进程结束，那么finally中的语句块是不会执行的，如以下几种情况：
+                1.如果try或者catch语句块中有执行system.exit()代码时，执行该行代码只和JVM将会立即结束，此时不会再继续执行finlly中的代码
+                2.执行finally语句块的前提是要执行到try块，如果代码在执try块之前进程已经结束，那么finally中的代码同样不会执行；
+                3.如果try或者catch语句块中有执行 Runtime.getRuntime().halt(1)代码时，执行该行代码只和JVM将会立即结束，此时不会再继续执行finlly中的代码；
+                4.如果守护线程在执行try或者catch中的代码时所有非守护线程运行完成，那么JVM将会立即结束，守护线程将不会再有机会执行finally中的代码；
+            3.在以下几种情况下，会有限执行finally中的代码块：
+                1.如果try或者catch语句块中执行了return语句时，会先计算try或catch中return后面表达式的值；然后查询当前异常处理流程是否有finally，如果有的话不会立即返回try/catch中return后面的结果，而是先执行finally中的代码，然后再返回try或者catch中的return语句；
+                2.如果finally语句块中同样有return语句时，将会先执行try/catch中return后面的表达式，然后再执行finally中的代码，直接返回finally中return语句的值，不会再返回try/catch中return后面的值；
+            4.关于资源回收：
+                1.通常情况下会利用finally中代码块在无论是否发生异常都会执行的特性进行资源的回收处理操作；但是需要手动显式添加具体处理代码；在JDK1.7之后，几乎所有的资源类均实现了AutoCloseable或者Closeable接口中的close方法，因此在JDK1.7以上，资源的回收都会在try块中自动进行，无需再添加finally语句块！
+4.关于try...catch处理异常时的实践：
+    1.异常处理要尽量精确：通常建议避免直接捕获Exception或者RuntimeException类型的异常，但是如果无论发生何种异常都具有相同的处理方式时，可以直接捕获一种父类异常即可，如果不同的异常处理方式不同，那么建议精确捕获不同的异常；
+    2.异常处理的范围要适度：不建议使用try...catch包裹一大片代码，导致try块过大，除非真的是业务逻辑需要，在较多的代码逻辑里具有相同的异常处理方式；
+    3.异常处理的频率要适度：只在真正需要处理异常的地方使用，避免通过try...catch代替错误处理，尽量提前手动验证以及预置默认值来避免发生异常；
+    4.禁止隐藏和忽略发生的异常：不要在catch中直接忽略捕获到的异常，除非当前异常是作为业务逻辑使用的，比如发生异常之后需要走另一个逻辑，否则绝不允许忽略掉异常；
+    5.只在合适的地方处理异常：如果当前调用层不知道如何处理异常，那就不要处理，系统会自动上抛，只需要在上层调用方合适的地方处理即可；禁止不知道如何处理异常是忽略异常或者用返回默认值来覆盖掉异常；
+    6.不要重复记录异常：只在异常处理的地方记录异常，不要在调用链各个层级捕获记录异常，会导致异常日志无法有效查看；

@@ -1,0 +1,131 @@
+1.关于注册中心：
+    1.注册中心是独立于业务服务的特殊服务，用来记录服务的访问信息及运行状态信息。
+    2.服务提供者：
+        1.服务上线后需要向注册中心进行注册，包括服务自己的访问地址、端口和名称等信息。服务在运行期间也要每隔一段时间向注册中心响应心跳信息，报告服务存活状态。
+        2.服务下线后需要向注册中心发送下线信息，注册中心会删掉该服务。
+    3.服务访问者：
+        1.服务访问者上线后无需向注册中心注册，只需要访问注册中心，获取可用服务列表即可；
+
+2.关于Eureka：
+    1.Spring Cloud提供的一个服务管理组件。在Eureka中有三种角色：
+        Eureka Server：服务注册中心：存储服务提供者的信息；
+        Service Consumer：服务消费者：从注册中心获取服务提供者的信息，并向服务提供者发送远程请求；
+        Service Provider：服务提供者：向注册中心注册服务信息；
+    2.Eureka服务治理流程：
+        1.启动Eureka Server注册中心；
+        2.Server Provider向注册中心发起注册请求，注册服务自己的地址信息、名称等；
+        3.Server Provider注册成功之后，需要定时向Eureka Server发送心跳信息，向注册中心确认自己的存活状态；
+        4.Eureka Server也会定期清理已经下线的Server provider;
+        5.Service Consumer从注册中心获取Server Provider列表信息；
+        6.Service Consumer通过网络远程调用Server Provider接口；
+    3.Eureka版本信息：
+        1.Eureka 1.0版本目前在维护状态，2版本则已经停止开发维护，目前项目中都使用1.0版本；
+    
+3.关于Eureka Server:
+    1.单实例启动：
+        # 配置应用名称
+        spring:
+            application:
+                name: eureka-server
+
+        # 配置端口号
+        server:
+            port: 8081
+
+        #配置eureka相关配置
+        eureka:
+            instance:
+                appname: eureka-server-a
+                hostname: 127.0.0.1
+        client:
+            # 当前注册中心向外暴露的注册地址
+            service-url:
+                defaultZone: http://${eureka.instance.hostname}:8081/eureka/
+            fetch-registry: false
+            register-with-eureka: false
+
+    2.集群注册：
+         1.单实例启动：
+        # 配置应用名称
+        spring:
+            application:
+                name: eureka-server
+
+        # 配置端口号
+        server:
+            port: 8081
+
+        #配置eureka相关配置
+        eureka:
+            instance:
+                appname: eureka-server-a
+                hostname: 127.0.0.1
+        client:
+            # 注册至其他注册中心，多个用英文逗号隔开；
+            service-url:
+                defaultZone: http://${eureka.instance.hostname}:8082/eureka/   
+            fetch-registry: false
+            register-with-eureka: false
+    3.关于Eureka Server实例id：
+        1.默认实例id：
+            1.${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}
+            2.如：like-pc:eureka-server:8761；
+        2.同时也可以使用ip进行注册：
+            prefer-ip-address：true  # 是否使用ip进行注册
+            instance-id：${spring.cloud.client.ip-address}:${server.port}
+            特别说明：
+                1.prefer-ip-address只是是否启用ip进行注册的选项，如果只设置prefer-ip-address的话仍旧无法通过ip进行注册，必须搭配instance-id来实现；
+                2.instance-id是指当前实例的id，instance本身可以设置任何内容，不一定需要和prefer-ip-address来联合使用；
+
+4.关于Eureka Client：
+    1.关于Eureka Client：
+        Eureka Client是相对于Eureka Server的，包括Server Provider和Server Conseume，都是作为Eureka Client的角色；
+    2.关于Server Provider：
+        1.服务的提供者，即具有业务功能实现的服务；
+        2.Server Provider启动之后必须先向注册中心注册，并且每隔30s向注册中心发送一次心跳信息；
+        3.Server Provider中同一个服务的多个实例必须保持spring.application.name值相同，Server Consumer会通过该值来访问Server provider；
+    3.关于Server Consumer：
+        1.Server Consumer通常需要访问Server Provider来调用服务。
+        2.ServerConsumer获取Server Provider通常有三种方式：
+            1.通过DiscoveryClient来获取服务提供者的原始信息；
+            2.通过LoadBalancerClient：通过Ribbon的负载均衡器自动获取服务信息；
+            3.通过@LoadBalanced：通过该注解开启Ribbon的负载均衡器来获取服务信息；
+        3.Server Consumer访问Server Provider通常有三种方式：  
+            1.通过http请求工具(如 RestTemplate)发起请求；
+            2.通过Fegin调用；
+
+5.关于Eureka自我保护机制：
+    1.服务提供者向注册中心注册之后，每隔30s会向注册中心发送一个心跳包，而注册中心也会每隔60秒检测一下服务是否有发送心跳包，所以累计超过90s未发送心跳包的服务会被注册中心从服务列表中删掉；
+    2.服务超时未向注册中心注册的原因一般有以下几种：
+        1.网络抖动
+        2.服务自身崩溃
+    3.所谓的自我保护机制就是：Eureka Server在运行期间会去统计服务心跳失败的比例，是否在15分钟内低于85%，如果是，那么Eureka会认为这些服务未送心跳是由于网络原因，Eureka Server会保护这些事例不被从服务列表中删除掉。但是同时也会给一个警告；
+    4.关闭自我保护机制：
+        1.eureka.server.enable-self-preservation：false  关闭自我保护机制
+        2.eureka.server.eviction-interval-timer-in-ms：60000 #清理间隔时间，默认是60s；也就是说服务真正被清理的时间是90s，
+
+6.优雅停服：
+    1.添加依赖：
+        在需要优雅停服的服务pom文件中添加下面的依赖
+        <dependency>
+            <groupid> org.springframework.boot</groupid>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    2.加上上述依赖之后，通过访问接口：
+        http://服务ip地址:服务端口号/actuator
+        即可看到服务健康状态信息；
+    3.配置指标：
+        management:
+            endpoints:
+                web:
+                    exposure:
+                        include: shutdown    # 开启shutdown端点访问：http://ip:服务端口/actuator
+            endpoint:
+                shutdown:
+                    enabled: true      # 开启shutdown实现优雅停服
+    3.停服方式：
+        使用post请求：http://服务ip地址:7070/actuator/shutdown即可停止指定服务，调用完成之后，eureka会立即将该服务从服务列表中删除；
+7.过滤csrf：
+    1.Eureka会自动配置CSRF防御机制，Spring Security会认为POST、PUT、DELETE这些操作都是由风险的，如果这些请求未带上CSRF token的话，会被直接拦截并返回403 forbidden；
+
+    

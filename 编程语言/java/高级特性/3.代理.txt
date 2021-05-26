@@ -1,0 +1,118 @@
+1.关于代理：
+    1.代理的作用就在于不改变原始代码的情况下，可以对原始代码进行增强；
+    2.代理的本质就是对原始代码重新封装，在重新封装的代码中调用原始代码，并在原始代码之前、之后加上需要增强的代码，然后调用时不再调用原始代码，而是调用重新封装的代码；
+    3.代理的实现方式：
+        1.静态代理：直接编码的方式实现代理；
+        2.动态代理：通过在编译期间生成增强后的封装代码；
+2.静态代理：
+    1.静态代理本质上就是代理模式的具体实现；具体如下：
+        interface Inter{
+             public abstract void do();
+        }
+        1.原始类：
+            class A implements Inter{
+                public void do() {
+                    System.out.println("do something...");
+                }
+            }
+        2.代理类：
+            class Proxy{
+                private Inter inter;
+                public Proxy() {
+                    this.inter = new A();
+                }
+
+                public void do() {
+                    System.out.println("do something...");
+                    this.inter.do();
+                    System.out.println("do something...");
+                }
+            }
+
+3.动态代理：
+    1.基于JDK的动态代理：
+        1.基于JDK的动态代理是通过被代理类继承的接口来实现的；
+        2.具体使用方式：
+            1.定义接口
+                interface Ainter{
+                    int doSomething();
+                }
+            2.定义类：
+                class Aclass implements Ainter{
+                    @Override
+                    public int doSomething() {
+                        System.out.println("do Something...");
+                        return 0;
+                    }
+                }
+            3.定义代理类：
+                class ProxyAclass implements InvocationHandler{
+                    private Ainter ainter;
+
+                    public ProxyAclass(Ainter ainter) {
+                        this.ainter = ainter;
+                    }
+
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        System.out.println("before...");
+                        method.invoke(this.ainter, args);
+                        System.out.println("after...");
+                        return 1;
+
+                    }
+                }
+            4.生成代理类实例，并调用被代理的方法：
+                Ainter ainter = (Ainter)Proxy.newProxyInstance(
+                        Thread.currentThread().getContextClassLoader(),
+                        new Class[]{Ainter.class},
+                        new ProxyAclass(new Aclass()));
+                ainter.doSomething();
+        3.JDK实现动态代理的原理：
+            1.newProxyInstance方法中通过clone()方法克隆了一份被代理类继承的接口；
+            2.调用getProxyClass0()通过接口创建一个具体的实现类，生成的实现类继承自Proxy类，同时继承自被代理对象继承的接口；
+            3.通过反射获取该实现类的构造方法，并以代理类为参数创建一个代理对象，并返回该代理对象；
+            4.通过代理对象调用被代理对象的方法时，实际上是执行代理对象中的方法；
+            从上述流程中可以知道，由于最终生成的代理类extends了Proxy，那么自然就不能再extentds其他类，所以基于JDK实现的动态代理必须是基于接口的，被代理对象必须有继承父接口，负责将无法使用JDK对其进行代理；
+            5.使用JDK实现的动态代理，只能代理接口中的方法，接口实现类中自行定义的方法是无法被代理的；
+            6.JDK生成代理类时必须要继承自Proxy的原因应该在于方便系统判断该类是否是一个被代理的类；
+    2.基于CGLIB的动态代理：
+        1.CGLIB的动态代理是基于被代理类本身实现的；
+        2.示例如下：
+            1.定义被代理类：
+                class WaitProxyClass{
+                    public String getStr() {
+                        System.out.println("WaitProxyClass-getStr");
+                        return "ssss";
+                    }
+
+                    public void getVoid() {
+                        System.out.println("WaitProxyClass-getVoid");
+                    }
+                }
+            2.定义代理类：
+                class ProxyClass implements MethodInterceptor {
+                    @Override
+                    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+                        System.out.println("cglib before");
+                        Object res = methodProxy.invokeSuper(o, objects);
+                        System.out.println("cglib after");
+                        return res;
+                    }
+                }
+            3.创建代理对象：
+                Enhancer enhancer = new Enhancer();
+                enhancer.setSuperclass(WaitProxyClass.class);
+                enhancer.setCallback(new ProxyClass());
+                WaitProxyClass waitProxyClass = (WaitProxyClass) enhancer.create();
+            4.调用被代理类方法：
+                waitProxyClass.getStr();
+        3.CGLIB实现动态代理的原理：
+            1.输出CGLIB生成的代理类可以看到，代理类直接继承自被代理类，是被代理类的子类，并重写了父类中需要被代理的方法，改写为调用代理类中的intercept方法；因此CGLIB实现代理类，并不要求被代理类需要继承某个接口，它是直接生成了被代理类的子类；
+            3.CGLIB中的methodProxy直接调用invoke方法会发生栈溢出，原因在于该方法会出现循环调用的问题；
+    5.关于JDK生成动态代理类和CGLIB生成动态代理类的对比：
+        1.JDK生成动态代理类要求被代理类必须继承自一个接口，而CGLIB则不需要；
+        2.CGLIB生成动态代理类要求该类不能是final的，方法也不能是private和final的，否则无法通过继承重写其方法；
+
+                                
+                

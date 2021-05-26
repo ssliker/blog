@@ -1,8 +1,8 @@
 1.关于MVC：
-    1.MVC是一种代码组织模式，不是框架或者技术；
+    1.MVC是一种代码组织模式，不是框架或者技术或者设计模式；
     2.MVC由模型(Model)+View(jsp)+控制器(Controller)组成；
     3.Model中由service和mapper组成，mapper负责直接和数据库交互，service负责对数据进行业务逻辑上的处理。
-    4.View指的是jsp，即负责处理数据的展示逻辑。
+    4.View指的是jsp，即负责处理数据的展示逻辑，在前后端分离项目中，后端无View，View实际上由前端承接。
     5.Controller指的是控制器，负责直接和客户部分交互，如：接收参数、校验参数、封装返回值等，连接客户部分和service，Controller本质上则是一个servlet。
     6.MVC优势：对不同业务路基的代码进行分离，方便查看、编辑和维护。
 
@@ -17,7 +17,7 @@
     1.当客户端发送请求会统一路由至DispatchServlet；
     2.DispatchServlet会通过HadnlerMapping查找该url匹配的Handler;
     3.DispathcServlet接着选择合适的HadnlerAdapter对请求参数、返回结果等进行适配；
-    4.通过HandlerAdapter简介调用Handler中的方法来处理对应请求，并获取返回结果；
+    4.通过调用HandlerAdapter中的Handler方法间接调用handler来处理对应请求，并获取返回结果；
 
 4.关于Handler:
     1.Handler的作用：
@@ -52,11 +52,11 @@
             3.通过@Controller和@RestController实现Handler时，Handler实际上是由@RequestMapping注解修饰的方法；
     3.关于HandlerMapping:
         1.HandlerMapping作用：
-            HandlerMapping用来注册url地址与Handler的关系，DispatchServlet需要通过HandlerMapping来查找能够处理该url的Handler；
+            HandlerMapping用来保存url地址与Handler的关系，DispatchServlet需要通过HandlerMapping来查找能够处理该url的Handler；
         2.关于HandlerMapping：
             1.由于Handler的不同实现方式，导致Handler由两种表现形式：一个class或者一个method；因此HnadlerMapping也分为两个分支：
-                1.AbstractHandlerMethodMapping：处理URL和Method级别的handler对应关系；
-                2.AbstractUrlHandlerMapping：
+                1.AbstractMethodHandlerMapping：处理URL和Method级别的handler对应关系；
+                2.AbstractUrlHandlerMapping：处理URL和Class级别的handler对应关系；
             2.AbstractUrlHandlerMappiing:
                 1.处理URL和类级别的handler对应关系；
                 2.根据不同的实现由两种具体实现类：
@@ -76,7 +76,7 @@
             1.HandlerAdapter本质上就是一个适配器，用来适配Servlet标准接口与Handler实现之间的差异，主要包括三个方面：
                 1.入参：Servlet中只有ServletRequest和ServletResponse两个参数，但是Handler中允许接收各种不同的参数；
                 2.返回值：Servlet中返回的数据格式固定(todo:?啥格式)，但是Handler中可以返回不同的数据类型数据。
-                3.Handler的定义：Handler有四种不同的定义方式，框架无从得知当前handler属于哪一种定义方式。
+                3.Handler的定义：Handler有四种不同的定义方式，框架无从得知当前HandlerMapping中返回的Handler是哪一种方式，为了能够统一调用handler来处理请求，springMVC分别为不同的handler定义了不同的HandlerAdapter。
             2.HandlerAdapter接口定义：
                 public interface HandlerAdapter {    
                     boolean supports(Object handler);   
@@ -91,3 +91,6 @@
                 2.SimpleControllerHandlerAdapter：supports中会检测是否属于Controller类型；用来适配通过继承Controller实现Handler的方式。
                 3.SimpleServletHandlerAdapter：supports中会检测是否属于Servlet类型；用来适配通过继承Servlet实现Handler的方式。
                 4.RequestMappingHandlerAdapter：supports中会检测是否属于HandlerMethod类型；用来适配通过@RequestMapping实现Handler的方式。
+
+5.关于DispatcherServlet启动及初始化过程；
+6.关于DispatcherServlet对请求的处理过程；

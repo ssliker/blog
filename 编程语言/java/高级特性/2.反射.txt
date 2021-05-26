@@ -1,0 +1,101 @@
+1.关于反射：
+    1.反射是java提供的一种能够在运行时获取类完整信息的能力；
+    2.通过反射机制，java在运行时可以获取类的属性、方法、类型、构造方法等一系列信息；通过这些信息可以动态的创建类的实例对象，调用类的方法等；
+2.反射相关的API：
+    1.获取构造方法：
+        1.获取指定参数类型、任意权限的构造方法：
+            Constructor constructor = tclass.getDeclaredConstructor(int.class,int.class)
+        2.获取指定参数类型、public权限的构造方法：
+            Constructor constructor = tclass.getConstructor(int.class, int.class);
+        3.获取所有任意权限的构造方法：
+            Constructor[] constructors = tclass.getDeclaredConstructors();
+        4.获取所有public权限的构造方法：
+            Constructor[] constructors = tclass.getConstructors();
+        5.通过构造方法获取实例对象：
+            1. 通过无参构造方法创建对象：
+                tclass.newInstance();
+                constructor.newInstance();
+            2.通过有参构造方法创建对象：
+                constructor.newInstance(1,2);
+    2.获取类成员变量：
+        1.获取指定名称、任意权限的成员变量
+            Field field = tclass.getDeclaredField("fieldName");
+        2.获取指定名称、public权限的成员变量：
+            Field field = tclass.getField("fieldName");
+        3.获取所有任意权限的成员变量：
+            Field[] fields = tclass.getDeclaredFields();
+        4.获取所有public权限的成员变量：
+            Filed[] fileds = tclass.getFields();
+    
+    3.获取类成员方法：
+        1.获取指定名称、任意权限的方法：
+            Method method =  tclass.getDeclaredMethod("methodName");
+        2.获取指定名称、public权限的方法：
+            Method method = tclass.getMethod("methodName");
+        3.获取所有任意权限的方法：
+            Method[] methods = tclass.getDeclaredMethods();
+        4.获取所有public权限的方法：
+            Method[] methods = tclass.getMethods();
+        5.执行方法：
+            /*
+             * method为需要执行的方法，Method类型
+             * object为当前方法所属的对象，如果方法是静态的，那么该参数可以为null
+             * arg1、arg2...是传递给method的方法,如果方法没有参数，那么无需传入任何数据
+             * 如果该方法有返回值，invoke在执行完毕之后会将返回值返回，否则返回为null
+             */
+             method.invoke(object,arg1,arg2...);
+    4.获取类上的注解：
+        1.获取指定类型的注解：
+            Annotation annotation = (Annotation) tclass.getAnnotation(Deprecated.class);
+        2.获取所有注解：
+            Annotation[] annotations = (Annotation[]) tclass.getAnnotations();
+    5.获取类名称信息：
+        /* 获取类的全限定类名(包名.类名)*/
+            tclass.getName()
+        /* 获取类的名称，仅类名，无包名 */
+            tclass.getSimpleName()
+        /* 获取类的包名，仅包名，无类名*/
+            tclass.getPackage()
+    6.类的类型检测：
+        /* 检测类是否是集合类*/
+            boolean isArray = tclass.isArray() 
+        /* 检测类是否是注解类*/
+            boolean isAnnotation = tclass.isAnnotation()
+        /* 检测类是否是接口类*/
+            boolean isInterface = tclass.isInterface()  
+        /* 检测类是否是枚举类*/
+            boolean isEnum = tclass.isEnum()
+        /* 检测类是否是匿名内部类*/
+            boolean isAnonymousClass = tclass.isAnonymousClass()
+        /* 检测类是否是被注解修饰的类*/
+            boolean isAnnotationPresent = tclass.isAnnotationPresent(Deprecated.class)
+    7.获取类的其他信息：
+        /* 获取类的访问权限 */
+            int modify =class1.getModifiers()
+        /* 获取类的内部类 */
+            Class<?>[] declaredClasses = class1.getDeclaredClasses() 
+        /* 获取类的外部类 */
+            Class<?> declaringClass = class1.getDeclaringClass()
+        /* 获取类的加载器 */
+            ClassLoader ClassLoader = class1.getClassLoader()
+        /* 获取类的所有父类 */
+            getSuperclass()  
+        /* 获取类所有实现了的接口 */
+            getInterfaces()
+    8.获取方法和属性时的权限控制：
+        1.反射机制对于获取方法以及属性是有权限检查的，通过isAccess()即可查看是否开启权限检查，如果开了权限检查会返回false，如果未开启权限检查会返回true;
+        2.默认情况下反射机制时开启了权限检查的，但是通过getDeclaredXxx()方法仍旧能够获取到非Public方法，是因为该方法内部实现时绕过了权限检查，允许访问任意权限的成员；如果关闭权限检查，那么getXxx()方法同样也是可以访问到非public的方法的；
+        3.通过类的class对象调用setAccess(boolean isClose)即可修改权限检查状态，如果isClose是true则关闭权限检查；
+        4.具体调用流程如下：
+            getDeclaredMethod->searchMethod-> privateGetDeclaredMethods，在privateGetDeclaredMethods中有一个publicOnly的参数控制是否只返回public权限的方法信息，对于getDeclaredMethod方法而言其返回默认给与的是false，因此可以返回所有权限的方法信息；
+3.反射机制能够实现的原理：
+    1.反射之所以能够实现，是因为每一个类加载到内存之后，都会生成一个Class类型的对象，在该对象内部存储着类完整的信息，因此只要获取到该类的Class对象，即可获取到类的完整信息，获取类Class对像的方式如下：
+        1.通过类的全限定名称获取类的Class对象：
+            Class tclass = Class.forName("类的全限定名称(包名.类名)");
+        2.通过类名调用class静态属性即可获取类的Class对象：
+            Class class = ClassName.class;
+        3.通过类的实例对象调用getClass()方法即可获取类的Class对象：
+            Class class = classInstance.getClass();
+    2.类的原始信息存储位置：
+        1.虽然可以通过Class对象获取类完整信息，但是类的这些信息并不直接存储在Class中，而是存储在Class内部的的一个RefelctionData内部类中，在ReflectionData内部定义了Method、Field、Constructor等数组来存放类的属性、方法、构造方法等信息；
+        2.该ReflectionData是软引用类型，如果在内存不足时，将会回收该类的实例，如果再次需要用到该类的Class对象访问Class的信息时，将会从JVM中从新读取然后存储在该类中；相当于ReflectionData本质上只是获取类信息的一层缓存而已；
