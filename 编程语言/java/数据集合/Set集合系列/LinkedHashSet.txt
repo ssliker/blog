@@ -14,10 +14,8 @@
 
 3.LinkedHashSet实现原理：
     1.LinkedHashSet底层通过LinkedHashMap来实现，LinkedHashSet中的元素会被当做LinkedHashMap中的key，指向一个Object对象，存储在LinkedHashMap中；
-    2.LinkedHashSet复用了HashMap的以下几个特征：
-        1.借助LinkedHashMap中key的唯一性来实现LinkedHashSet的自动去重功能；
-        2.复用了LinkedHashMap中对key的操作方法；
-        3.由于LinkedHashMap中会按照添加顺序来维护key的顺序，因此LinkedHashSet中也会以添加顺序来维护key的顺序；
+    2.LinkedHashSet复用了LinkedHashMap中key不能重复的特征实现value的自动去重功能：由于LinkedHashMap中的key默认是按照插入顺序排序的，因此LinkedHashSet中的value默认也是按照增加顺序排序的；
+    3.LinkedHashSet中对value的操作本质上都是LinkedHashMap中对key的操作；
     整体上，LinkedHashSet就是一层LinkedHashMap的封装；
 
 4.构造方法：

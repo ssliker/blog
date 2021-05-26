@@ -14,10 +14,8 @@
 
 3.HashSet实现原理：
     1.HashSet底层通过HashMap来实现，HashSet中的元素会被当做HashMap中的key，指向一个Object对象，存储在HashMap中；
-    2.HashSet复用了HashMap的以下几个特征：
-        1.借助HashMap中key的唯一性来实现HashSet的自动去重功能；
-        2.复用了HashMap中对key的操作方法；
-        3.由于HashMap中并不会维护key的添加顺序或者大小顺序，因此HashSet中也不会维护key的顺序；
+    2.HashSet复用了HashMap中key唯一不能重复的特征实现自动去重功能；由于HashMp中key无序且不能为null，所以HashSet中的value也无序，且不能为null；
+    3.HashSet中对value的操作本质上都是HashMap中对key的操作；
     整体上，HashSet就是一层HashMap的封装；
 
 4.构造方法：
@@ -52,4 +50,4 @@
         1.集合元素个数：
             size()：调用HashMap的size()方法实现；
         2.集合是否为空：
-            idEmpty()：调用HashMap的isEmpty()实现；
+            isEmpty()：调用HashMap的isEmpty()实现；
