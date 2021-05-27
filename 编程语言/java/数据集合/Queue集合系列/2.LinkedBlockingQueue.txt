@@ -1,0 +1,44 @@
+1.LinkedBlockingQueue特征：
+    1.数据结构中的线性表，实现的是线性表中的队列；而且LinkedBlockingQueue同时可以用作阻塞或者非阻塞式队列；
+    2.LinkedBlockingQueue底层通过链表实现，无需扩容，创建时可以指定也可以不指定容量大小，如果指定容量大小，那么指定完成之后将不能再修改；
+    3.元素有序，按照先进先出的顺序排序，并且不能为null,否则抛出空指针异常；
+    4.使用了ReentrantLock保证了其线程安全，可以用在多线程环境中作为共享变量使用；
+
+2.继承结构图：  
+    LinkedBlockingQueue--->AbstractQueue--->Queue--->Collection
+                      --->BlockingQueue--->Queue
+    1.从继承结构上来看，LinkedBlockingQueue既是一个普通的Queue，同时也是一个阻塞式的Queue；
+    2.顶层Queue接口只是提供了一些队列操作的api规范：
+        add()/offer()、remove()/poll()、peek()/element()
+    3.AbstractQueue对Queue中的部分操作进行了封装：
+        add()封装了offer()，如果offer()返回false，则抛出异常；
+        remove()封装了poll()，如果poll()返回null，则抛出异常；
+        element()封装了peek()，如果peek()返回null，则抛出异常；
+        同时，AbstractQueue实现了队列的清空方法clear();
+    4.BlockingQueue是阻塞队列的顶层接口，提供了put()和take()两种阻塞式的方法；
+
+3.底层实现：
+    1.底层通过链表实现，用链表存储队列中的元素；其中head属性指向链表头部节点，last属性指向链表尾部节点；
+    2.通过ReentrantLock为Queue加锁，保证其线程安全，而且同时实现了两把锁，分别锁住队列头部和尾部，提高队列读写效率；
+    3.通过condition作为条件队列来实现阻塞式添加或者取出元素的操作，并且配置了两个条件队列，分别存储等待写和等待读的线程；
+
+4.构造方法：
+    1.指定初始容量创建BlockingQueue，不指定容量时，其初始容量最大为int的最大值：
+        LinkedBlockingQueue queue = LinkedBlockingQueue();
+    2.指定初始容量创建队列；
+        LinkedBlockingQueue(int capacity) 
+    3.可以指定初始元素来创建队列；
+        LinkedBlockingQueue(int capacity,Collection<? extends E> c) 
+
+5.LinkedBlockingQueue提供的API操作：
+    1.入队：
+        put()：阻塞式入队，如果入队失败，阻塞等待；
+        add()：非阻塞式入队，如果入队失败，抛出异常；
+        offer()：非阻塞式入队，如果入队失败，返回false；
+    2.出队：
+        take()：阻塞式出队，如果出队失败，阻塞等待；
+        remove()：非阻塞式出队，如果出队失败，抛出异常；
+        poll()：非阻塞式出队，如果出队失败，返回false；
+6.LinkedBlockingQueue中的一些实现细节：
+    1.整个LinkedBlockingQueue中实现了两把锁，分别锁住队列头部和尾部，提高了队列增加/获取元素的效率；
+    2.之所以LinkedBlockingQueue中可以使用两把锁，而ArrayBlockingQueue中只有一把锁，核心区别就在于LinkedBlockingQueue中没有直接操作队列中间元素的操作，其提供的方法都是在操作头部或者尾部的元素；

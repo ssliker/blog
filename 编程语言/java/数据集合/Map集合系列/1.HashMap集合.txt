@@ -1,21 +1,27 @@
 1.HashMap特征：
-    1.HashMap属于数据结构中字典类型，用来存储k-v类型的键值对数据，key必须唯一，value可以重复；
-    2.HashMap允许接收键为null和值为null的k-v数据；但是在实际使用时尽量避免出现null类型的键和null类型的值被添加进去；
-    3.由于Map中key的唯一性，最多只能添加一个key为null的键值对，但是允许多个key的值为null；
+    1.HashMap属于数据结构中字典类型，用来存储k-v类型的键值对数据；
+    2.HashMap中允许key和value为null，但由于在HashMap中key不能重复，因此最多只能有一个key为null，值则无限制，可以有多个值允许为null；
+    3.HashMap中允许key为null的原因是在通过key获取其hash值时兼容了key为null的情况，如果key为null，那么hash值始终返回0，但是实际使用中要避免存储key为null的值；
     4.HashMap不会维护存储在其中的k-v顺序，在遍历HashMap时，并不会按照key的添加顺序或者key的大小顺序遍历；而是按照hash槽的顺序遍历；
-    4.HashMap本身没有做任何线程同步处理，并非线程安全集合，不可以直接作为多线程环境下的共享变量；
+    5.HashMap本身没有做任何线程同步处理，并非线程安全集合，不可以直接作为多线程环境下的共享变量；
 
 2.HashMap继承结构：
     1.继承结构图
-        Map(I)
-            |--AbstractMap(AC)
-        |---|--HashMap(C)
+        HashMap---|AbstractMap---|Map
+               ---|Map
     2.关于继承关系：
         1.HashMap同时继承AbstractMap抽象类和Map接口。而AbstractMap则直接继承自Map接口；
         2.本质上HashMap直接继承自AbstractMap即可，对于既继承AbtractMap又继承Map接口本质上属于设计缺陷！
 
 4.HashMap的构造方法：
-
+    1.使用默认容量，默认扩容因子创建HashMap：
+        HasMap hashmap = new HashMap();
+    2.使用指定容量，指定扩容因子创建HashMap：
+        HasMap hashmap = new HashMap(int initialCapacity, float loadFactor)
+    3.使用指定初始容量创建HashMap：
+        HasMap hashmap = new HashMap(int initialCapacity)
+    4.使用其他map创建HashMap：
+        HasMap hashmap = new HashMap(Map<? extends K, ? extends V> m)
 
 5.HashMap功能：
     1.新增k-v：
@@ -28,8 +34,24 @@
         putAll(Map m)
         功能描述：
             1.向HashMap中添加一个已有的Map类型集合；
+    2.删除k-v：
+        remove(k)
+        功能描述：
+            1.从HashMap中删除键为k的键值对；
+            2.如果k不存在则不作任何处理；
+        remove(k,v)
+        功能描述：
+            1.从HashMap中删除键为k,且值为v的键值对；
+            2.如果k不存在或v未匹配到则不作任何处理；
+    3.替换k-v:
+        replace(k,v)：
+        功能描述：
+            1.将键为k对应的值替换为v；如果没有匹配到将不作任何处理；
+        replace(k,oldv,newv)：
+        功能描述：
+            1.将键为k，且值为oldv的键值对值替换为newv；如果没有匹配到k或者oldv将不作任何处理；
     
-    2.获取k-v：
+    4.获取k-v：
         get(k)
         功能描述：
             1.从HashMap中获取键为k的值；
@@ -39,25 +61,10 @@
             1.从HashMap中获取键为k的值；
             2.如果k不存在则返回default；
     
-    3.删除k-v：
-        remove(k)
-        功能描述：
-            1.从HashMap中删除键为k的键值对；
-            2.如果k不存在则不作任何处理；
-        remove(k,v)
-        功能描述：
-            1.从HashMap中删除键为k,且值为v的键值对；
-            2.如果k不存在或v未匹配到则不作任何处理；
-    4.检测k和v是否存在：
+    5.检测k和v是否存在：
         containsKey(k)：检测k是否存在
         containsValue(v)：检测v是否存
-    5.替换k-v:
-        replace(k,v)：
-        功能描述：
-            1.将键为k对应的值替换为v；如果没有匹配到将不作任何处理；
-        replace(k,oldv,newv)：
-        功能描述：
-            1.将键为k，且值为oldv的键值对值替换为newv；如果没有匹配到k或者oldv将不作任何处理；
+    
     6.其他方法：
         size()：返回当前map中键值对的个数；
         isEmpty()：检测当前map是否为空；
@@ -94,12 +101,12 @@
         功能描述：
             1.函数式处理方法，对于输入的k，如果在map中存在时，才会执行添加的函数式处理逻辑；接受一个返回值作为该k的新v；
         使用方法：
-            computeIfAbsent(ikey,(k,v)->{
+            computeIfPresent(ikey,(k,v)->{
                 // k->ikey
                 return newv;
             })
         注意事项：
-            1.只有ikey在map不存在时才会执行后面的函数式逻辑；和computeIfAbsent相反； 
+            1.只有ikey在map存在时才会执行后面的函数式逻辑；和computeIfAbsent相反； 
         merge()
     8.关于entryset()方法：
         1.该方法返回一个set集合，元素类型为Map.Entry<K, V>，Map.Entry为Map中的静态内部类，一个Map.Entry中存储一个键值对的k和v；
@@ -141,6 +148,12 @@
             String key = iterator.next();
             System.out.println(key+"->"+hm.get(key));
         }
+    8.iterator+keySet遍历：
+        Iterator<Map.Entry<String,String>> iterator = hm.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = iterator.next();
+            System.out.println(entry.getKey()+"->"+hm.getValue());
+        }
 
 7.HashMap实现原理：
     1.HashMap底层数据结构：
@@ -148,8 +161,9 @@
     2.HashMap增加元素过程：
         插入方法为put()方法，其底层则调用了putVal()方法，具体插入操作均在putVal()方法中实现；具体流程如下：
         1.首先检测表示hash桶的数组是否已经初始化，如果数组长度为0或者数组为null，则先调用resize方法进行扩容；
-        2.计算key的hash值，并使用key的hash值与数组进行取余操作，确定key-value应该放入hash桶的位置，即数组的下标；
-        3.检测该数组下标对应位置是否已经有值，如果没有值则直接将该k-v放入该位置，如果有值则进行一下判断：
+        2.计算key的hash值，如果key为null，则返回0，否则调用key的hashCode()方法获取key的hash值，并与该hash值无符号右移16位的值进行异或操作得到最终的hash值；
+        3.使用key计算得到的hash值与数组进行取余操作，确定key-value应该放入hash桶的位置，即数组的下标；
+        4.检测该数组下标对应位置是否已经有值，如果没有值则直接将该k-v放入该位置，如果有值则进行一下判断：
             1.检测该位置元素hash值与key值是否与当前待插入元素相同，如果相同，则直接使用该新值覆盖旧值；
             2.如果1没有匹配，那么继续检测当前位置节点是否是TreeNode类型，即当前位置出现hash冲突的元素是否已经树化为红黑树，如果是则将该k-v封装为一个TreeNode添加至红黑树中；
             3.如果2没有匹配，那么表示当前位置出现hash冲突的元素是通过链表来组织的，则开始遍历当前位置的链表：
@@ -157,7 +171,7 @@
                 2.如果链表遍历完成之后，则将该待插入元素封装为一个Node节点添加至链表尾部；然后检测当前链表中元素个数是否大于树化阈值-1，如果满足树化条件，则进行树化；
         4.调用钩子方法afterNodeAccess()，在HashMap中该方法没有具体实现，无实际功能；
         5.modCount加1，表示该Map已经被修改，方便遍历该Map的线程快速失败；
-        6.表示Map元素总数的size加1，并与扩容与之进行比较，如果size已经大于扩容阈值，则调用resize方法进行扩容；
+        6.表示Map元素总数的size加1，并与扩容阈值进行比较，如果size已经大于扩容阈值，则调用resize方法进行扩容；
         7.调用afterNodeInsertion()钩子方法，在HashMap中该方法没有具体实现，无实际功能；
     3.HashMap扩容过程：
         HashMap的扩容过程在resize()方法中实现；具体流程如下：

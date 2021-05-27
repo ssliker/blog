@@ -1,0 +1,94 @@
+1.TreeMap特征：
+    1.数据结构中的字典类型，用来存储一组k-v结构的键值对数据；
+    2.TreeMap底层通过红黑树实现，所以其中key，不能为null，否则抛出空指针异常，不能重复；但是value可以任意取值；
+    3.TreeMap中的key是有序的，通过key的大小排序；
+    4.TreeMap非线程安全类集合，不可以直接用在多线程竞争的环境中；
+
+2.TreeMap继承结构：
+    TreeMap-->AbstractMap--->Map
+           -->NavigableMap--->SortedMap-->Map
+    从TreeMap的继承结构上即可看到TreeMap的类型，主要是两种类型：SortedMap、Map
+
+3.TreeMap的实现原理：
+    1.TreeMap底层实际上是红黑树的具体实现；
+    2.关于红黑树的基本特征：
+        1.根节点是黑色的；
+        2.其他节点要么是黑色要么是红色的；
+        3.如果当前节点是红色的，那么其子节点一定都是黑色的，即不能出现连续的红色节点；
+        4.每个叶子节点一定是黑色的；
+        5.从任何一个节点到叶子节点都包含相同个数的黑色节点；
+        上述5个特点即约束了红黑树中根节点到叶子节点的最长路径和最短路径不能相差两倍；
+    3.TreeMap中对节点的增删改查均是对红黑树的操作；
+
+4.TreeMap的构造方法：
+    1.创建一个空的TreeMap:
+        TreeMap tm = new TreeMap();
+    2.创建一个指定比较器的TreeMap：
+        TreeMap(Comparator<? super K> comparator)
+    3.通过其他集合创建一个TreeMap：
+        TreeMap(Map<? extends K, ? extends V> m)
+
+5.TreeMap提供的API:
+    1.新增k-v：
+        put(k, v)
+        功能描述：
+            1.向TreeMap中添加一个k-v；如果k已存在，则直接使用新值覆盖旧值；
+        putAll(Map m)
+        功能描述：
+            1.向TreeMap中添加一个已有的Map类型集合；
+    2.删除k-v：
+        remove(k)
+        功能描述：
+            1.从HashMap中删除键为k的键值对；
+            2.如果k不存在则不作任何处理；
+    3.替换k-v:
+        replace(k,v)：
+        功能描述：
+            1.将键为k对应的值替换为v；如果没有匹配到将不作任何处理；
+        replace(k,oldv,newv)：
+        功能描述：
+            1.将键为k，且值为oldv的键值对值替换为newv；如果没有匹配到k或者oldv将不作任何处理；
+    4.获取k-v：
+        get(k)
+        功能描述：
+            1.从HashMap中获取键为k的值；
+            2.如果k不存在则返回null；
+    
+    5.检测k和v是否存在：
+        containsKey(k)：检测k是否存在
+        containsValue(v)：检测v是否存
+    
+    6.其他方法：
+        size()：返回当前map中键值对的个数；
+        isEmpty()：检测当前map是否为空；
+        clear()：清空当前map；
+        keySet()：返回map中key的set集合：Set<String>；
+        values()：返回map中的value集合：Collection<String>；
+        entrySet()：返回map中节点的集合：Set<Map.Entry<K,V>>；
+    
+    7.TreeMap特有的方法：
+        1.firstKey()：返回首个key；
+        2.lastkey()：返回末尾的key；
+
+        1.lowerKey(K key)：返回小于等于key的key；
+        2.higherKey(K key)：返回大于等于key的key；
+
+        1.floorKey(K key)：返回小于key且离key最近的key；
+        2.ceilingkey(K key)：返回大于key且离key最近的key；
+
+        1.Map.Entry<K,V> pollLastEntry()
+        2.Map.Entry<K,V> pollFirstEntry();
+
+        1.Map.Entry<K,V> firstEntry();
+        2.Map.Entry<K,V> lastEntry();
+
+        1.Map.Entry<K,V> higherEntry(K key);
+        2.Map.Entry<K,V> lowerEntry(K key)
+
+6.Q&A：
+    1.为何TreeMap中的key不能为null:
+        因为TreeMap是红黑树的具体实现，需要用到key进行节点大小排序，因此key不能为null，源码中也有检测key是否为null，如果为null将会抛出空指针异常；
+    2.TreeMap中无需扩容，可以存放任意个元素，但是其总容量仍然有限制，其限制是描述容量大小的变量size,其类型是int类型；所以TreeMap中的元素最多不能超过int的上限；
+
+    
+

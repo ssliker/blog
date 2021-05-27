@@ -1,0 +1,40 @@
+1.SynchronousQueue特征：
+    1.数据结构中的线性表，实现的是线性表中的队列；而且SynchronousQueue,但是SynchronousQueue只可以用作阻塞式队列；
+    2.Synchronized是一个同步队列，单个线程增加一个value之后，必须等待另一个线程进行了一次取出操作，否则当前线程只能处于阻塞等待状态；但是多个线程时可以同时向SynchronousQueue中添加数据；
+    3.SynchronousQueue中存储数据的队列有两种实现，一种是基于公平的实现，此时队列是一个FIFO队列，一种是基于非公平的实现，此时是一个栈；
+    4.对于非公平的队列SynchronousQueue会存在一个问题，就是入队线程多于出队线程时，最先入队的线程存放的值可能一直无法被消费到；
+    5.SynchronousQueue内部没有使用锁进行线程并发安全控制，需要使用者自行保证其线程安全性；
+
+2.继承结构图：  
+    SynchronousQueue--->AbstractQueue--->Queue--->Collection
+                      --->BlockingQueue--->Queue
+    1.从继承结构上来看，SynchronousQueue既是一个普通的Queue，同时也是一个阻塞式的Queue；
+    2.顶层Queue接口只是提供了一些队列操作的api规范：
+        add()/offer()、remove()/poll()、peek()/element()
+    3.AbstractQueue对Queue中的部分操作进行了封装：
+        add()封装了offer()，如果offer()返回false，则抛出异常；
+        remove()封装了poll()，如果poll()返回null，则抛出异常；
+        element()封装了peek()，如果peek()返回null，则抛出异常；
+        同时，AbstractQueue实现了队列的清空方法clear();
+    4.BlockingQueue是阻塞队列的顶层接口，提供了put()和take()两种阻塞式的方法；
+
+3.底层实现：
+    1.底层通过链表实现，用链表存储队列中的元素；其中head属性指向链表头部节点，last属性指向链表尾部节点；
+    2.通过ReentrantLock为Queue加锁，保证其线程安全，而且同时实现了两把锁，分别锁住队列头部和尾部，提高队列读写效率；
+    3.通过condition作为条件队列来实现阻塞式添加或者取出元素的操作，并且配置了两个条件队列，分别存储等待写和等待读的线程；
+
+4.构造方法：
+    1.指定初始容量创建BlockingQueue，不指定容量时，其初始容量最大为int的最大值：
+        SynchronousQueue queue = SynchronousQueue();
+    2.指定初始容量创建队列；
+        SynchronousQueue(int capacity) 
+    3.可以指定初始元素来创建队列；
+        SynchronousQueue(int capacity,Collection<? extends E> c) 
+
+5.SynchronousQueue提供的API操作：
+    1.入队：
+        put()：阻塞式入队，如果入队失败，阻塞等待；
+    2.出队：
+        take()：阻塞式出队，如果出队失败，阻塞等待；
+6.SynchronousQueue中的一些实现细节：
+    1.SynchronousQueue内部实现了两种队列，分别是TransferQueue和TransferStack；在创建Synchronous时，如果使用的是非公平的队列，那么内部使用TransferStack存储数据，否则使用TransferQueue存储数据；

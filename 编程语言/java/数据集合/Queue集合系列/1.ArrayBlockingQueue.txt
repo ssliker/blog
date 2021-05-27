@@ -1,0 +1,42 @@
+1.ArrayBlockingQueue特征：
+    1.数据结构中的线性表，实现的是线性表中的队列；而且ArrayBlockingQueue同时可以用作阻塞或者非阻塞式队列；
+    2.ArrayBlockingQueu底层通过数组实现，不支持扩容，创建时必须指定容量大小，且容量大小指定完成之后将不能再修改；
+    3.元素有序，按照先进先出的顺序排序，并且不能为null,否则抛出空指针异常；
+    4.使用了ReentrantLock保证了其线程安全，可以用在多线程环境中作为共享变量是用；
+2.继承结构图：  
+    ArrayBlockingQueue--->AbstractQueue--->Queue--->Collection
+                      --->BlockingQueue--->Queue
+    1.从继承结构上来看，ArrayBlockingQueue既是一个普通的Queue，同时也是一个阻塞式的Queue；
+    2.顶层Queue接口只是提供了一些队列操作的api规范：
+        add()/offer()、remove()/poll()、peek()/element()
+    3.AbstractQueue对Queue中的部分操作进行了封装：
+        add()封装了offer()，如果offer()返回false，则抛出异常；
+        remove()封装了poll()，如果poll()返回null，则抛出异常；
+        element()封装了peek()，如果peek()返回null，则抛出异常；
+        同时，AbstractQueue实现了队列的清空方法clear();
+    4.BlockingQueue是阻塞队列的顶层接口，提供了put()和take()两种阻塞式的方法；
+
+3.底层实现：
+    1.底层通过Object数组实现，用数组存储队列中的元素；
+    2.通过ReentrantLock为Queue加锁，保证其线程安全；
+    3.通过condition作为条件队列来实现阻塞式添加或者取出元素的操作；
+
+4.构造方法：
+    1.指定初始容量创建BlockingQueue：
+        ArrayBlockingQueue queue = ArrayBlockingQueue(int capacity);
+    2.是否完全公平的作为一个FIFO队列：fair可以指定内部ReentrantLock使用公平锁还是非公平锁；如果是非公平锁那么线程并发执行时，其顺序并非完全按照顺序进行；
+        ArrayBlockingQueue(int capacity, boolean fair) 
+    3.可以指定初始元素来创建队列；
+        ArrayBlockingQueue(int capacity, boolean fair,Collection<? extends E> c) 
+
+5.ArrayBlockingQueue提供的API操作：
+    1.入队：
+        put()：阻塞式入队，如果入队失败，阻塞等待；
+        add()：非阻塞式入队，如果入队失败，抛出异常；
+        offer()：非阻塞式入队，如果入队失败，返回false；
+    2.出队：
+        take()：阻塞式出队，如果出队失败，阻塞等待；
+        remove()：非阻塞式出队，如果出队失败，抛出异常；
+        poll()：非阻塞式出队，如果出队失败，返回false；
+6.ArrayBlocking中的一些实现细节：
+    1.整个ArrayBlocking中只通过ReentrantLock实现了一个锁，该锁会锁住整个数组；如果单纯只是为了满足队列头部和尾部的操作，那么ArrayBlocking是可以通过两把锁分别锁住头部和尾部提高操作效率的，但是ArrayBlockingQueue除过支持对队列头部和尾部操作以外，还支持删除队列中的元素，或者删除指定位置的元素，此时无论是锁住头部还是锁住尾部都无法满足要求，会造成线程安全问题；
