@@ -46,8 +46,15 @@
             String str = new String(CharSequence cs)
             备注：
                 1.内部通过拷贝字符数组内容实现String创建；
-    
-    3.String类提供的对String操作的方法：
+    3.String不可变的好处：
+        1.String是不可变类，那么String实例是一个不可变实例，可以安全的用于多线程环境；
+        2.其不可变，也意味着其hashcode值不会改变，那么就可以在String中缓存当前String的hash值；
+        3.可以使用常量池来缓存String，提供String的使用效率，因为只有String不可变时缓存才有意义。
+    4.String中的缓存池：
+        1.String的缓存池在编译期间就会把String常量存储在其中；除此之外，运行期间，也可以通过intern()方法将字符串手动放入缓存池中；
+        2."str"=="str"的原因在于str这个字符串字面量JVM会自动放到String缓存池中，两个自面量比较实际上是比较的比较String缓存池中的同一个str字面量，所以是相等的；
+        3.通过String str = new String("str")创建String实例时实际上是创建了两个实例对象，第一个实例对象时在编译期间创建的，然后放在了缓存池中，第二个对象时调用String的构造方法创建的，通过源码也能看到，通过构造方法创建String时是把参数的value属性值取出来赋值给当前String实例；
+    4.String类提供的对String操作的方法：
         特别注意：以下对字符串操作的方法均是实例方法，需要通过String实例对象访问，因此在访问之前务必确认该实例对象是否为null；
         1.获取长度：
             str.length();
@@ -202,7 +209,7 @@
 3.StringBuffer和StringBuilder：
     1.关于StringBuffer和StringBuilder：
         1.StringBuffer和StringBuilder本质上仍然是通过字符数组来存储一个字符串的值，但与String不同的是，SrtingBuffer和StringBuilder中的字符数组长度通常会大于等于字符串的字符个数；
-        2.StringBuffer和StringBuilder并非不可变类，并且修改StringBuffer和StringBuilder类型的对象，本质上都是直接修改其内部的字符数组，并不会新建一个对象；
+        2.StringBuffer和StringBuilder是可变类，并且修改StringBuffer和StringBuilder类型的对象，本质上都是直接修改其内部的字符数组，并不会新建一个对象；
         3.对于StringBuffer和StringBuilder的追加都是直接将字符追加至其内部的字符数组中，因此当字符数组长度不足时将会进行扩容；
         4.StringBuffer和StringBuilder都表示一个字符串容器，继承自同一个父类，并且其中大多数方法都是由同一个父类实现，但是StringBuffer所有的修改方法都被synchronized修饰，是个线程安全类，线程安全；StringBuilder则并未被synchronized修饰，因此并非线程安全；
         5.在实际应用中，如果线程间无需共享字符串容器，没有线程安全问题时推荐使用StringBuilder，效率更高；如果需要在多线程间共享字符串容器，有线程安全问题时推荐使用StringBuffer，能够保证线程安全；
