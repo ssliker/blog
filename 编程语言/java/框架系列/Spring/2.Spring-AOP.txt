@@ -1,0 +1,49 @@
+1.什么是AOP？
+    AOP是指切面编程，一般是用来将代码中的非业务公共逻辑抽离，统一实现，减少代码量，提高代码可读性的编程技术；有时候也会通过切面来改造功能；
+2.什么是切面？
+    切面一般是指被@Aspect注解的类，内部由pointcut切点和增强代码advice构成；
+3.什么是切点：
+    切点是连接增强代码和被增强代码的桥梁，通过pointcut定义一个表达式来描述要被注入的代码；
+4.什么是连接点？
+    所谓连接点就是要增强的代码，在spring AOP中可以使任意实例方法；
+4.什么是增强？
+    增强又叫做通知，表示增强代码织入的位置；包括6中类型：
+        @Before：在被增强代码之前执行；
+        @AfterReturning：在被增强代码返回了返回值之后执行；
+        @Around：环绕增强，在被增强代码之前和之后执行；
+        @AfterThrowing：当被增强代码抛出异常之后执行；
+        @After：无论被增强代码执行完成还是抛出异常都会执行；
+        @DeclareParents：引介增强，针对于实现类，可以让一种类型具有另一种类型的能力，在该增强中需要指定被增强类和需要增加功能的实现类；
+5.如何实现AOP编程？
+    1.通过@Aspect定义切面；
+    2.在@Aspect定义的切面里面通过@Pointcut定义切点
+    3.通过增强来定义要织入的代码；
+    4.在配置类上打开AOP，增加@EnableAspectJAutoProxy
+
+6.什么是AspetJ?与spring AOP有何区别？
+    AspectJ是一个AOP框架，在编译器完成对代码的植入；需要特定的编译器完成，本质上属于静态植入；
+    Spring AOP是spring提供的一个切面编程功能，实现了和AspectJ相同的注解，通过动态代理实现，不需要特殊的编译器，本质上属于动态植入；
+
+7.spring AOP底层如何实现？
+    通过动态代理实现，如果类有继承接口的话，通过JDK动态代理实现，没有继承接口的话通过CGLIB动态代理实现，而代理的生成是在容器启动之后，属性初始化之前完成的；
+
+8.spring AOP能够拦截直接调用的方法吗？为何？如何解决？
+    默认情况下Spring AOP不能拦截直接调用的方法；
+    因为Spring AOP是基于动态代理实现的，要想被拦截必须通过代理类的实例调用，而同一个类中直接手动调用方法是通过实例this实现的，所以无法被增强；
+    可以在注解@EnableAspectJAutoProxy中配置expose-proxy=true即可；如果配置了true的话会通过调用invoke方法来执行；
+
+9.spring中AOP实现的代码逻辑？
+    1.AOP功能是通过实现BeanPostProcessor来完成的，实现类名叫做AnnotationAwareAspectJAutoProxyCreator，在这个类中实现了beanPostProcessorAfterInitialization的方法和getEarlyBeanReference方法，在这个两个方法中完成了AOP的创建；
+    2.创建时机有两个地方：
+        1.如果没有循环依赖的话是在属性注入完成之后执行的；
+            2.spring中bean初步创建完成之后接下来就是调用populateBean进行属性注入，在属性注入完成之后会调用initializeBean方法会对bean按照自定义的初始化逻辑进行初始化，在这个方法 中会调用applyBeanPostProcessorAfterInitialization方法；在这个方法中会遍历所有的BeanPostProcessor，然后执行beanPostProcessorAfterInitialization方法，在这个方法中完成代理对象的创建；
+        2.如果有循环依赖的话，是在三级缓存中调用FactoryBean的getObject方法实现的；getObject方法中实质上调用了getEarlyBeanReference方法来创建代理对象；
+    3.为什么要在两个不同的方法中实现代理对象的创建？
+        1.beanPostProcessorAfterInitialization是需要在所有初始化完成之后才能执行的，如果没有循环依赖时，把代理对象的创建放在这个位置可以借着最终的初始化步骤完成，比较方便不需要额外的逻辑；
+        2.但是在由循环依赖时是不能执行上述方法的，时机不对。所以必须得单独提供一个创建代理对象的方法；
+    
+
+
+
+
+    

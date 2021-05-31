@@ -1,0 +1,129 @@
+1.什么是控制翻转？
+    控制翻转是指对于类依赖的对象不再手动通过构造方法创建，过程交给外部容器执行，当前类中只需要从外部容器获取即可；
+2.什么是依赖注入？
+    依赖注入是指当前类依赖的对象不再手动通过构造方法创建，而是由外部容器自动注入给属性；
+3.控制翻转和依赖注入的关系？
+    控制翻转和依赖注入是站在不同的角度描述了同一个事情；控制翻转是站在使用依赖对象的角度描述一个类的依赖对象应该如何创建，依赖注入是站在容器的角度描述一个类的依赖对象应该如何创建；
+4.spring中要使用依赖注入至少要引入的包：
+    1.org.springframework.beans和org.springframework.context；
+    2.org.springframework.beans提供了bean创建需要的依赖；
+    3.org.springframework.context提供了容器创建需要的依赖；
+5.spring中创建一个bean可以配置哪些信息？
+    1.bean的名称：id、name、alias
+    2.bean的创建方式：构造方法创建、工厂类的静态方法创建、工厂类的实例方法创建
+    3.bean的依赖注入方式：构造方法注入、属性的set方法注入
+    4.bean的属性：是否懒加载？作用域？继承关系？
+6.bean常见的作用域？
+    1.singleton：单例作用域；
+    2.prototype：原型作用域；
+    对于web系统：
+        1.request：请求作用域；
+        2.session：会话作用域；
+        3.application：应用作用域；
+7.bean的默认作用域：
+    默认都是singleton作用域；
+8.单例嵌套原型作用域生命周期不一致如何解决：
+    1.将被原型作用域属性生命为一个抽象方法，并在抽象方法上添加@lookup注解即可；
+    通过lookup-method来解决，在lookup-method中指定创建该原型作用域实例创建方法；然后在该属性的set方法中手动调用对应创建方法即可；
+9.如何自定义作用域？
+    继承Scope接口，重写Scope接口中的get和remove方法实现对象的创建和销毁；
+    然后配置CustomerScopeConfiger，在CustomerScopeConfiger中的scopes属性中增加自定义作用域实现类实例即可；
+10.如何设置bean的懒加载？
+    1.如果是xml配置的话，有以下几种方式：
+        1.通过在bean标签上指定lazy-init属性为true即可开启懒加载；
+        2.通过在beans指定default-lazy-init=true，可以实现所有bean懒加载；
+    2.如果是配置的方式：
+        1.可以在被@Component系列注解修饰的类上添加@Lazy注解；
+        2.可以在被@Bean修饰的方法上添加@Lazy注解；
+11.如果创建一个bean:
+    1.通过@bean在Configure中创建；
+    2.通过@Component、@Controller、@Service、@Repository
+    3.通过@ComponentScan配置需要注册为bean的类；
+    4.通过@Import注解也会创建该类的bean；
+    5.实现BeanFactoryAware接口。在setBeanFactory方法中可以向factory中注册bean；
+12.一个类型有多个bean的情况下如何选择要注入的bean?
+    通过@Autowired和@Qualifier注解搭配实现，在@Qualifier中设置要注入的bean名称即可；
+
+13.spring中的自动装配有哪几种？
+    1.byType：按照属性类型自动装配；
+    2.byName：按照属性名称自动装配；
+    3.通过构造方法自动状态；
+14.如何选择自动装配模式：
+    通过配置autowire属性的值选择自动装配模式；
+15.@Autowired是自动装配吗？
+    不是，@Autowired是手动装配，自动装配只有上述的三种模式；而且必须在autowire中指定，默认都是手动装配；
+--- 高级特性 ---
+1.spring容器是什么？
+    spring通常意义上来说是缓存了singleton作用域bean的map；而更广泛的意义来说，spring容器实际上是一个包括了获取bean注册信息、创建bean、初始化bean、销毁bean等对bean进行生命周期管理的一段程序，也就是BeanFactory；
+2.FactoryBean和BeanFactory的区别？
+    1.FactoryBean不同于常说的对象实体，比如controller或者service这些，它是一个接口，表示一个能够创建其他bean的bean；他的实现类需要实现其getobject()方法，在这个方法中需要根据其他bean的名称返回一个bean；而FactoryBean和普通的bean在spring中主要是通过名称来区分的，FactoryBean的名称前面会加上一个&前缀符号；
+
+    BeanFactory实际上就是spring中的容器，具有管理bean生命周期的功能；spring中默认的容器就是BeanFactory的实现类DefaultListableBeanFactory；
+3.BeanFactory和ApplicationContext的关系和区别？
+    1.ApplicationContext继承自BeanFactory，所以ApplicationContext的实现类本质上就是一个spring容器，但是ApplicationContext中并没有直接自己去实现BeanFactory，而是借助DefaultLisableBeanFactory来实现的；常见的实现类包括：ClassPathXmlApplicationContext，这也是为什么通过ApplicationContext可以获取到一个bean的原因；
+4.除过@Autowired注入依赖以外还可以通过什么注入依赖？@Autowired注入依赖的流程？
+    除过@Autowired注入依赖以外，还可以通过@Resource来注入依赖；
+    @Autowired注入依赖时会先按照类型匹配，匹配不到时再按照名称匹配；@Qualifier来设置注入的依赖，如果有多个类型，而且名称已经能够匹配到bean的话，可以不用@Qualifier来匹配；
+    @Resource注入依赖时先按照名称匹配，名称匹配不到时按照类型匹配；
+
+5.单例作用域的bean会不会有线程安全问题，如何解决？
+    1.会有线程安全问题；因为是单例，所有线程都使用的是同一个bean，所以会有线程安全问题；
+    2.有两种解决办法：
+        1.通过ThreadLocl来包装bean中有线程状态的成员变量；那么虽然bean是单例，但是成员变量在不同线程中保存各自线程的值；
+        2.将单例作用域的bean定义为原型作用域；
+
+6.spring容器启动的大概流程：
+    1.扫描配置的xml文件或者被@Controller等注解修饰的类，
+    2.然后创建spring容器DefaultlistableBeanFactory的实例
+    3.将这些类信息解析为beanDefinition，并存储在beanDefinitionMap中;
+    4.在容器中遍历解析beanDefinition，并创建对应的未初始化的bean或者FactoryBean；
+    5.根据依赖，为属性注入依赖对象，如果依赖对象还未创建，则执行第4补，创建待依赖的对象；
+    6.执行钩子方法；完成bean的创建；
+
+7.spring中提供了哪些扩展点？
+    1.BeanDefnitionRegisterPostProcessor：可以访问当前容器中已经加装的beanDefinition信息，或者向BeanDefinitionMap手动注册一个bean；
+    2.BeanFactoryPostProcessor：可以获取一个bean的定义信息，可以修改bean的定义信息；
+    3.BeanPostProcessor：有两个方法：postProcessBeforeInitilization和postProcessorAfterInitilization，用来在bean的init方法执行前和执行后执行；
+    4.EnvironmentPostProcessor：可以获取到系统中加载的配置信息以及存储配置信息的ConfigurableEnvironment，借助ConfigurableEnvironment可以将自定义配置加到系统配置列表中；
+8.bean如何定义初始化逻辑，执行顺序怎样？
+    1.通过继承InitializingBean接口，实现其afterPrpertiesSet方法实现初始化；
+    2.通过为bean配置initMethod属性指定初始化方法；
+    3.通过@PostConstruct将方法修饰为初始化方法；
+    4.继承BeanPostProcessor，实现其初始化方法
+    基本顺序为：
+        构造方法->@PostConstruct注解的方法->afterPropertiesSet方法->init-method指定的方法；
+        postProcessBeforeInitilization会在构造方法执行之后，@PostConstruct注解的方法之前执行；
+        postProcessorAfterInitilization会在init-method方法只会执行；
+
+9.spring中有哪些aware接口，分别是干什么的？
+    aware表示已知的意思，aware系列接口的主要作用是继承了aware的类提供一个已知应信息的
+    BeanFactoryAware：给当类提供一个容器；
+    BeanNameAware: 提供给当前类bean的名称；
+    BeanClassLoaderAware：提供给当前类加载器；
+    ApplicationContextAware：提供给当前上下文环境；
+10.spring中有几级缓存？
+    如果开启支持循环依赖的话有三级缓存，如果没有禁止支持循环依赖的话只有一级缓存；
+
+11.为何在开启支持循环依赖后有三级缓存？
+    1.三级缓存是为了解决循环依赖的问题；
+    2.三级缓存有哪些？
+        第一级缓存存储着已经创建好的singleton bean；
+        第二级缓存存储着半成品bean，但是这个bean已经被别的bean使用了；
+        第三级缓存存储着半成品bean，但是这个bean暂未被别的bean使用；
+    3.三级缓存的使用流程：
+        在获取一个bean的时候，会先从一级缓存中获取，如果一级缓存中没有，那么从二级缓存中获取，如果二级缓存中也没有，但是允许暴露半成品bean时，那么会从三级缓存中根据beanName找FactoryBean,然后调用getObject方法获取这个bean；获取到之后将bean放入二级缓存，然后从三级缓存中删除掉；如果三级缓存中也没有，那么就需要执行bean的创建流程，如果存在循环依赖时会将半成品的bean放在三级缓存中；当bean创建好并完成属性注入以及初始化之后会将bean从二级和三级缓存中删除，然后放入一级缓存；
+    4.为何需要三级缓存？
+        1.必须要有三级缓存而且第三级缓存是FactoryBean的原因就是为了能够在解决循环依赖时还能解决生成代理对象的问题；如果没有第三级缓存，只有第二级缓存，那么给bean中注入的其他bean是一个未被代理的bean，不符合要求；
+        2.而二级缓存中的bean来自于三级缓存，所以二级缓存存在的意义就在于不用每次都要从三级缓中创建代理对象，而是直接从二级缓存中获取已经创建好的代理对象；
+    
+12.为何基于构造方法的循环依赖不支持解决？
+    因为基于构造方法的循环依赖时在构造方法中完成依赖属性注入的，而在构造方法未执行完成的话bean是没有被创建好的，而此时和bean循环依赖的其他bean又需要在构造方法中注入当前bean，这就形成死循环逻辑了，所以不支持；
+13.为何基于prototype的循环依赖不支持？
+    会造成死循环，因为是原型模式，可以多次创建bean，那么每次注入依赖的时候都需要新创建一个bean，两个bean之间互相嵌套，会陷入死循环；
+14.spring是如何发现两个bean之间有循环依赖的？
+    是通过singletonCurrentlyCreation这个列表来发现的，具体流程如下：
+        创建bean1时，会先从一级缓存中查找，首次创建一级缓存中不会有这个bean；
+        接着检查是否在singletonCurrentlyCreation中查找，是否正在创建中，首次创建这里面也不可能有；
+        然后把bean1添加的singletonCurrentlyCreation中，创建bean1，并注入属性bean2，由于bean2没有，那么需要执行上述流程创建bean2;
+        先从一级缓存中查看，然后再从从singletonCurrentlyCreation中查找，都没有，然后把bean2添加的singletonCurrentlyCreation中执行创建流程；
+        为bean2注入属性，然后按照上述流程查找bean1,会发现bean1已经在singletonCurrentlyCreation中存在，那么就判定bean1和bean2存在循环依赖；

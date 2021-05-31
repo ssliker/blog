@@ -1,0 +1,166 @@
+Q&A：   
+    1.mybatis是什么？
+        mybatis是一个半ORM持久层框架，用来简化数据库访问操作；
+    2.mybatis为何是半ORM框架：
+        mybatis只能将查询结果转换为java中对象实体，但是不能像调用对象方法一样直接操作数据库；访问数据时仍然需要手动写sql；
+    3.mybatis有几种使用方式：
+        两种，分别是Dao模式，Mapper模式；
+        Dao模式下，需要通过sqlSession调用mybatis提供的java api执行sql；
+        Mapper模式下，通过动态代理自动绑定mapper接口中的方法和xml中的sql,直接调用mapper接口中的方法即可；
+    4.mybatis使用流程：
+        1.Dao模式：
+            1.定义mapper.xml，创建要执行的sql；
+            2.使用datasource创建sqlSessionFactory，并指定mapper.xml的位置；
+            3.通过sqlSessionFactory创建sqlSessionTemplate/SqlSession；
+            4.通过SqlSession/sqlSessionTemplate执行mapper.xml中定义的sql；
+        2.Mapper模式：
+            1.定义mapper.xml；
+            2.使用datasource创建sqlSessionFactory，并指定mapper.xml的位置；
+            3.使用sqlSessionFactory创建SqlSessionTemplate；
+            4.通过SqlSessionTemplate创建MapperScanerConfiger，并指定要扫描的mapper接口路径；
+            5.注入mapper接口，调用mapper接口中的方法执行sql；
+    5.sqlSessionTemplate如何确定访问的数据源：
+        SqlSessionTemplate由SqlSessionFactory创建，而SqlSessionFactory需要指定连接的数据源dataSource，那么SqlSessionTemplate就通过SqlSessionFactory和不同的DataSource绑定；
+    6.mybatis中mapper的方法能够重载吗？
+        不能重载，因此mybatis通过mapper的全限定类名+方法名作为key，从mapper.xml中查找匹配的sql，如果重载，mapper无法再唯一确定一个sql；
+    7.mapper.xml中命名空间是否必要，有啥作用？
+        在之前的mybatis版本中命名空间可有可无，在后续的最新版本中命名空间不能省略，必须正确配置；
+        命名空间的主要作用就是通过命名空间将mapper接口和xml进行绑定；让mapper和xml之间的对应关系更加明确；
+    8.mybatis中sqlSessionFactory和SqlSession的生命周期如何管理？
+        SqlSessionFactory本质上是绑定数据源信息，创建完成之后需要一直保留，作用域是整个应用；
+        sqlSession代表着一个数据库会话连接，sqlSession非线程安全，不能在多线程间共享，每个线程都应该有一个会话连接，作用域是线程；
+    9.如何全局性的开启或者关闭mybatis二级缓存：
+        通过mybatis的配置cacheEnabled设置为true或者false来开启/关闭缓存；
+        如果是xml配置的话直接添加<cache/>标签就可以；
+    10.mybatis有几级缓存：
+        有两级缓存，即一级缓存和二级缓存；
+        一级缓存是指同一个sqlSession级别的缓存；
+        二级缓存是指namespache级别的缓存，同一个namespace下所有的sqlSession共享；
+        默认只开启一级缓存；二级缓存需要通过cacheEnabled设置为true开启；
+    11.一级缓存有哪些特征：
+        1.一级缓存是sqlSession级别的缓存，只对同一个sqlSession有效；
+        2.一级缓存的生命周期也是sqlSession级别的，缓存随着sqlSession销毁而销毁；
+    12.一级缓存什么时候会销毁：
+        1.如果sqlSession在调用close()方法sqlSession就会关闭，一级缓存也会销毁；
+        2.sqlSession还可以调用clearCache()，也会清空当前sqlSession中的缓存；
+        3.sqlSession中调用了update、insert、delete方法，缓存就会销毁；
+    13.一级缓存是怎么实现的？
+        每个sqlSession内部都会有一个Executor，在Executor内部有一个perpetualCache对象，在该对象内部定义了一个map，缓存着sql和结果的映射；
+    14.二级缓存有哪些特征？
+        1.二级缓存的作用域是命名空间级别的，会被同一个命名空间中的所有sqlSession共享；
+        2.二级缓存默认最多缓存1024个结果集，超过时默认按照LRU淘汰算法进行淘汰；
+        3.默认处于关闭状态，需要手动开启；
+    15.二级缓存填满时淘汰算法有哪些？
+        1.LRU：最近最少使用算法；
+        2.FIFO：先进先出算法；
+        3.SOFT：软引用，移除软引用类型的对象；
+        4.WWEAK：弱引用，移除弱引用类型的对象；
+    16.二级缓存何时会被刷新：
+        1.flushInterval配置的时间到了之后会刷新；
+        2.执行了delete、update、insert操作之后会刷新；
+    17.二级缓存实现原理：
+        mybatis中通过CachingExecutor实现Executor，重写了query方法，在执行query之前，就会先去检查是否开启缓存，是否命中缓存等操作，如果命中缓存则直接返回，否则再去查数据库，查询完成之后再创建缓存；  
+    18.二级缓存在中的问题：
+        二级缓存是命名空间级别的，其他命名空间下的操作更新了数据，当前命名空间下的sqlSession是无法感知的，会读取到脏数据；
+        可以通过cache-ref执行其他命名空间来解决；
+    19.如何自定义二级缓存：
+        1.继承Cache接口，实现其中的方法；
+        2.通过配置cache type来配置缓存实现类的全限定类名；
+    19.mybatis在映射时发现有不匹配的列如何处理：
+        mybatis可以在配置项autoMapperUnknowColumnBehavior中设置当有不匹配的列时如何处理，一般有三个选项：
+            1.NONE：不作任何反应；
+            2.WARNING：输出警告日志；
+            3.FAILING：映射失败，抛出异常；
+        默认是NONE，不作任何处理；
+    20.mybatis映射时自断名称不匹配如何处理：
+        1.通过sql中的AS语句为字段设置别名；
+        2.在resultMap中定义字段名和属性名的映射关系；
+        3.如果字段统一为下划线命名，属性统一为驼峰式命名，也可以在配置中开启适配映射机制；
+    21.#{}和${}区别：
+        ${}只是简单的字符串替换操作，不作任何数据类型转换，对于参数位尽量避免使用，方式产生sql注入问题；
+        #{}会有预编译处理，预编译之后会将#{}替换为?，然后条用preparedStatement的set方法来赋值；
+    22.mybatis中如何提取公共sql共用？
+        通过<sql>标签定义公共sql，然后通过include来复用sql片段；
+    23.mybatis中有哪些动态sql标签：
+        1.if：
+            <if test="表达式">
+                sql
+            </if>
+        2.choose  when  otherwise:
+            <choose>
+                <when test="表达式">
+                </when>
+                <when test="表达式">
+                </when>
+            </choose>
+        3.foreach：
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+    24.mybatis解决了jdbc中的哪些问题：
+        1.传统jdbc的问题：
+            1.sql代码和java代码混在一起不方便查看和维护；
+            2.sql执行结果和实体之间转换需要手动进行；
+            3.需要手动频繁创建数据库连接以及会话，执行完成之后还要手动释放资源，会多很多重复代码；
+        2.mybatis的优势：
+            1.sql和java代码分开，方便java代码和sql查看维护；
+            2.能够将结果自动映射为java实体对象，避免手动解析结果集；
+            3.提供了缓存机制，可以利用缓存提供查询效率；
+            4.数据库连接和会话的创建统一配置，无需手动创建和释放；
+    25.ORM是什么？
+        ORM是对象关系映射的意思，可以将sql的操作映射为对象的操作，包括执行sql映射为调用实体对象的方法，sql的执行结果映射为实体对象；
+    26.mybatis有哪些executor执行器：
+        常见的有三种：
+            SimpleExecutor：每次执行sql都会创建一个Statement对象，用完之后立刻关闭Statement；
+            ReuseExecutor：执行时先以sql为key查找Statement对象，存在就是用，不存在就创建一个，使用完成之后也不会销毁，而是放在缓存中，供下次使用；
+            BatchExecutor：以批处理的方式执行sql；
+    27.mybatis中如何指定使用哪一种executor？
+        通过配置项ExecutorType指定执行器类型；默认是SimpleExecutor执行器；
+    28.mybatis中如何传递/接收参数：
+        1.通过顺序接收：
+            1.mapper中通过形参定义参数；
+            2.在xml中#{0}/#{1}这种模式；
+        2.通过@Param接收：
+            1.在mapper中通过@Param("paramName")来定义参数；
+            2.在xml中通过#{paramName}直接访问参数；
+        3.通过Map传参：
+            1.在Mapper中定义参数类型为map；
+            2.xml中指定parameterType为map，然后在sql中通过#{key}访问参数；
+        4.通过实体对象传参：
+            1.在Mapper中定义参数类型为实体对象；
+            2.在xml中指定parameterType类型为实体对象类型，然后通过属性名称访问参数；
+    29.mybatis如何获取生成的主键：
+        1.在insert标签中配置useGeneratedKey="true",然后配置keyProperty为对应结果集的属性即可；只适用于能够自动生成主键id的数据库
+        2.在insert标签中配置select标签，指定查询主键的sql，并配置keyColum和KeyProperty属性即可；
+    30.配置mapper接口的方式有哪些？
+        1.通过MapperScan注解配置；
+        2.通过增加MapperScannerCaonfiger Bean来配置；
+    31.什么是接口绑定，有几种方式绑定？
+        1.接口绑定就是将mapper接口中的方法和xml中的sql语句进行绑定，调用mapper接口中的方法就能够执行sql；
+        2.绑定方式有两种：
+            1.通过xml绑定，在xml的sql中通过id来和接口中的方法绑定；
+            2.通过注解绑定：@Select等注解也可以绑定；
+    32.mybatis是如何进行分页的？
+        mybatis通过RowBounds对象进行分页，是针对ResultSet结果集执行的内存分页，不是物理分页，；
+    33.mybatis如何实现一对一、一对多查询？
+        1.有两种方式实现：
+            1.通过联合查询实现，然后在resultMap中配置association、collection节点来应对一对一或者一对多；
+            2.通过嵌套查询完成；内部查询根据外部查询的结果再次查询，然后在resultMap中配置association、collection节点来应对一对一或者一对多；
+    34.mybatis是如何将sql执行结果封装为目标对象并返回的，有哪些映射形式？
+        1.第一种通过resultMap标签定义结果集和对象直接的映射关系；
+        2.通过字段名称和属性名称匹配的关系将结果集映射为对象；
+        然后以反射的方式创建对象，并逐一赋值；
+    35.简述Mybatis的Xml映射文件和Mybatis内部数据结构之间的映射关系？
+        答：Mybatis将所有Xml配置信息都封装到All-In-One重量级对象Configuration内部。在Xml映射文件中，
+        <parameterMap>标签会被解析为ParameterMap对象，其每个子元素会被解析为ParameterMapping对象。
+        <resultMap>标签会被解析为ResultMap对象，其每个子元素会被解析为ResultMapping对象。<select>、<insert>、<update>、<delete>标签均会被解析为MappedStatement对象，
+        标签内的sql会被解析为BoundSql对象。
+
+
+
+
+
+    
+        
+
+    
+
+

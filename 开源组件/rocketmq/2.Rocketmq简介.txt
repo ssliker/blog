@@ -1,0 +1,55 @@
+rocketmq模型：
+    1.角色：
+        发送者、接收者、broker-server、namesever
+    2.大概工作流程：
+        发送者->namesever->拉去可用的broker列表
+        发送者选择topic中消息队列所在broker，发送消息->broker；
+        接受者->namesever->拉取可用的broker列表；
+        接收者选择topic队列所在broker，从broker->拉取消息；
+    3.关于相关概念：
+        1.topic:
+            1.topic在消息队列中叫做主题，消息消费者需要先订阅主题才能消费对应主题中的消息，在这个层面上，topic就是一个对消息进行逻辑分类的概念；
+            2.topic除了能够对消息进行逻辑分类以外，rocketmq中实际存储消息的队列也是以topic为单位创建的，默认是一个topic下有四个队列，不同的topic的队列互相独立；
+            3.topic可以手动创建，也可以自动创建，通常测试环境都设置为自动创建，线上环境设置为手动创建；
+        2.关于tag：
+            1.消息的标识，消息发送方可以设置消息的tag，消息接收方可以根据消息的tag过滤消息；
+2.关于nameServer：
+    1.nameServer功能：
+        1.nameServer承担broker-server服务治理的功能，具体包括以下几项：
+            1.提供broker-server服务注册；
+            2.提供broker-server服务健康状态健康监控和故障下线；
+            3.向生产者和消费者提供基于topic主题的broker-server列表；
+        2.nameserver部署结构：
+            nameserver部署时以集群模式部署；
+        3.nameserver启动流程：
+            1.读取并加载配置文件，主要配置项包括：端口、线程池线程个数、网络相关配置等
+            2.创建nameserver实例，并为实例绑定两个定时任务：
+                1.每10s执行一次的定时任务：用来剔除已经下线的broker节点；
+                2.每10分钟执行一次，用来打印kv配置选项；
+            3.注册JVM钩子函数并启动服务器；之所以要注册JVM钩子函数；
+        4.nameserver实现服务注册、健康状态监控、broker-server下线的实现原理：
+            1.服务注册：
+                1.nameserver中定义了5个HashMap，分别用来存储broker-server节点信息、topic主题信息、cluster集群信息、broker-server心跳信息，其他一些过滤信息；
+                2.broker-server首次上线之后需要连接其配置的nameserver服务，并发送注册信息，包括当前broker-serve的ip地址、端口、主题信息等；
+                3.发送完成之后，nameserver会在保存broker-server的HashMap中保存该broker-server的注册信息，并在broker-server心跳map上记录首次心跳时间，在cluster集群map中保存broker-server所属集群信息；
+            2.服务健康状态监控及下线：
+                1.已经注册的broker-server需要每隔30s向nameserver发送一个心跳信息；
+                2.nameserver受到broker-server的心跳信息之后，会更新响应map中的时间；
+                3.nameserver在启动时已经初始化了一个定时任务，每10s执行一次，在该定时任务中会检测broker-server是否已经有连续120未发送心跳信息，如果是，则将该broker-server下线；
+                4.但是需要注意的是，nameserver将broker-server下线之后并不会通知到生产者和消费者；而是由生产者和消费者的定时任务主动拉去更新broker-server列表信息；
+            3.关于路由信息更新：
+                在broker-server向nameserver发布心跳信息时，也会携带自己的topic路由信息，nameserver在受到心跳信息之后，会同步修改存储topic的map；
+3.关于消息：
+    1.消息是Message类型；
+    2.在创建消息时必须设置topic、tags、消息体；也可以为消息设置属性；
+    2.创建消息：
+        new Message(tpoic,msg.getBytes())；
+        new Message(tpoic,tags,msg.getBytes())；
+        new Message(tpoic,tags,keys,msg.getBytes())；
+    3.通过方法设置：
+        msg.setTopic()  设置主题
+        msg.setTags()   设置tag
+        msg.setDelayTimeLevel()  设置延迟级别
+        message.putUserProperty(key,value)； 设置属性
+
+    

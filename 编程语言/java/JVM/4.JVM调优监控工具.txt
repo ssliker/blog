@@ -1,0 +1,45 @@
+2.JVM调优监控工具通常有以下几种：
+    1.jps：查看当前系统中的jvm进程；
+    2.jstack：查看线程堆栈信息；
+    3.jstat：JVM统计监测工具；
+    4.jmap：堆栈信息查看工具；
+2.关于jps：
+    1.jps用来查看当前系统正在运行中的jvm进程信息；
+    2.jps使用方式如下：
+        jps     # 查看运行中的jvm进程
+            -q  # 不输出类名、jar名、main方法的参数
+            -m  # 输出main方法输入的参数
+            -l  # 输出main类或者jar的全限定名
+            -v  # 输出传入jvm的参数
+3.关于jstack:
+    1.jstack作用在于查看线程的堆栈信息；或者分析core文件的线程堆栈信息；
+    2.jstack用法如下：
+        1.jstack [option] pid
+        2.jstack [option] executable core
+    3.参数说明：
+        -F ：强制输出线程堆栈；
+        -m ：如果有调用本地方法时可以显示C/C++堆栈
+        -l ：除堆栈以外，显示关于锁的附加信息；
+
+4.关于jstat：
+    1.JVM统计监测工具，用来显示JVM运行中的GC或者其他状态信息；
+    2.使用方式：jstat -[option] [-t] [-h<lines>] <vmid> [interval] [count]
+    3.比如查看gc信息：
+        jstat -gc pid 100 3
+        1.查看pid进程的gc信息；
+        2.采样间隔时间是100ms
+        3.采样数为3；
+
+5.关于jmap:
+    1.jmap用来查看堆内存使用情况，一般结合jhat使用：
+    2.关于jmap的使用：
+        1.查看堆内存使用分布情况：jmap -heap pid
+        2.查看对象及类加载情况：jmap -clstats pid
+        3.查看堆内存中对象的数目、大小统计等信息；jmap -histo pid
+        4.创建dump文件：jmap -dump:format -b,file=dumpFileName pid
+    3.jmap创建的dump文件可以通过jhat启动服务然后桶浏览器查看；
+    
+    
+
+
+    

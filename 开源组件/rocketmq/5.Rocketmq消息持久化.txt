@@ -1,0 +1,6 @@
+1.rocketmq消息存储位置：
+    1.broker收到消息时会先存储在buffer中，然后按照flushDiskType选项来决定同步刷盘还是异步刷盘到磁盘文件上；
+2.Rocketmq持久化文件：
+    1.rocketmq接收到消息刷盘之后会存储在CommitLog中；而且所有的消息无论是何种主题都会按顺序存储在文件中；CommitLog文件默认地址在store/commitlog下面；这也是rocketmq高效写入消息的原因；
+    2.读取时，为了能够高效的按照topic检索消息，rocketmq除过存储CommitLog文件以外，还会存储一个consumeQueue文件，该文件存储在store/consumequeue/topic_name文件夹下；其按照主题分别存储在不同的位置，并按照不同的对列id作为具体的文件名，这样消息消费者即可按照不同的主题找到文件目录位置，按照不同的对列id找到不同的文件，文件内容中按顺序存储着消息在commitlog中的偏移量和大小，这样即可按照顺序在CommitLog中找到对应的消息；这也是rocketmq能够高效读取消息的原因；
+        4.从消息持久化来看消息的可靠性保证：
