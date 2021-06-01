@@ -1,0 +1,26 @@
+1.关于springboot？
+    springboot中内置tomcat，简化web开发；
+    springboot基于约定大于配置的理念设计，同时提供了较多的注解简化web配置；
+    speingboot提供了较多的starter启动器，简化springboot框架和其他第三方组件的整合；
+2.springboot中核心注解？
+    核心注解是@SpringBootApplication;
+        这个注解是一个组合注解，包括了
+    1.@SpringBootConfiguration：
+    2.@EnableAutoConfiguration：
+    3.@ComponentScan：
+
+3.springboot是否可以使用xml配置？
+    可以，但是不推荐，如果必须要使用的话可以通过@ImportResource导入xml配置；
+4.springBoot如何解决跨域问题？
+    可以在后端的配置类中继承WebMvcConfigurer接口，并实现其addCoresMappings方法，在该方法中配置允许接收的域名、路径、方法这些信息；
+5.如何实现springboot的热加载：
+    引入spring-boot-devtools即可；
+6.spring boot需要独立的容器运行吗？
+    可以不需要，springboot里面内置了tomcat；
+7.什么是自动配置？
+    所谓自动配置就是springboot能够自动加载第三方组件提供的starter启动器，完成第三方组件和springboot的整合；
+8.自动配置原理？
+    1.自动配置需要由核心注解@EnableAutoConfiguration来开启，而@EnableAutoConfiguration也是一个复合注解，自动配置的核心功能由@Import提供；而Import实际上是导入了AutoConfigurationImportSelector这个类，在这个类中定义了一个selectImports()方法，在这个方法内部会通过SpringFactoriesLoader.loadFactoryNames()扫描启动器路径下的spring.factories文件；
+    而在每个启动器下都会有一个spring.factories文件，这个文件中定义了这个启动器的configuration配置类全限定类名；
+    在main方法执行时就会执行上述流程，加载启动器中配置类到容器中；
+

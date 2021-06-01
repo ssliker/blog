@@ -1,0 +1,3 @@
+1.继承ApplicationEvent重载父类构造方法；
+2.继承ApplicationListener实现onApplicationEvent，在这个方法中完成收到通知之后的逻辑；
+3.在需要发布事件的位置使用ApplicationContext.publishEvent(new ApplicationEventXXX())发布事件即可；

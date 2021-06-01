@@ -1,0 +1,185 @@
+一：关于Redis：
+    1：Redis是一个基于BSD协议开源的并且基于内存的数据存储结构；
+    2：Redis支持多种数据存储结构：
+        常用的数据结构有：string(字符串)、set(集合)、zset(有序集合)、list(列表)、hash(hash table)、bitmap(二进制位)、hyperloglog(统计算法)
+        其他的数据结如：geospatial index(地里空间)、stream(流)；
+    3：Redis支持将内存中的数据按照策略使用RDB(全量)和AOF(追加)的方式持久化至文件；
+    4：Redis支持多种不同的LRU淘汰算法进行数据失效的机制；
+    5：Redis支持多种不同的运行方式：如单机模式、主从模式、哨兵模式、集群模式；
+
+二：安装和运行：
+    安装：对于linux：可按照以下方式安装和启动：
+        下载Redis安装包
+            wget http://download.redis.io/releases/redis-3.2.11.tar.gz
+
+        解压Redis安装包
+            tar -zvxf redis-3.2.11.tar.gz
+
+        进入Redis安装包
+            cd redis-3.2.11.tar.gz
+
+        编译Redis：
+            make Redis
+
+    编译之后的目录结构(主要的文件和目录)：
+        redis.conf      redis配置文件
+        sentinel.conf   哨兵配置文件
+        src             源码以及可执行文件目录
+        tests           测试文件目录
+        utils           工具类文件目录
+
+    运行：单机运行模式：
+        编译之后，Redis的可执行文件均在src目录中，首先进入src目录
+            cd redis-3.2.11.tar.gz/src
+
+        启动Redis服务：运行redis-server可执行文件即可启动Redis服务
+        使用默认配置启动：
+            ./redis-server(使用默认配置并非使用src同级目录下的redis.conf文件中的配置项)
+        使用配置文件启动：
+            ./redis-server    ../redis.conf(使用指定的配置文件启动Redis服务 ../redis.conf 即为Redis配置文件路径)
+        说明：
+            1：以此方式启动的Redis属于单机运行模式；
+            2：使用默认配置启动时会以6379端口启动；
+            3：使用默认配置启动时服务端无密码；
+            4：使用默认配置启动时服务会以前台的模式运行，如果要以后台模式运行可以通过 ./redis-server & 的方式启动；
+    
+    启动Redis客户端：
+        首先进入src目录
+            cd redis-3.2.11.tar.gz/src
+
+        运行redis-cli可执行文件即可启动Redis客户端
+            ./redis-cli -h host -p port -a password
+
+三：Redis配置：
+    Redis的配置文件默认在src的同级目录中，名为redis.conf；以下为Redis的常用配置项：
+    1：Redis---运行相关配置：
+        daemonize no
+            1：默认使用redis-server启动文件来启动Redis时，Redis的服务会以前台进程的方式运行；
+            2：如需使Redis服务以后台进程的方式运行需要设置该参数：daemonize yes；或者使用 ./redis-server & 的方式启动；
+            3：如果Redis作为后台进程运行时默认会将pid写进.pid文件中，.pid文件路径在参数pidfile中配置；
+
+        pidfile /var/run/redis.pid
+            1：Redis以守护进程运行时，默认会把该服务的pid写入由该参数配置的.pid文件中；该文件默认路径是：/var/run/redis.pid文件；
+        
+        loglevel notice
+            1：该参数用来设置redis的日志级别；包括：debug、verbose、notice、warning；
+            2：默认为notice
+
+        logfile stdout
+            1：设置redis日志的输出方式，默认是stdout(即标准输出)；
+            2：如果redis以守护进程的方式执行，这里又是标准输出，则日志将会发送给/dev/null；
+            3：可以设置该参数的值为具体文件路径，来收集Redis运行信息；
+
+        database 16
+            1：设置Redis数据库的数目，默认是16个，数据库序号从0开始；
+
+        port 6379
+            1：Redis服务启动时监听的端口号，默认是6379；
+
+        bind 127.0.0.1
+            1：允许连接该Redis服务的主机，设置bind之后，该Redis服务器只能被bind设置的主机来连接；
+            2：如果是bind 0.0.0.0，任意主机均可连接该redis，其余IP均只能使用对应IP的主机来连接；
+        
+        requirepass pass
+            1：设置Redis服务端连接密码；
+            2：为了向后兼容，Redis服务默认没有密码，为了Redis安全，建议设置较为复杂的密码；
+        
+        slowlog-log-slower-than 10000（微秒）   
+            1：设置慢查询定义时间；如果Redis处理某项操作时间超过该参数配置的时间将会认为该操作是慢查询操作；  
+
+        slowlog-max-len 128  
+            1：设置保存慢查询记录的最大条数，当slowlog超过设定的最大值后会将最早的slowlog删除；
+
+    2：Redis---客户端相关配置：
+        timeout 0
+            1：客户端空闲超时时间，以s为单位，表示客户端多久没有和服务端交互之后将会断开与该客户端的连接；
+            2：注意：不是连接超时和执行超时时间，而是客户端闲置超时时间；
+            3：该参数如果为0，表示关闭该功能，即永不超时；
+
+        tcp-backlog 511：
+            1：tcp服务端已连接队列中客户端数目；
+            2：tcp协议通信中，客户端和服务端通信时首先会进行3次握手与服务端建立连接，3次握手完成之前该客户端会被存放在未连接队列中，3次握手完成之后将会被存放在已连接队列中，等待服务端调用accept()函数依次获取已连接的客户端并进行处理；该参数设置的是已连接队列的长度；
+            3：Redis服务端本质上是一个TCP服务端，tcp-backlog参数即指TCP中的backlog参数；即Redis服务端允许和服务端已建立连接且等待被accept处理的客户端数目；
+            4：默认最多只能有511个客户端等待连接
+
+        tcp-keepalive 0：
+            1：TCP连接心跳间隔时间；
+            2：默认为0，即不提供保活机制；如果设置的活官方建议设置为60(即60s)；
+            3如果设置了该参数，Redis将会定时向客户端发送ACK包探活；使用该参数有两个好处：1：检测已经失去连接的客户端；2：降低中间设备出问题而导致网络看似连接却早已和客户端断开的问题；
+
+        maxclients 10000
+            1：该参数用来设置已经连接上Redis服务端的客户端数目；
+            2：该参数设置为0表示不作限制，设置为0时该数目取决于当前系统中Redis服务端进程能够打开的最大文件描述符数目；
+            3：如果客户端连接数超过该值，将会返回max number of clients reached错误；
+
+    3：redis---持久化配置：
+        RDB持久化相关配置：
+            save <seconds> <changes>
+                1：指定在多长时间内有多少次更新操作就将数据同步到数据文件，可以多个条件配合；
+                2：默认策略为: save 900 1         # 900s之内有1次更新操作就会触发RDB持久化
+                              save 300 10        # 300s之内有10次更新操作就会触发RDB持久化
+                              save 60 10000      # 60s之内有10000次更新操作就会触发RDB持久化   
+                3：该行注释掉之后将会取消同步；即无法通过RDB的方式持久化数据到文件；
+
+            rdbcompression yes
+                1：设置是否压缩rdb数据文件，默认为压缩；
+                2：开启该参数之后持久化和恢复时间都会增长，但是会更节省磁盘空间；如果不压缩在数据量比较多的情况下文件将会变得较大；
+
+            dbfilename dump.rdb
+                1：设置rdb文件名称；
+
+            dir 
+                1：设置rdb文件保存目录；
+
+        AOF持久化方式的配置：
+            appendonly no 
+                1：是否开启AOF的方式进行持久化；
+                2：默认是no，即不开启AOF的方式持久化；设置为yes即可开启；
+
+            appendfsync everysec 
+                1：AOF持久化数据时的策略；
+                2：有三种策略可选，如下：no,always，everysec；
+                3：no：指操作系统保证数据同步到磁盘，速度最快但是可靠性最差；
+                  always：指每更新一次数据就执行一次持久化，可靠性最高，但是频率过高会给Redis带来较大压力；
+                  everysec：指每秒执行一次持久化，可靠性较高，服务端压力适中，但是有可能丢失1s的数据；推荐设置为该值；
+
+            appendfilename appendonly.aof   
+                1：AOF方式持久化数据时的文件名；
+    
+    4：Redis---主从复制相关配置：
+        slaveof masterip masterport
+            1：当本节点为从服务器时，需要设置主服务器的ip和端口；
+            2：从服务器每次启动时都会自动从master进行数据同步；
+
+        masterauth <主服务器密码>
+            1：如果主服务器连接需要密码，可以通过该参数设置主服务器密码；从服务器连接主服务器时会自动使用该密码连接主服务器；
+        
+    5：Redis---内存使用配置：
+        maxmemory <bytes>
+            1：设置redis可使用内存限制,防止redis使用内存过大对其他应用程序造成影响；
+            2：redis在内存超过限制之后，将会按照maxmemory_policy的配置的LRU淘汰机制来清理key；如果策略为noeviction或者无法根据策略删除key，Redis服务将会向客户端返回错误；
+            3：当按照maxmemory_policy配置的方式处理之后仍然超过内存限制，将无法再进行写入操作，继续写入将会收到错误提示，但仍然可以进行读取操作。
+            4：如果当前节点是主节点，并且有从节点连接该主节点，那么在主节点将数据同步至从节点时会使用一部分内存来存储同步期间接收到的更新命令，因此当前节点如果为主节点，其占用系统的内存不应太高，需要为数据同步时预留一定的内存空间；
+
+        maxmemory_policy
+            1：当redis占用的内存超过限制之后，将会按照maxmemory_policy的配置来清理数据
+            2：redis提供了5中清理策略：
+                1：volatile lru(least recently used):最近最少使用算法，从设置了过期时间的键中选择闲置时间最长的键值对清除掉；
+
+                2：allkeys lru:最近最少使用算法，从所有的键中选择闲置时间最长的键值对清除；
+
+                3：volatile random:从设置了过期时间的键中，随机选择键进行清除；
+
+                4：volatile-ttl:从设置了过期时间的键中选择过期时间最早的键值对清除；
+
+                8.noeviction:不做任何的清理工作，在redis的内存超过限制之后，所有的写入操作都会返回错误；但是读操作都能正常的进行;
+
+                备注：volatile:是指在过期的键中执行策略；
+                     allkeys:是指在所有的键中执行策略；
+        
+         maxmemory-samples 5
+            1：使用lru或者ttl淘汰算法时,需要从淘汰的列表中随机选择n个key，并在n个key中选出闲置时间最长的key移除；
+            2：该值越大，lru或者ttl的精准度越高，但是会消耗更多cpu增加清理时长；该值默认为5；
+    
+    6：Redis---其他配置：
+        include /path/to/local.conf  设置包含指定的配置文件；  

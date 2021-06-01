@@ -94,3 +94,12 @@
 
 5.关于DispatcherServlet启动及初始化过程；
 6.关于DispatcherServlet对请求的处理过程；
+
+7.springMVC的控制器是否是单例？
+    1.springMVC的控制器是单例的，会有线程安全问题，不要在controller定义可修改的全局变量；
+8.springMVC中的转发和重定向：
+    在返回值之前加上forward会转发到指定路径的jsp页面
+    在返回值之前加上redirect会重定向至指定路径的jsp页面；
+9.如何解决springMVC中的乱码？
+    post请求的话通过增加CharacterEncodingFilter来转换字符编码；
+    get请求的话通过修改tomcat的字符编码配置实现；

@@ -145,10 +145,10 @@
         1.使用位置：
             1.@ConfigurationProperties可以用在class上，表示将该class的属性与@ConfigurationProperties指定前缀的配置绑定；
             2.@ConfigurationProperties可以用在方法上，表示将该方法中返回值(必须是一个Object)的属性与指定前缀的配置项绑定；
-        2.使用方法：
+        2.使用方法： 
             1.属性与配置绑定：
                 @ConfigurationProperties("cfg.prefix")
-                @ConfigurationProperties(orefix="cfg.prefix")
+                @ConfigurationProperties(prefix="cfg.prefix")
             2.忽略配置与属性类型不同的情况：
                 如果配置值得类型和属性值不同，强行绑定将会导致报错，如果需要兼容这种情况，可以设置ignoreInvalidFields：@ConfigurationProperties(orefix="cfg.prefix",ignoreInvalidFields=true)
             3.兼容配置与属性不匹配的情况：
