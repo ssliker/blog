@@ -2,7 +2,7 @@
     1.Hashtable属于数据结构中字典类型，用来存储k-v类型的键值对数据；
     2.Hashtable中不允许key和value为null，且Hashtable中key不能重复；
     3.Hashtable不会维护存储在其中的k-v顺序，在遍历HashMap时，并不会按照key的添加顺序或者key的大小顺序遍历；而是按照hash槽的顺序遍历；
-    5.Hashtable本身有通过synchronized做线程同步处理，属于非线程安全集合，可以直接作为多线程环境下的共享变量；
+    5.Hashtable本身有通过synchronized做线程同步处理，属于线程安全集合，可以直接作为多线程环境下的共享变量；
 
 2.继承结构图：  
     Hashtable--->Dictionary

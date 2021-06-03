@@ -1,0 +1,13 @@
+1.Rocketmq中broker-serve部署模式？
+    broker-serve以集群方式部署，可以支持多master、多master多slave异步赋值、多master多slave同步复制模式；
+2.nameserver中topic是何时被更新的？
+    在broker-server向nameserver发送心跳信息的时候回把topic的信息发送给nameserver;
+
+3.nameserve节点之间如何通信？
+    nameserver节点之间是互不通信的；因此在某个时刻，nameserver节点中的信息是不一致的；
+
+4.nameserver是如何达到最终数据一致的？
+    broker-server在启动时需要配置所有需要连接的nameserver，之后broker-server会向每一个nameserver发送心跳信息，心跳信息中则携带broker-server的ip、端口、topic等信息；在所有nameserver都收到broker-server发送的心跳信息之后数据才会一致；
+5.nameserver如何剔除broker-server：
+    1.broker-server主动下线，nameserver会监听网络事件，broker-server下线之后会将broker-server剔除；
+    2.nameserver也会每隔10s遍历一次心跳表，查询连续四个周期为发送心跳时间的broker-server，然后剔除掉；

@@ -90,6 +90,7 @@
             1.通过DiscoveryClient来获取服务提供者的原始信息；
             2.通过LoadBalancerClient：通过Ribbon的负载均衡器自动获取服务信息；
             3.通过@LoadBalanced：通过该注解开启Ribbon的负载均衡器来获取服务信息；
+            4.在FeginClient注解上配置待调用服务名即可；
         3.Server Consumer访问Server Provider通常有三种方式：  
             1.通过http请求工具(如 RestTemplate)发起请求；
             2.通过Fegin调用；

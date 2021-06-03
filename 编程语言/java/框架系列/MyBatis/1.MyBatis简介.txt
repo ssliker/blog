@@ -59,7 +59,7 @@ Q&A：
         1.flushInterval配置的时间到了之后会刷新；
         2.执行了delete、update、insert操作之后会刷新；
     17.二级缓存实现原理：
-        mybatis中通过CachingExecutor实现Executor，重写了query方法，在执行query之前，就会先去检查是否开启缓存，是否命中缓存等操作，如果命中缓存则直接返回，否则再去查数据库，查询完成之后再创建缓存；  
+        mybatis中通过CachingExecutor实现Executor，实现了query方法，在执行query之前，就会先去检查是否开启缓存，是否命中缓存等操作，如果命中缓存则直接返回，否则再去查数据库，查询完成之后再创建缓存；  
     18.二级缓存在中的问题：
         二级缓存是命名空间级别的，其他命名空间下的操作更新了数据，当前命名空间下的sqlSession是无法感知的，会读取到脏数据；
         可以通过cache-ref执行其他命名空间来解决；

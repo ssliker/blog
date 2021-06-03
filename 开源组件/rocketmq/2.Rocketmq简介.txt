@@ -20,7 +20,7 @@ rocketmq模型：
             2.提供broker-server服务健康状态健康监控和故障下线；
             3.向生产者和消费者提供基于topic主题的broker-server列表；
         2.nameserver部署结构：
-            nameserver部署时以集群模式部署；
+            nameserver部署时以集群模式部署，集群中的所有nameserver节点都是无状态的，nameserver直接互不通信，可以水平扩展；
         3.nameserver启动流程：
             1.读取并加载配置文件，主要配置项包括：端口、线程池线程个数、网络相关配置等
             2.创建nameserver实例，并为实例绑定两个定时任务：
@@ -38,7 +38,9 @@ rocketmq模型：
                 3.nameserver在启动时已经初始化了一个定时任务，每10s执行一次，在该定时任务中会检测broker-server是否已经有连续120未发送心跳信息，如果是，则将该broker-server下线；
                 4.但是需要注意的是，nameserver将broker-server下线之后并不会通知到生产者和消费者；而是由生产者和消费者的定时任务主动拉去更新broker-server列表信息；
             3.关于路由信息更新：
-                在broker-server向nameserver发布心跳信息时，也会携带自己的topic路由信息，nameserver在受到心跳信息之后，会同步修改存储topic的map；
+                1.在broker-server向nameserver发布心跳信息时，也会携带自己的topic路由信息，nameserver在受到心跳信息之后，会同步修改存储topic的map；
+                2.nameserver并不会主动将路由信息同步给生产者和消费者，而是由生产者和消费中的定时任务主动拉取，生产者和消费者中的定时任务每隔30s执行一次；
+                3.这30s内如果路由信息发生变更导致客户端连接broker失败，那么客户端会发起重试来规避之前失败的broker；
 3.关于消息：
     1.消息是Message类型；
     2.在创建消息时必须设置topic、tags、消息体；也可以为消息设置属性；

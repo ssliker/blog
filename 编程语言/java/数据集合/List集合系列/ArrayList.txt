@@ -22,8 +22,8 @@
         3.ArrayList同时继承了RandomAccess；关于RandomAccess而言，并无任何需要实现的方法，仅仅只是一个特征，表示ArrayList支持高效的随机访问；
 
 3.ArrayList的底层实现原理：
-    1.ArrayList底层通过一个Object数组实现ArrayList元素的存储，对ArrayList中元素的操作都是基于该Object数组实现的，因此ArrayList具备数组的所有特征；
-    2.ArayList在数组的基础上增加了自动扩容机制，在数组容量不足时会自动进行扩容，能够避免数组长度固定的限制；
+    1.ArrayList底层通过一个Object数组实现ArrayList元素的存储，对ArrayList中元素的操作都是基于该Object数组实现的，因此ArrayList具备数组的所有特征,Objetc数组的默认长度是10；
+    2.ArayList在数组的基础上增加了自动扩容机制，在数组容量不足时会自动进行扩容，能够避免数组长度固定的限制；每次扩容的值为旧长度的2/3；
 
 4.ArrayList的构造方法：
     1.创建空列表：

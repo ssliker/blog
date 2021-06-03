@@ -1,0 +1,25 @@
+1.关于ThreadLocal实现原理：
+    1.ThreadLocal内部有一个静态内部类ThreadLocalMap，在ThreadLocalMap内部通过静态内部类Entry构造了一个map，key是被weakreference修饰的threadLocal实例，value是要存储的值；而ThreadLocalMap内部则维护了一个Entry数组，用来存储多个值；
+    2.同时ThreadLocal之所以能做到线程隔离，是因为在Thread类内部有一个ThreadlocalMap类型的实例变量指向当前线程持有的ThreadLocalMap，这个ThreadLocalMap实例是在线程中通过threadLocal set一个值时创建的：
+        在set值时会先获取当前线程
+        然后访问当前线程的threadlocals变量获取当前线程持有的ThreadLocalMap;
+        如果threadLocals为null,那就新创建一个ThreadLocalMap赋值给当前线程的threadlocals变量，这样的流程就保证了每个线程都会有属于自己的ThreadLocalMap实例，实现了线程间的隔离；
+2.实际中有用过ThreadLocal吗？
+    有用过，比如ThreadLocalRandom内部就是用到了threadlocl来缓存不同线程的随机数种子；
+    还有ThreadLocal可以实现一个线程下多个类之间进行数据透传，最常用的就是会在拦截器中存储信息，然后在controller中读取这些信息；
+3.ThreadLocal的主要作用？
+    实现线程间数据隔离，避免线程间数据共享而导致线程安全问题和竞争；
+4.ThreadLocal中使用时的注意事项？
+    1.用完要及时remove掉，否则可能发生内存泄露的问题，因为ThreadLocal中key是WeakReference，gc的时候回被回收掉；
+    2.避免库线程异步传递参数l
+    3.父子线程之间不能共享ThreadLocal数据；
+5.ThreadLocal如何解决hash冲突？
+    ThreadLocal中并没有使用链表来解决hash冲突，在计算到存储该值的位置之后会先判断当前位置是否有值，没有值的话就直接存储，有值的话看看key是否相同，相同的话就用新值覆盖旧值，如果有值，但是key值不同，就看下一个位置是否有值，依次类推直至都找到一个合适的位置；
+6.如何实现父子线程之间共享ThreadLocal数据？
+    使用InheritableThreadLocal；
+    其原理在于Thread，在Thread中还持有了InheritableLocal的引用，并且在线程初始化的时候会判断当前线程的inhertableThreadlocals变量是否不为null，并且其父线程的该变量也不为null，如果满足条件，那就把父线程中的inhertableThreadlocals变量赋值给子线程；
+    然后在子线程中对于该InhertableThreadLocal的操作都是对父线程中对应变量的操作；
+7.ThreadLocal为何会发生内存泄露？
+    1.因为key是被weakRefernece修饰过的，是一个弱引用，弱引用类型会在发生GC时被回收掉，如果不及时进程remove的话，可能导致key被回收，而里面的值无法被访问到，造成内存泄露；
+8.为何key要设置成弱引用？
+    因为key指向的是threadlocal实例的引用，如果在线程中把threadLocal设置为null，但是key还继续指向threadlocal实例，threadlocal实例依然无法被回收，除非整个线程结束，否则会造成内存泄露；

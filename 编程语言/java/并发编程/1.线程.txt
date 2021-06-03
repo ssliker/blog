@@ -183,7 +183,7 @@
             setPriority(int priority);
             如：Thread.currentThread().setPriority("thread-name");
         2.获取线程的优先级：
-            getProority();
+            getPriority();
             如：Thread.currentThread().getPrority();
         3.关于线程的优先级：
             1.默认情况下线程优先级相同，平等的竞争cpu时间片；

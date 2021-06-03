@@ -14,6 +14,7 @@
 3.关于Ribbon的使用：
     1.通过注入LoadBalancerClient，然后调用其choose方法来选择一个服务；
     2.通过在Resttemplate上添加@LoadBalanced注解实现；
+    3.通过Fegin实现，因为Fegin内嵌了ribbon；
 
 4.自定义Ribbon策略：
     1.在启动类或者配置类中注入负载均衡策略对象即可，完成之后，所有的服务请求均使用该策略；

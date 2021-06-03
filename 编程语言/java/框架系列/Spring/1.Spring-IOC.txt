@@ -35,7 +35,7 @@
     2.如果是配置的方式：
         1.可以在被@Component系列注解修饰的类上添加@Lazy注解；
         2.可以在被@Bean修饰的方法上添加@Lazy注解；
-11.如果创建一个bean:
+11.如何创建一个bean:
     1.通过@bean在Configure中创建；
     2.通过@Component、@Controller、@Service、@Repository
     3.通过@ComponentScan配置需要注册为bean的类；
@@ -60,7 +60,9 @@
 
     BeanFactory实际上就是spring中的容器，具有管理bean生命周期的功能；spring中默认的容器就是BeanFactory的实现类DefaultListableBeanFactory；
 3.BeanFactory和ApplicationContext的关系和区别？
-    1.ApplicationContext继承自BeanFactory，所以ApplicationContext的实现类本质上就是一个spring容器，但是ApplicationContext中并没有直接自己去实现BeanFactory，而是借助DefaultLisableBeanFactory来实现的；常见的实现类包括：ClassPathXmlApplicationContext，这也是为什么通过ApplicationContext可以获取到一个bean的原因；
+    1.ApplicationContext继承自BeanFactory，所以ApplicationContext的实现类本质上就是一个spring容器，但是ApplicationContext中并没有直接自己去实现BeanFactory，而是借助DefaultLisableBeanFactory来实现的；
+    
+    ClassPathXmlApplicationContext，这也是为什么通过ApplicationContext可以获取到一个bean的原因；
 4.除过@Autowired注入依赖以外还可以通过什么注入依赖？@Autowired注入依赖的流程？
     除过@Autowired注入依赖以外，还可以通过@Resource来注入依赖；
     @Autowired注入依赖时会先按照类型匹配，匹配不到时再按照名称匹配；@Qualifier来设置注入的依赖，如果有多个类型，而且名称已经能够匹配到bean的话，可以不用@Qualifier来匹配；
@@ -78,7 +80,7 @@
     3.将这些类信息解析为beanDefinition，并存储在beanDefinitionMap中;
     4.在容器中遍历解析beanDefinition，并创建对应的未初始化的bean或者FactoryBean；
     5.根据依赖，为属性注入依赖对象，如果依赖对象还未创建，则执行第4补，创建待依赖的对象；
-    6.执行钩子方法；完成bean的创建；
+    6.执行后置初始化方法；完成bean的创建；
 
 7.spring中提供了哪些扩展点？
     1.BeanDefnitionRegisterPostProcessor：可以访问当前容器中已经加装的beanDefinition信息，或者向BeanDefinitionMap手动注册一个bean；
@@ -108,8 +110,8 @@
     1.三级缓存是为了解决循环依赖的问题；
     2.三级缓存有哪些？
         第一级缓存存储着已经创建好的singleton bean；
-        第二级缓存存储着半成品bean，但是这个bean已经被别的bean使用了；
-        第三级缓存存储着半成品bean，但是这个bean暂未被别的bean使用；
+        第二级缓存存储着半成品bean，这个bean可能是已经创建好的代理对象，这个bean已经被别的bean使用了；
+        第三级缓存存储着能够创建半成品bean的FactoryBean，这级缓存的作用在于1是为了提前暴露bean，二是为了能够借助FactoryBean生成bean的代理对象；
     3.三级缓存的使用流程：
         在获取一个bean的时候，会先从一级缓存中获取，如果一级缓存中没有，那么从二级缓存中获取，如果二级缓存中也没有，但是允许暴露半成品bean时，那么会从三级缓存中根据beanName找FactoryBean,然后调用getObject方法获取这个bean；获取到之后将bean放入二级缓存，然后从三级缓存中删除掉；如果三级缓存中也没有，那么就需要执行bean的创建流程，如果存在循环依赖时会将半成品的bean放在三级缓存中；当bean创建好并完成属性注入以及初始化之后会将bean从二级和三级缓存中删除，然后放入一级缓存；
     4.为何需要三级缓存？
